@@ -1,0 +1,203 @@
+# Security Scanning Workflow
+# Daily security scans and dependency updates
+
+name: Security Scan
+
+on:
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'package*.json'
+      - '.github/workflows/security-scan.yml'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================================================
+  # Dependency Security Audit
+  # ============================================================================
+  dependency-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        id: npm-audit
+        run: |
+          npm audit --audit-level high --json > audit-report.json || true
+          cat audit-report.json
+        continue-on-error: true
+      
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: audit-report.json
+          retention-days: 30
+      
+      - name: Check for critical vulnerabilities
+        run: |
+          CRITICAL_COUNT=$(jq '.metadata.vulnerabilities.critical // 0' audit-report.json)
+          HIGH_COUNT=$(jq '.metadata.vulnerabilities.high // 0' audit-report.json)
+          
+          echo "Critical vulnerabilities: $CRITICAL_COUNT"
+          echo "High vulnerabilities: $HIGH_COUNT"
+          
+          if [ "$CRITICAL_COUNT" -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found!"
+            exit 1
+          elif [ "$HIGH_COUNT" -gt 5 ]; then
+            echo "⚠️ Too many high-severity vulnerabilities found!"
+            exit 1
+          else
+            echo "✅ Security audit passed"
+          fi
+
+  # ============================================================================
+  # Snyk Security Scan
+  # ============================================================================
+  snyk-scan:
+    name: Snyk Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=medium --json > snyk-report.json
+        continue-on-error: true
+      
+      - name: Upload Snyk report
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-security-report
+          path: snyk-report.json
+          retention-days: 30
+      
+      - name: Upload results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+
+  # ============================================================================
+  # Container Security Scan
+  # ============================================================================
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build Docker image for scanning
+        run: |
+          docker build -t coachflow:security-scan .
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'coachflow:security-scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: Generate security summary
+        run: |
+          echo "## Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Dependency audit completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Snyk security scan completed" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Container security scan completed" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # Security Alert Notifications
+  # ============================================================================
+  security-notifications:
+    name: Security Alert Notifications
+    runs-on: ubuntu-latest
+    needs: [dependency-audit, snyk-scan, container-scan]
+    if: failure()
+    
+    steps:
+      - name: Send security alert
+        uses: 8398a7/action-slack@v3
+        with:
+          status: 'failure'
+          channel: '#security-alerts'
+          text: |
+            🚨 Security vulnerabilities detected in CoachFlow repository
+            
+            Please review the security scan results and take appropriate action.
+            
+            - Dependency Audit: ${{ needs.dependency-audit.result }}
+            - Snyk Scan: ${{ needs.snyk-scan.result }}
+            - Container Scan: ${{ needs.container-scan.result }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      
+      - name: Create security issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Security Alert - ${new Date().toISOString().split('T')[0]}`,
+              body: `## Security Vulnerability Detected
+              
+              Our automated security scan has detected potential vulnerabilities in the codebase.
+              
+              ### Scan Results:
+              - Dependency Audit: ${{ needs.dependency-audit.result }}
+              - Snyk Scan: ${{ needs.snyk-scan.result }}
+              - Container Scan: ${{ needs.container-scan.result }}
+              
+              ### Action Required:
+              1. Review the security scan artifacts
+              2. Update vulnerable dependencies
+              3. Apply security patches
+              4. Re-run security scans
+              
+              ### Artifacts:
+              - [Workflow Run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+              `,
+              labels: ['security', 'urgent', 'bug']
+            });

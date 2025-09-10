@@ -1,0 +1,302 @@
+# Automated Dependency Updates
+# Keeps dependencies up to date and secure
+
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run weekly on Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================================================
+  # Update Dependencies
+  # ============================================================================
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Update patch versions
+        run: |
+          # Update patch versions automatically
+          npm update
+          
+          # Check for available major/minor updates
+          npx npm-check-updates --format group --packageFile package.json > update-report.txt || true
+          cat update-report.txt
+      
+      - name: Run tests after update
+        run: |
+          npm run type-check
+          npm run lint
+          npm run test
+        continue-on-error: true
+        id: tests
+      
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet package*.json; then
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "CHANGES<<EOF" >> $GITHUB_OUTPUT
+            git diff --name-only package*.json >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Pull Request
+        if: steps.changes.outputs.has-changes == 'true' && steps.tests.outcome == 'success'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies (automated)'
+          title: '🔄 Automated Dependency Updates'
+          body: |
+            ## 🔄 Automated Dependency Updates
+            
+            This PR contains automated dependency updates that passed all tests.
+            
+            ### Changes Made:
+            - Updated patch versions for all dependencies
+            - Verified compatibility with existing codebase
+            
+            ### Test Results:
+            - ✅ TypeScript compilation passed
+            - ✅ Linting passed
+            - ✅ Unit tests passed
+            
+            ### Available Updates:
+            ```
+            $(cat update-report.txt)
+            ```
+            
+            ### Review Required:
+            - [ ] Review changelog for any breaking changes
+            - [ ] Test critical functionality manually
+            - [ ] Approve and merge if tests pass
+            
+            This PR was created automatically by GitHub Actions.
+          branch: automated/dependency-updates
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+            maintenance
+      
+      - name: Create issue for failed updates
+        if: steps.changes.outputs.has-changes == 'true' && steps.tests.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Dependency Update Failed',
+              body: `## Dependency Update Failed
+              
+              The automated dependency update failed during testing.
+              
+              ### Failed Tests:
+              - TypeScript compilation: ${{ steps.tests.outcome }}
+              - Linting: ${{ steps.tests.outcome }}
+              - Unit tests: ${{ steps.tests.outcome }}
+              
+              ### Action Required:
+              1. Review the failed tests in the workflow run
+              2. Manually investigate and fix the issues
+              3. Update dependencies manually if needed
+              
+              ### Workflow Run:
+              [View Details](${context.payload.repository.html_url}/actions/runs/${context.runId})
+              `,
+              labels: ['dependencies', 'bug', 'automation-failed']
+            });
+
+  # ============================================================================
+  # Security Updates
+  # ============================================================================
+  security-updates:
+    name: Security Updates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run security audit
+        id: audit
+        run: |
+          npm audit --json > audit-before.json || true
+          npm audit fix --force
+          npm audit --json > audit-after.json || true
+        continue-on-error: true
+      
+      - name: Compare audit results
+        id: compare
+        run: |
+          BEFORE_CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' audit-before.json)
+          AFTER_CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' audit-after.json)
+          BEFORE_HIGH=$(jq '.metadata.vulnerabilities.high // 0' audit-before.json)
+          AFTER_HIGH=$(jq '.metadata.vulnerabilities.high // 0' audit-after.json)
+          
+          echo "before-critical=$BEFORE_CRITICAL" >> $GITHUB_OUTPUT
+          echo "after-critical=$AFTER_CRITICAL" >> $GITHUB_OUTPUT
+          echo "before-high=$BEFORE_HIGH" >> $GITHUB_OUTPUT
+          echo "after-high=$AFTER_HIGH" >> $GITHUB_OUTPUT
+          
+          if [ "$BEFORE_CRITICAL" -gt "$AFTER_CRITICAL" ] || [ "$BEFORE_HIGH" -gt "$AFTER_HIGH" ]; then
+            echo "improvements=true" >> $GITHUB_OUTPUT
+          else
+            echo "improvements=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run tests after security fixes
+        run: |
+          npm run type-check
+          npm run test
+        continue-on-error: true
+        id: tests
+      
+      - name: Check for security changes
+        id: security-changes
+        run: |
+          if git diff --quiet package*.json; then
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Security Fix PR
+        if: steps.security-changes.outputs.has-changes == 'true' && steps.tests.outcome == 'success'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'security: fix vulnerabilities (automated)'
+          title: '🔒 Automated Security Fixes'
+          body: |
+            ## 🔒 Automated Security Fixes
+            
+            This PR contains automated security fixes for identified vulnerabilities.
+            
+            ### Security Improvements:
+            - Critical vulnerabilities: ${{ steps.compare.outputs.before-critical }} → ${{ steps.compare.outputs.after-critical }}
+            - High vulnerabilities: ${{ steps.compare.outputs.before-high }} → ${{ steps.compare.outputs.after-high }}
+            
+            ### Test Results:
+            - ✅ TypeScript compilation passed
+            - ✅ Unit tests passed
+            
+            ### ⚠️ Important:
+            - This PR applies automatic fixes that may introduce breaking changes
+            - Manual testing is strongly recommended before merging
+            - Review all changes carefully
+            
+            ### Next Steps:
+            - [ ] Manual testing of critical functionality
+            - [ ] Review dependency changes
+            - [ ] Approve and merge if tests pass
+            
+            This PR was created automatically for security purposes.
+          branch: automated/security-fixes
+          delete-branch: true
+          labels: |
+            security
+            automated
+            urgent
+
+  # ============================================================================
+  # Dependency Health Report
+  # ============================================================================
+  dependency-health:
+    name: Dependency Health Report
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Generate dependency report
+        run: |
+          echo "# Dependency Health Report" > dependency-report.md
+          echo "Generated on: $(date)" >> dependency-report.md
+          echo "" >> dependency-report.md
+          
+          echo "## Outdated Packages" >> dependency-report.md
+          npx npm-check-updates --format group >> dependency-report.md || true
+          echo "" >> dependency-report.md
+          
+          echo "## Security Audit" >> dependency-report.md
+          npm audit --json > audit.json || true
+          
+          CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' audit.json)
+          HIGH=$(jq '.metadata.vulnerabilities.high // 0' audit.json)
+          MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' audit.json)
+          LOW=$(jq '.metadata.vulnerabilities.low // 0' audit.json)
+          
+          echo "- Critical: $CRITICAL" >> dependency-report.md
+          echo "- High: $HIGH" >> dependency-report.md
+          echo "- Moderate: $MODERATE" >> dependency-report.md
+          echo "- Low: $LOW" >> dependency-report.md
+          echo "" >> dependency-report.md
+          
+          echo "## License Report" >> dependency-report.md
+          npx license-checker --summary >> dependency-report.md || true
+      
+      - name: Upload dependency report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-health-report
+          path: dependency-report.md
+          retention-days: 30
+      
+      - name: Post summary
+        run: |
+          echo "## Dependency Health Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat dependency-report.md >> $GITHUB_STEP_SUMMARY

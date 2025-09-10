@@ -1,0 +1,74 @@
+[
+  {
+    "session_id": "bcfc1582-e730-4db6-ad45-0f235330a144",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\bcfc1582-e730-4db6-ad45-0f235330a144.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "default",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "/workflows:full-review "
+  },
+  {
+    "session_id": "bcfc1582-e730-4db6-ad45-0f235330a144",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\bcfc1582-e730-4db6-ad45-0f235330a144.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Okay, so my question is, should we focus on building this locally from here on out and then integrate the things that are necessary for us to then go to production/hosting/cloud depoyment/supabase or is the current development too late for that?"
+  },
+  {
+    "session_id": "bcfc1582-e730-4db6-ad45-0f235330a144",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\bcfc1582-e730-4db6-ad45-0f235330a144.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Okay perfect, with that in mind let'"
+  },
+  {
+    "session_id": "d26a93f5-cf5b-413b-9564-9a8160b77430",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\d26a93f5-cf5b-413b-9564-9a8160b77430.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Okay perfect, with that in mind let's develop it properly with local-first approach before production deplyoment. Now please begin helping us set up the local development environment and fix the critical issues. THINK HARD, THINK MODULARLY, THINK LIKE A SENIOR FULL-STACK ENGINEER AND CREATE A todo list for all necessary phases/tasks."
+  },
+  {
+    "session_id": "d26a93f5-cf5b-413b-9564-9a8160b77430",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\d26a93f5-cf5b-413b-9564-9a8160b77430.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Continue intelligently with what you believe to be the best next steps and then proceed autnomously with this in mind as a senior full-stack engineer. THINK HARD. THINK MODULARLY. THINK INTELLIGENTLY."
+  },
+  {
+    "session_id": "d26a93f5-cf5b-413b-9564-9a8160b77430",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\d26a93f5-cf5b-413b-9564-9a8160b77430.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "CONTINUE"
+  },
+  {
+    "session_id": "d26a93f5-cf5b-413b-9564-9a8160b77430",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\d26a93f5-cf5b-413b-9564-9a8160b77430.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Perfect. Now THINK HARD and continue all the way till everything on the todo list is done."
+  },
+  {
+    "session_id": "35fc7441-20e3-401f-979d-261b3a5b28ac",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\35fc7441-20e3-401f-979d-261b3a5b28ac.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Now please launch it locally and then let me test it on my browser"
+  },
+  {
+    "session_id": "35fc7441-20e3-401f-979d-261b3a5b28ac",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\35fc7441-20e3-401f-979d-261b3a5b28ac.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Okay, please do me a favor and enhance the README to make it extremely comprehensive, detailed, and readable specifically by coaches that would need to understand what CoachFlow is and for Organizations (schools, camps, charities, academies, PCYC, Associations, Clubs etc) and then push the current state to the repo, here's the link - https://github.com/AryasKeeper/CoachFlow-v01.git - THINK HARD, THINK INTELLIGENTLY, AND THINK LIKE A LOCAL SYDNEY BASKETBALL COACHING APP EXPERT."
+  }
+]

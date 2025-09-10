@@ -1,0 +1,138 @@
+# =============================================================================
+# CoachFlow Production Environment Configuration Sample
+# =============================================================================
+# Copy this file to .env.production and fill in the actual values
+# This file contains production-specific environment variables
+
+# =============================================================================
+# Environment Mode
+# =============================================================================
+NODE_ENV=production
+NEXT_TELEMETRY_DISABLED=1
+
+# =============================================================================
+# Application Configuration
+# =============================================================================
+NEXT_PUBLIC_APP_URL=https://coachflow.com
+NEXT_PUBLIC_APP_NAME=CoachFlow
+NEXT_PUBLIC_APP_DESCRIPTION="Find and hire the perfect coach for your needs"
+NEXT_PUBLIC_APP_KEYWORDS="coaching,sports,fitness,education,training"
+
+# =============================================================================
+# Database Configuration (Supabase)
+# =============================================================================
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_production_service_role_key_here
+
+# Direct database connection (if needed)
+DATABASE_URL=postgresql://postgres:your_secure_password@your-project.supabase.co:5432/postgres
+
+# =============================================================================
+# AI Configuration
+# =============================================================================
+AI_PROVIDER_API_KEY=sk-your_production_openai_api_key_here
+OPENAI_API_KEY=sk-your_production_openai_api_key_here
+AI_MODEL=gpt-4o
+AI_MAX_TOKENS=4096
+AI_TEMPERATURE=0.7
+
+# =============================================================================
+# Authentication & Security
+# =============================================================================
+JWT_SECRET=your_super_secure_jwt_secret_64_characters_minimum_for_production
+NEXTAUTH_SECRET=your_super_secure_nextauth_secret_64_characters_minimum
+NEXTAUTH_URL=https://coachflow.com
+
+# Rate limiting (stricter in production)
+RATE_LIMIT_MAX_REQUESTS=50
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_SKIP_SUCCESSFUL_REQUESTS=true
+
+# CORS configuration
+CORS_ORIGIN=https://coachflow.com
+
+# =============================================================================
+# Email Configuration
+# =============================================================================
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=re_your_production_resend_api_key_here
+EMAIL_FROM=noreply@coachflow.com
+
+# =============================================================================
+# Payment Processing
+# =============================================================================
+STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_live_publishable_key_here
+STRIPE_SECRET_KEY=sk_live_your_stripe_live_secret_key_here
+STRIPE_WEBHOOK_SECRET=whsec_your_stripe_live_webhook_secret_here
+
+# =============================================================================
+# File Upload & Storage
+# =============================================================================
+STORAGE_PROVIDER=supabase
+MAX_FILE_SIZE=5242880
+ALLOWED_FILE_TYPES=image/jpeg,image/png,image/webp,application/pdf
+
+# =============================================================================
+# Monitoring & Analytics
+# =============================================================================
+SENTRY_DSN=https://your_sentry_dsn@sentry.io/project_id
+SENTRY_ORG=your_organization
+SENTRY_PROJECT=coachflow
+SENTRY_ENVIRONMENT=production
+
+GOOGLE_ANALYTICS_ID=G-YOUR_PRODUCTION_GA_ID
+MIXPANEL_TOKEN=your_production_mixpanel_token
+
+NEW_RELIC_LICENSE_KEY=your_new_relic_production_license
+NEW_RELIC_APP_NAME=CoachFlow-Production
+
+# =============================================================================
+# Production-Specific Security
+# =============================================================================
+FORCE_HTTPS=true
+HSTS_MAX_AGE=31536000
+CSP_REPORT_URI=https://coachflow.report-uri.com/r/d/csp/enforce
+
+# =============================================================================
+# Performance Optimization
+# =============================================================================
+ENABLE_COMPRESSION=true
+CACHE_MAX_AGE=31536000
+CDN_URL=https://cdn.coachflow.com
+
+# =============================================================================
+# Infrastructure
+# =============================================================================
+PORT=3000
+REDIS_URL=redis://redis:6379
+REDIS_PASSWORD=your_secure_redis_password
+
+# Health checks
+HEALTH_CHECK_TOKEN=your_health_check_token_for_uptime_monitoring
+
+# =============================================================================
+# Backup Configuration
+# =============================================================================
+BACKUP_SCHEDULE=0 2 * * *
+BACKUP_RETENTION_DAYS=30
+BACKUP_S3_BUCKET=coachflow-backups
+AWS_ACCESS_KEY_ID=your_aws_access_key_for_backups
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key_for_backups
+AWS_REGION=us-east-1
+
+# =============================================================================
+# Feature Flags (Production)
+# =============================================================================
+FEATURE_AI_CHAT=true
+FEATURE_VIDEO_CALLS=true
+FEATURE_PAYMENTS=true
+FEATURE_MESSAGING=true
+FEATURE_ANALYTICS=true
+FEATURE_A_B_TESTING=true
+
+# =============================================================================
+# Logging
+# =============================================================================
+LOG_LEVEL=warn
+DEBUG_DATABASE=false

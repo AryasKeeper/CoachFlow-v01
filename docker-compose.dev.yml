@@ -1,0 +1,118 @@
+# CoachFlow Development Docker Compose Configuration
+# Optimized for local development with hot reload and debugging
+
+version: '3.8'
+
+services:
+  # Main application service (development)
+  coachflow-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: deps
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - AI_PROVIDER_API_KEY=${AI_PROVIDER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=http://localhost:3000
+      - RATE_LIMIT_MAX_REQUESTS=1000
+      - RATE_LIMIT_WINDOW_MS=900000
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER:-smtp}
+      - DEBUG_DATABASE=true
+      - LOG_LEVEL=debug
+    volumes:
+      - .:/app:cached
+      - /app/node_modules
+      - /app/.next
+      - ./logs:/app/logs:rw
+    command: npm run dev
+    restart: unless-stopped
+    depends_on:
+      - redis-dev
+      - postgres-dev
+    networks:
+      - coachflow-dev-network
+
+  # Redis for development
+  redis-dev:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - coachflow-dev-network
+
+  # PostgreSQL for local development (optional - use instead of Supabase)
+  postgres-dev:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=coachflow_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    restart: unless-stopped
+    networks:
+      - coachflow-dev-network
+
+  # Supabase local development (alternative to hosted)
+  supabase-studio:
+    image: supabase/studio:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - SUPABASE_URL=http://kong:8000
+      - SUPABASE_REST_URL=http://localhost:8000/rest/v1/
+      - SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs
+      - SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSJ9.vI9obAHOGyVVKa3pD--kJlyxp-Z2zV9UUMAhKpNLAcU
+    depends_on:
+      - postgres-dev
+    restart: unless-stopped
+    networks:
+      - coachflow-dev-network
+
+  # Email testing with MailHog
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP
+    restart: unless-stopped
+    networks:
+      - coachflow-dev-network
+
+  # Development tools container
+  devtools:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - .:/app:cached
+      - /app/node_modules
+    command: tail -f /dev/null
+    restart: unless-stopped
+    networks:
+      - coachflow-dev-network
+
+volumes:
+  redis-dev-data:
+    driver: local
+  postgres-dev-data:
+    driver: local
+
+networks:
+  coachflow-dev-network:
+    driver: bridge

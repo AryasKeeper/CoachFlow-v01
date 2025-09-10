@@ -1,0 +1,58 @@
+[
+  {
+    "session_id": "bcfc1582-e730-4db6-ad45-0f235330a144",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\bcfc1582-e730-4db6-ad45-0f235330a144.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "hook_event_name": "Notification",
+    "message": "Claude needs your permission to use Bash"
+  },
+  {
+    "session_id": "bcfc1582-e730-4db6-ad45-0f235330a144",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\bcfc1582-e730-4db6-ad45-0f235330a144.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "hook_event_name": "Notification",
+    "message": "Claude needs your permission to use Bash"
+  },
+  {
+    "session_id": "bcfc1582-e730-4db6-ad45-0f235330a144",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\bcfc1582-e730-4db6-ad45-0f235330a144.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "hook_event_name": "Notification",
+    "message": "Claude is waiting for your input"
+  },
+  {
+    "session_id": "d26a93f5-cf5b-413b-9564-9a8160b77430",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\d26a93f5-cf5b-413b-9564-9a8160b77430.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "hook_event_name": "Notification",
+    "message": "Claude is waiting for your input"
+  },
+  {
+    "session_id": "d26a93f5-cf5b-413b-9564-9a8160b77430",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\d26a93f5-cf5b-413b-9564-9a8160b77430.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "hook_event_name": "Notification",
+    "message": "Claude is waiting for your input"
+  },
+  {
+    "session_id": "d26a93f5-cf5b-413b-9564-9a8160b77430",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\d26a93f5-cf5b-413b-9564-9a8160b77430.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "hook_event_name": "Notification",
+    "message": "Claude is waiting for your input"
+  },
+  {
+    "session_id": "d26a93f5-cf5b-413b-9564-9a8160b77430",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\d26a93f5-cf5b-413b-9564-9a8160b77430.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "hook_event_name": "Notification",
+    "message": "Claude is waiting for your input"
+  },
+  {
+    "session_id": "35fc7441-20e3-401f-979d-261b3a5b28ac",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\35fc7441-20e3-401f-979d-261b3a5b28ac.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "hook_event_name": "Notification",
+    "message": "Claude is waiting for your input"
+  }
+]
