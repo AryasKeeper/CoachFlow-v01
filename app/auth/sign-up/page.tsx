@@ -9,16 +9,74 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowLeft, Mail, Lock, User, Phone, Building2, UserCheck, CheckCircle, MailOpen } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { PasswordStrength } from "@/components/ui/password-strength"
 import { validatePassword, sanitizeAuthInput, validateEmail } from "@/lib/auth/middleware"
 
+// Organization types ordered by character count (shortest to longest)
+const ORGANIZATION_TYPES = [
+  "PCYC",
+  "YMCA", 
+  "TAFE",
+  "Camp",
+  "School",
+  "Academy",
+  "College",
+  "Council",
+  "University",
+  "Sports Club",
+  "Association",
+  "Youth Center",
+  "Basketball Club",
+  "Community Center",
+  "Charity Foundation"
+]
+
+// Coach experience levels
+const EXPERIENCE_LEVELS = [
+  "Beginner Coach (0-2 years)",
+  "Experienced Coach (3-5 years)", 
+  "Senior Coach (6-10 years)",
+  "Elite Coach (10+ years)"
+]
+
+// Sydney basketball coaching locations
+const LOCATION_PREFERENCES = [
+  "Inner West Sydney",
+  "Eastern Suburbs", 
+  "Western Sydney",
+  "Northern Beaches",
+  "South Sydney",
+  "Central Coast"
+]
+
+// Coaching availability options
+const AVAILABILITY_OPTIONS = [
+  "Weekday Mornings",
+  "Weekday Afternoons",
+  "Weekday Evenings", 
+  "Saturday Mornings",
+  "Saturday Afternoons",
+  "Sunday Mornings",
+  "Sunday Afternoons",
+  "School Holidays"
+]
+
 interface SignUpForm {
   email: string
   password: string
   confirmPassword: string
-  name: string
+  firstName: string
+  lastName: string
+  organizationType?: string // for organizations
+  organizationName?: string // for organizations
+  nickname?: string // for coaches
+  experienceLevel?: string // for coaches
+  locationPreferences?: string[] // for coaches
+  availability?: string[] // for coaches
   phone?: string
 }
 
@@ -30,9 +88,11 @@ export default function SignUpPage() {
   const [activeTab, setActiveTab] = useState<"org" | "coach">("org")
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false)
   const [userEmail, setUserEmail] = useState<string>("")
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([])
+  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([])
   const supabase = createClient()
   
-  const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<SignUpForm>()
+  const { register, handleSubmit, watch, setValue, formState: { errors }, reset } = useForm<SignUpForm>()
   const password = watch("password")
   
   // Set initial tab based on URL parameter
@@ -63,18 +123,48 @@ export default function SignUpPage() {
       
       // Sanitize inputs
       const sanitizedEmail = sanitizeAuthInput(data.email)
-      const sanitizedName = sanitizeAuthInput(data.name)
+      const sanitizedFirstName = sanitizeAuthInput(data.firstName)
+      const sanitizedLastName = sanitizeAuthInput(data.lastName)
+      const fullName = `${sanitizedFirstName} ${sanitizedLastName}`
+      
+      // Prepare role-specific metadata
+      const metadata: any = {
+        role: activeTab,
+        firstName: sanitizedFirstName,
+        lastName: sanitizedLastName,
+        name: fullName, // Keep for compatibility
+        phone: data.phone ? sanitizeAuthInput(data.phone) : null,
+      }
+      
+      // Add role-specific fields
+      if (activeTab === "org") {
+        if (data.organizationType) {
+          metadata.organizationType = sanitizeAuthInput(data.organizationType)
+        }
+        if (data.organizationName) {
+          metadata.organizationName = sanitizeAuthInput(data.organizationName)
+        }
+      } else if (activeTab === "coach") {
+        if (data.nickname) {
+          metadata.nickname = sanitizeAuthInput(data.nickname)
+        }
+        if (data.experienceLevel) {
+          metadata.experienceLevel = sanitizeAuthInput(data.experienceLevel)
+        }
+        if (selectedLocations.length > 0) {
+          metadata.locationPreferences = selectedLocations
+        }
+        if (selectedAvailability.length > 0) {
+          metadata.availability = selectedAvailability
+        }
+      }
       
       // Sign up the user with metadata for the trigger
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: sanitizedEmail,
         password: data.password,
         options: {
-          data: {
-            role: activeTab,
-            name: sanitizedName,
-            phone: data.phone ? sanitizeAuthInput(data.phone) : null,
-          }
+          data: metadata
         }
       })
       
@@ -221,28 +311,222 @@ export default function SignUpPage() {
               </div>
             )}
             
+            {/* First Name - Required for both */}
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="firstName">First Name</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  id="name"
+                  id="firstName"
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="John"
                   className="pl-10"
-                  {...register("name", {
-                    required: "Name is required",
+                  {...register("firstName", {
+                    required: "First name is required",
                     minLength: {
                       value: 2,
-                      message: "Name must be at least 2 characters"
+                      message: "First name must be at least 2 characters"
                     }
                   })}
                 />
               </div>
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
+              {errors.firstName && (
+                <p className="text-sm text-destructive">{errors.firstName.message}</p>
               )}
             </div>
+
+            {/* Last Name - Required for both */}
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="lastName"
+                  type="text"
+                  placeholder="Doe"
+                  className="pl-10"
+                  {...register("lastName", {
+                    required: "Last name is required",
+                    minLength: {
+                      value: 2,
+                      message: "Last name must be at least 2 characters"
+                    }
+                  })}
+                />
+              </div>
+              {errors.lastName && (
+                <p className="text-sm text-destructive">{errors.lastName.message}</p>
+              )}
+            </div>
+
+            {/* Conditional Fields: Organization Type and Name for Orgs */}
+            {activeTab === "org" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="organizationType">Organization Type</Label>
+                  <Select
+                    onValueChange={(value) => {
+                      // Update form value manually for react-hook-form
+                      const event = { target: { name: "organizationType", value } }
+                      // Register the field if not already registered
+                      register("organizationType", {
+                        required: "Organization type is required"
+                      })
+                      // Set the value
+                      setValue("organizationType", value)
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select organization type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ORGANIZATION_TYPES.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.organizationType && (
+                    <p className="text-sm text-destructive">{errors.organizationType.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="organizationName">Organization Name</Label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="organizationName"
+                      type="text"
+                      placeholder="e.g., Bankstown Eagles, Sydney Central, etc."
+                      className="pl-10"
+                      {...register("organizationName", {
+                        required: "Organization name is required",
+                        minLength: {
+                          value: 2,
+                          message: "Organization name must be at least 2 characters"
+                        }
+                      })}
+                    />
+                  </div>
+                  {errors.organizationName && (
+                    <p className="text-sm text-destructive">{errors.organizationName.message}</p>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Conditional Fields: All Coach Fields */}
+            {activeTab === "coach" && (
+              <>
+                {/* Nickname for Coaches (Optional) */}
+                <div className="space-y-2">
+                  <Label htmlFor="nickname">Nickname (optional)</Label>
+                  <div className="relative">
+                    <UserCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="nickname"
+                      type="text"
+                      placeholder="Coach Mike, Johnny, etc."
+                      className="pl-10"
+                      {...register("nickname", {
+                        minLength: {
+                          value: 2,
+                          message: "Nickname must be at least 2 characters"
+                        }
+                      })}
+                    />
+                  </div>
+                  {errors.nickname && (
+                    <p className="text-sm text-destructive">{errors.nickname.message}</p>
+                  )}
+                </div>
+
+                {/* Experience Level for Coaches */}
+                <div className="space-y-2">
+                  <Label htmlFor="experienceLevel">Experience Level</Label>
+                  <Select
+                    onValueChange={(value) => {
+                      register("experienceLevel", {
+                        required: "Experience level is required"
+                      })
+                      setValue("experienceLevel", value)
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select experience level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {EXPERIENCE_LEVELS.map((level) => (
+                        <SelectItem key={level} value={level}>
+                          {level}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.experienceLevel && (
+                    <p className="text-sm text-destructive">{errors.experienceLevel.message}</p>
+                  )}
+                </div>
+
+                {/* Location Preferences for Coaches */}
+                <div className="space-y-3">
+                  <Label>Location Preferences (Select all that apply)</Label>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    {LOCATION_PREFERENCES.map((location) => (
+                      <div key={location} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`location-${location}`}
+                          checked={selectedLocations.includes(location)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedLocations([...selectedLocations, location])
+                            } else {
+                              setSelectedLocations(selectedLocations.filter(l => l !== location))
+                            }
+                          }}
+                        />
+                        <Label 
+                          htmlFor={`location-${location}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {location}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Availability for Coaches */}
+                <div className="space-y-3">
+                  <Label>Availability (Select all that apply)</Label>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    {AVAILABILITY_OPTIONS.map((time) => (
+                      <div key={time} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`availability-${time}`}
+                          checked={selectedAvailability.includes(time)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedAvailability([...selectedAvailability, time])
+                            } else {
+                              setSelectedAvailability(selectedAvailability.filter(t => t !== time))
+                            }
+                          }}
+                        />
+                        <Label 
+                          htmlFor={`availability-${time}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {time}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
             
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
