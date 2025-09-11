@@ -5,9 +5,11 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Menu, X } from "lucide-react"
+import { Menu, X, User } from "lucide-react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { createClient } from "@/lib/supabase/client"
+import { SignOutButton } from "@/components/ui/sign-out-button"
 
 interface NavItem {
   label: string
@@ -23,6 +25,9 @@ export function Navigation() {
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const supabase = createClient()
   
   useEffect(() => {
     const handleScroll = () => {
@@ -38,8 +43,28 @@ export function Navigation() {
     setIsMobileMenuOpen(false)
   }, [pathname])
   
+  // Check authentication state
+  useEffect(() => {
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setIsLoading(false)
+    }
+    
+    getUser()
+    
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null)
+      setIsLoading(false)
+    })
+    
+    return () => subscription.unsubscribe()
+  }, [supabase.auth])
+  
   const isAuthPage = pathname?.startsWith("/auth")
   const isDashboard = pathname?.includes("/dashboard")
+  const isLoggedIn = !!user
   
   return (
     <nav className={cn(
@@ -73,23 +98,32 @@ export function Navigation() {
               </Link>
             ))}
             
-            {!isAuthPage && !isDashboard && (
+            {!isAuthPage && !isLoading && (
               <>
-                <Button variant="ghost" asChild>
-                  <Link href="/auth/sign-in">Sign In</Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/auth/sign-up">Get Started</Link>
-                </Button>
+                {!isLoggedIn ? (
+                  <>
+                    <Button variant="ghost" asChild>
+                      <Link href="/auth/sign-in">Sign In</Link>
+                    </Button>
+                    <Button asChild>
+                      <Link href="/auth/sign-up">Get Started</Link>
+                    </Button>
+                  </>
+                ) : (
+                  <div className="flex items-center space-x-4">
+                    {isDashboard && (
+                      <Badge variant="secondary" className="bg-green-500/10 text-green-700 border-green-200">
+                        Free during beta
+                      </Badge>
+                    )}
+                    <div className="flex items-center space-x-2">
+                      <User className="w-4 h-4" />
+                      <span className="text-sm font-medium">{user?.email}</span>
+                    </div>
+                    <SignOutButton />
+                  </div>
+                )}
               </>
-            )}
-            
-            {isDashboard && (
-              <div className="flex items-center space-x-2">
-                <Badge variant="secondary" className="bg-green-500/10 text-green-700 border-green-200">
-                  Free during beta
-                </Badge>
-              </div>
             )}
           </div>
           
@@ -133,14 +167,31 @@ export function Navigation() {
                 </Link>
               ))}
               
-              {!isAuthPage && !isDashboard && (
+              {!isAuthPage && !isLoading && (
                 <div className="space-y-2 pt-4 border-t">
-                  <Button variant="ghost" className="w-full" asChild>
-                    <Link href="/auth/sign-in">Sign In</Link>
-                  </Button>
-                  <Button className="w-full" asChild>
-                    <Link href="/auth/sign-up">Get Started</Link>
-                  </Button>
+                  {!isLoggedIn ? (
+                    <>
+                      <Button variant="ghost" className="w-full" asChild>
+                        <Link href="/auth/sign-in">Sign In</Link>
+                      </Button>
+                      <Button className="w-full" asChild>
+                        <Link href="/auth/sign-up">Get Started</Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="space-y-3">
+                      {isDashboard && (
+                        <Badge variant="secondary" className="bg-green-500/10 text-green-700 border-green-200 w-full justify-center">
+                          Free during beta
+                        </Badge>
+                      )}
+                      <div className="flex items-center space-x-2 px-2">
+                        <User className="w-4 h-4" />
+                        <span className="text-sm font-medium">{user?.email}</span>
+                      </div>
+                      <SignOutButton className="w-full" />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
