@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Mail, Lock, User, Phone, Building2, UserCheck } from "lucide-react"
+import { ArrowLeft, Mail, Lock, User, Phone, Building2, UserCheck, CheckCircle, MailOpen } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { PasswordStrength } from "@/components/ui/password-strength"
 import { validatePassword, sanitizeAuthInput, validateEmail } from "@/lib/auth/middleware"
@@ -28,6 +28,8 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"org" | "coach">("org")
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false)
+  const [userEmail, setUserEmail] = useState<string>("")
   const supabase = createClient()
   
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<SignUpForm>()
@@ -63,10 +65,17 @@ export default function SignUpPage() {
       const sanitizedEmail = sanitizeAuthInput(data.email)
       const sanitizedName = sanitizeAuthInput(data.name)
       
-      // Sign up the user
+      // Sign up the user with metadata for the trigger
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: sanitizedEmail,
         password: data.password,
+        options: {
+          data: {
+            role: activeTab,
+            name: sanitizedName,
+            phone: data.phone ? sanitizeAuthInput(data.phone) : null,
+          }
+        }
       })
       
       if (signUpError) {
@@ -79,23 +88,19 @@ export default function SignUpPage() {
         return
       }
       
-      // Create user record with role
-      const { error: userError } = await supabase
-        .from('users')
-        .insert({
-          id: authData.user.id,
-          email: sanitizedEmail,
-          name: sanitizedName,
-          phone: data.phone ? sanitizeAuthInput(data.phone) : null,
-          role: activeTab,
-        })
-        
-      if (userError) {
-        setError("Failed to create user profile")
+      // The user record is automatically created by the database trigger
+      // We don't need to manually insert it here
+      
+      // Check if email confirmation is required
+      if (!authData.user.email_confirmed_at) {
+        // Show email confirmation message instead of redirecting
+        setUserEmail(sanitizedEmail)
+        setShowEmailConfirmation(true)
+        setIsLoading(false)
         return
       }
       
-      // Redirect based on role
+      // If email is already confirmed (unlikely for new signups), redirect
       if (activeTab === "org") {
         router.push('/org/dashboard')
       } else {
@@ -120,12 +125,69 @@ export default function SignUpPage() {
         </Link>
         
         <GlassCard className="p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold mb-2">Create your account</h1>
-            <p className="text-muted-foreground">
-              Join CoachFlow to connect with the basketball community
-            </p>
-          </div>
+          {showEmailConfirmation ? (
+            <div className="text-center">
+              <div className="flex justify-center mb-6">
+                <div className="p-4 bg-green-100 dark:bg-green-900/20 rounded-full">
+                  <MailOpen className="w-8 h-8 text-green-600 dark:text-green-400" />
+                </div>
+              </div>
+              
+              <h1 className="text-2xl font-bold mb-2">Check your email</h1>
+              <p className="text-muted-foreground mb-6">
+                We've sent a confirmation link to{" "}
+                <span className="font-medium text-foreground">{userEmail}</span>
+              </p>
+              
+              <div className="space-y-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <p className="text-left">
+                    Click the confirmation link in your email to activate your account
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <p className="text-left">
+                    Once confirmed, return here and sign in with your credentials
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-8 space-y-4">
+                <Button 
+                  onClick={() => router.push('/auth/sign-in')}
+                  className="w-full"
+                >
+                  Go to Sign In
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    setShowEmailConfirmation(false)
+                    setUserEmail("")
+                    reset()
+                  }}
+                  className="w-full"
+                >
+                  Sign up with different email
+                </Button>
+              </div>
+              
+              <p className="text-xs text-muted-foreground mt-6">
+                Didn't receive the email? Check your spam folder or try signing up again.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-2xl font-bold mb-2">Create your account</h1>
+                <p className="text-muted-foreground">
+                  Join CoachFlow to connect with the basketball community
+                </p>
+              </div>
           
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "org" | "coach")}>
             <TabsList className="grid w-full grid-cols-2 mb-6">
@@ -305,15 +367,17 @@ export default function SignUpPage() {
             </div>
           </form>
           
-          <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
-            <Link 
-              href="/auth/sign-in" 
-              className="text-primary hover:underline font-medium"
-            >
-              Sign in
-            </Link>
-          </div>
+              <div className="mt-6 text-center text-sm">
+                <span className="text-muted-foreground">Already have an account? </span>
+                <Link 
+                  href="/auth/sign-in" 
+                  className="text-primary hover:underline font-medium"
+                >
+                  Sign in
+                </Link>
+              </div>
+            </>
+          )}
         </GlassCard>
       </div>
     </div>
