@@ -8,12 +8,13 @@ import { ArrowLeft, Building2, User } from "lucide-react"
 import { notFound } from "next/navigation"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     threadId: string
-  }
+  }>
 }
 
 export default async function MessageThreadPage({ params }: PageProps) {
+  const { threadId } = await params
   const user = await requireAuth()
   const supabase = await createServerSupabaseClient()
   
@@ -21,7 +22,7 @@ export default async function MessageThreadPage({ params }: PageProps) {
   const { data: hasAccess } = await supabase
     .from('messages')
     .select('sender_id')
-    .eq('thread_id', params.threadId)
+    .eq('thread_id', threadId)
     .limit(1)
     .single()
   
@@ -30,21 +31,21 @@ export default async function MessageThreadPage({ params }: PageProps) {
     const { data: listingAccess } = await supabase
       .from('listings')
       .select('org_id')
-      .eq('id', params.threadId)
+      .eq('id', threadId)
       .eq('org_id', user.id)
       .single()
     
     const { data: applicationAccess } = await supabase
       .from('applications')
       .select('coach_id')
-      .eq('listing_id', params.threadId)
+      .eq('listing_id', threadId)
       .eq('coach_id', user.id)
       .single()
     
     const { data: bookingAccess } = await supabase
       .from('bookings')
       .select('org_id, coach_id')
-      .eq('id', params.threadId)
+      .eq('id', threadId)
       .or(`org_id.eq.${user.id},coach_id.eq.${user.id}`)
       .single()
     
@@ -72,7 +73,7 @@ export default async function MessageThreadPage({ params }: PageProps) {
         org_profiles!inner(org_name)
       )
     `)
-    .eq('id', params.threadId)
+    .eq('id', threadId)
     .single()
   
   if (listing) {
@@ -98,7 +99,7 @@ export default async function MessageThreadPage({ params }: PageProps) {
             email
           )
         `)
-        .eq('listing_id', params.threadId)
+        .eq('listing_id', threadId)
         .eq('status', 'accepted')
         .single()
       
@@ -129,7 +130,7 @@ export default async function MessageThreadPage({ params }: PageProps) {
           email
         )
       `)
-      .eq('id', params.threadId)
+      .eq('id', threadId)
       .single()
     
     if (booking) {
@@ -200,7 +201,7 @@ export default async function MessageThreadPage({ params }: PageProps) {
       
       {/* Message Thread */}
       <MessageThread
-        threadId={params.threadId}
+        threadId={threadId}
         currentUserId={user.id}
         otherUser={otherUser}
         title={title}

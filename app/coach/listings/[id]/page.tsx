@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { GlassCard } from "@/components/ui/glass-card"
@@ -26,12 +26,13 @@ import {
 import { format } from "date-fns"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function CoachListingDetailPage({ params }: PageProps) {
+  const resolvedParams = use(params)
   const router = useRouter()
   const [listing, setListing] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -47,7 +48,7 @@ export default function CoachListingDetailPage({ params }: PageProps) {
   
   useEffect(() => {
     loadListing()
-  }, [params.id])
+  }, [resolvedParams.id])
   
   async function loadListing() {
     try {
@@ -78,7 +79,7 @@ export default function CoachListingDetailPage({ params }: PageProps) {
             )
           )
         `)
-        .eq('id', params.id)
+        .eq('id', resolvedParams.id)
         .single()
         
       if (listingError) {
@@ -92,7 +93,7 @@ export default function CoachListingDetailPage({ params }: PageProps) {
       const { data: existingApplication } = await supabase
         .from('applications')
         .select('id')
-        .eq('listing_id', params.id)
+        .eq('listing_id', resolvedParams.id)
         .eq('coach_id', user.id)
         .single()
         
@@ -123,7 +124,7 @@ export default function CoachListingDetailPage({ params }: PageProps) {
       const { error: applyError } = await supabase
         .from('applications')
         .insert({
-          listing_id: params.id,
+          listing_id: resolvedParams.id,
           coach_id: user.id,
           message: applicationMessage,
           proposed_rate: proposedRate ? parseFloat(proposedRate) : null,

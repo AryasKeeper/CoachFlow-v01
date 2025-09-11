@@ -23,12 +23,13 @@ import {
 import { format } from "date-fns"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function ListingDetailPage({ params }: PageProps) {
+  const { id } = await params
   const user = await requireRole('org')
   const supabase = await createServerSupabaseClient()
   
@@ -36,7 +37,7 @@ export default async function ListingDetailPage({ params }: PageProps) {
   const { data: listing } = await supabase
     .from('listings')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('org_id', user.id)
     .single()
     
