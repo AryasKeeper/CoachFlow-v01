@@ -1,16 +1,13 @@
 import { requireRole } from "@/lib/auth/utils"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
 import Link from "next/link"
-import { redirect } from "next/navigation"
 import { 
   LayoutDashboard, 
   ClipboardList, 
   Calendar,
   MessageSquare,
-  Settings,
-  LogOut
+  Settings
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { SignOutButton } from "@/components/ui/sign-out-button"
 
 const navItems = [
   {
@@ -47,13 +44,6 @@ export default async function OrgLayout({
 }) {
   const user = await requireRole('org')
   
-  async function signOut() {
-    'use server'
-    const supabase = await createServerSupabaseClient()
-    await supabase.auth.signOut()
-    redirect('/')
-  }
-  
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
@@ -77,16 +67,7 @@ export default async function OrgLayout({
         </nav>
         
         <div className="p-4 mt-auto">
-          <form action={signOut}>
-            <Button 
-              type="submit"
-              variant="ghost" 
-              className="w-full justify-start gap-3"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </Button>
-          </form>
+          <SignOutButton className="w-full justify-start gap-3" />
         </div>
       </aside>
       
