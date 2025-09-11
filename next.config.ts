@@ -180,6 +180,11 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Fix Turbopack workspace root detection
+  turbopack: {
+    root: __dirname,
+  },
+
   // Webpack optimizations
   webpack: (config, { dev, isServer }) => {
     // Production optimizations

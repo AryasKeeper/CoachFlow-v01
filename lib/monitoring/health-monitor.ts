@@ -28,10 +28,18 @@ class HealthMonitor {
   private checks: Map<string, HealthCheck> = new Map()
   private startTime = Date.now()
   private checkInterval: NodeJS.Timeout | null = null
+  private cleanupFunctions: Array<() => void> = []
 
   static getInstance(): HealthMonitor {
     if (!HealthMonitor.instance) {
       HealthMonitor.instance = new HealthMonitor()
+    } else {
+      // In development, ensure clean state during hot reloads
+      if (process.env.NODE_ENV === 'development') {
+        HealthMonitor.instance.cleanup()
+        HealthMonitor.instance.startTime = Date.now()
+        HealthMonitor.instance.startPeriodicChecks()
+      }
     }
     return HealthMonitor.instance
   }
@@ -99,7 +107,11 @@ class HealthMonitor {
     // Schedule periodic checks
     const interval = setInterval(performCheck, intervalMs)
     
-    return () => clearInterval(interval)
+    // Store cleanup function
+    const cleanup = () => clearInterval(interval)
+    this.cleanupFunctions.push(cleanup)
+    
+    return cleanup
   }
 
   // Get current system health
@@ -258,6 +270,10 @@ class HealthMonitor {
     if (this.checkInterval) {
       clearInterval(this.checkInterval)
     }
+    
+    // Cleanup all health check intervals
+    this.cleanupFunctions.forEach(cleanup => cleanup())
+    this.cleanupFunctions = []
   }
 }
 
