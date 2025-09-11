@@ -187,7 +187,7 @@ async function getErrorAnalytics(timeframe: string) {
   }
 }
 
-async function getDatabaseMetrics(timeframe: string, supabase: any) {
+async function getDatabaseMetrics(timeframe: string, supabase: ReturnType<typeof createServerSupabaseClient>) {
   try {
     // Get database performance metrics
     const { data: dbStats, error } = await supabase
@@ -227,7 +227,7 @@ async function getDatabaseMetrics(timeframe: string, supabase: any) {
   }
 }
 
-async function getActiveAlerts(supabase: any) {
+async function getActiveAlerts(supabase: ReturnType<typeof createServerSupabaseClient>) {
   try {
     // In a real implementation, you'd store alerts in a table
     // For now, return simulated active alerts based on system health
