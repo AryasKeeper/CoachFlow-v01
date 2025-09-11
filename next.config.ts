@@ -36,11 +36,11 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://js.sentry-cdn.com https://browser.sentry-cdn.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: https: blob:",
-              "connect-src 'self' https://*.supabase.co https://api.openai.com wss://*.supabase.co https://www.google-analytics.com https://api.mixpanel.com",
+              "connect-src 'self' https://*.supabase.co https://api.openai.com wss://*.supabase.co https://www.google-analytics.com https://api.mixpanel.com https://o4510000649994240.ingest.us.sentry.io https://*.ingest.sentry.io",
               "frame-src 'none'",
               "object-src 'none'",
               "base-uri 'self'",
@@ -246,8 +246,14 @@ export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
+  // Sourcemaps configuration - disable in development to avoid file conflicts with Turbopack
+  sourcemaps: {
+    disable: isDev, // Disable sourcemaps in development to prevent ENOENT errors
+    deleteSourcemapsAfterUpload: isProd, // Only delete after upload in production
+  },
+
+  // Upload a larger set of source maps for prettier stack traces (only in production)
+  widenClientFileUpload: isProd,
 
   // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
   // This can increase your server load as well as your hosting bill.
@@ -265,5 +271,5 @@ export default withSentryConfig(nextConfig, {
   // See the following for more information:
   // https://docs.sentry.io/product/crons/
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-  automaticVercelMonitors: true,
+  automaticVercelMonitors: isProd, // Only enable in production
 });

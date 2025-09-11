@@ -11,7 +11,9 @@
       "Bash(npm install:*)",
       "Bash(npm run clean:*)",
       "Bash(taskkill:*)",
-      "Bash(npx kill-port:*)"
+      "Bash(npx kill-port:*)",
+      "WebFetch(domain:docs.sentry.io)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

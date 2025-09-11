@@ -38,5 +38,21 @@
     "permission_mode": "acceptEdits",
     "hook_event_name": "UserPromptSubmit",
     "prompt": "Okay before we do this, I just signed up on Sentry.io and it says:\n\nAutomatic Configuration (Recommended)\nConfigure your app automatically by running the Sentry wizard in the root of your project. Here's the code to do it:\nnpx @sentry/wizard@latest -i nextjs --saas --org origvmi-2c --project javascript-nextjs"
+  },
+  {
+    "session_id": "35fc7441-20e3-401f-979d-261b3a5b28ac",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\35fc7441-20e3-401f-979d-261b3a5b28ac.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Now we're getting a \"Internal Server Error\" on localhost:3000 and the page isnt even loading. Do some research on manual config for sentry, here's the direct link to ensure you did it correctly - https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/ \n\nAdditionally, her's the DSN needed: https://59a2933fac07df60284938cfdc0032a3@o4510000649994240.ingest.us.sentry.io/4510000651042816"
+  },
+  {
+    "session_id": "35fc7441-20e3-401f-979d-261b3a5b28ac",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\35fc7441-20e3-401f-979d-261b3a5b28ac.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Perfect, please commit these changes and then I'll provide some things we want to work on."
   }
 ]
