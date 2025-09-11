@@ -9,10 +9,10 @@ type ListingDate = {
   end_date?: string
 }
 
-type TimeSlot = {
-  start_time: string
-  end_time: string
-  days?: string[]
+type TimeInterval = {
+  id: string
+  startTime: string
+  endTime: string
 }
 
 interface ListingCardProps {
@@ -22,7 +22,7 @@ interface ListingCardProps {
     description: string | null
     location: string
     dates: ListingDate | ListingDate[] | null
-    timeslots: TimeSlot | TimeSlot[] | null
+    time_intervals: TimeInterval[] | null
     pay_min: number | null
     pay_max: number | null
     urgency: string | null
@@ -60,6 +60,26 @@ export function ListingCard({ listing, onClick, className }: ListingCardProps) {
     }
     if (listing.pay_min) return `From $${listing.pay_min}/hr`
     return `Up to $${listing.pay_max}/hr`
+  }
+
+  const formatTimeDisplay = (time: string) => {
+    if (!time) return ""
+    const [hours, minutes] = time.split(':')
+    const hour24 = parseInt(hours)
+    const ampm = hour24 >= 12 ? 'PM' : 'AM'
+    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24
+    return `${hour12}:${minutes} ${ampm}`
+  }
+
+  const formatTimeIntervals = () => {
+    if (!listing.time_intervals || listing.time_intervals.length === 0) return "Times TBD"
+    
+    if (listing.time_intervals.length === 1) {
+      const interval = listing.time_intervals[0]
+      return `${formatTimeDisplay(interval.startTime)} - ${formatTimeDisplay(interval.endTime)}`
+    }
+    
+    return `${listing.time_intervals.length} time slots`
   }
   
   return (
@@ -114,7 +134,7 @@ export function ListingCard({ listing, onClick, className }: ListingCardProps) {
           
           <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="w-4 h-4" />
-            <span>Posted {format(new Date(listing.created_at), "MMM d")}</span>
+            <span>{formatTimeIntervals()}</span>
           </div>
         </div>
         

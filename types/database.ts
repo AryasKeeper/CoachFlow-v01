@@ -141,7 +141,7 @@ export type Database = {
           description: string | null
           location: string
           dates: Json
-          timeslots: Json
+          time_intervals: Json
           pay_min: number | null
           pay_max: number | null
           required_badges: string[]
@@ -156,7 +156,7 @@ export type Database = {
           description?: string | null
           location: string
           dates: Json
-          timeslots: Json
+          time_intervals: Json
           pay_min?: number | null
           pay_max?: number | null
           required_badges?: string[]

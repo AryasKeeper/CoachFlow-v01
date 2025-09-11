@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { TimeIntervalPicker, type TimeInterval } from "@/components/ui/time-interval-picker"
 import { useForm } from "react-hook-form"
 import { 
   MapPin, 
@@ -36,10 +37,9 @@ export default function PostListingPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dates, setDates] = useState<string[]>([])
-  const [timeslots, setTimeslots] = useState<string[]>([])
+  const [timeIntervals, setTimeIntervals] = useState<TimeInterval[]>([])
   const [requiredBadges, setRequiredBadges] = useState<string[]>([])
   const [currentDate, setCurrentDate] = useState("")
-  const [currentTimeslot, setCurrentTimeslot] = useState("")
   
   const supabase = createClient()
   const { register, handleSubmit, formState: { errors } } = useForm<ListingForm>()
@@ -63,16 +63,6 @@ export default function PostListingPage() {
     setDates(dates.filter(d => d !== date))
   }
   
-  const addTimeslot = () => {
-    if (currentTimeslot && !timeslots.includes(currentTimeslot)) {
-      setTimeslots([...timeslots, currentTimeslot])
-      setCurrentTimeslot("")
-    }
-  }
-  
-  const removeTimeslot = (slot: string) => {
-    setTimeslots(timeslots.filter(s => s !== slot))
-  }
   
   const toggleBadge = (badge: string) => {
     if (requiredBadges.includes(badge)) {
@@ -88,8 +78,8 @@ export default function PostListingPage() {
       return
     }
     
-    if (timeslots.length === 0) {
-      setError("Please add at least one timeslot")
+    if (timeIntervals.length === 0) {
+      setError("Please add at least one time interval")
       return
     }
     
@@ -112,7 +102,7 @@ export default function PostListingPage() {
           description: data.description,
           location: data.location,
           dates,
-          timeslots,
+          time_intervals: timeIntervals,
           pay_min: data.pay_min,
           pay_max: data.pay_max,
           required_badges: requiredBadges,
@@ -252,34 +242,12 @@ export default function PostListingPage() {
               </div>
             </div>
             
-            <div className="space-y-2">
-              <Label>Time Slots *</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="time"
-                  value={currentTimeslot}
-                  onChange={(e) => setCurrentTimeslot(e.target.value)}
-                />
-                <Button type="button" onClick={addTimeslot} disabled={!currentTimeslot}>
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {timeslots.map((slot) => (
-                  <Badge key={slot} variant="secondary" className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {slot}
-                    <button
-                      type="button"
-                      onClick={() => removeTimeslot(slot)}
-                      className="ml-1 hover:text-destructive"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
+            <TimeIntervalPicker
+              value={timeIntervals}
+              onChange={setTimeIntervals}
+              label="Time Intervals"
+              required
+            />
           </div>
         </GlassCard>
         

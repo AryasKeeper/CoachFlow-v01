@@ -51,7 +51,7 @@ CREATE TABLE public.listings (
   description TEXT,
   location TEXT NOT NULL,
   dates JSONB NOT NULL,
-  timeslots JSONB NOT NULL,
+  time_intervals JSONB NOT NULL,
   pay_min NUMERIC(10,2),
   pay_max NUMERIC(10,2),
   required_badges TEXT[] DEFAULT '{}',
