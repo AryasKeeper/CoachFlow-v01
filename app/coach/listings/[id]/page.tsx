@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { BadgeRow } from "@/components/ui/badge-row"
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import Link from "next/link"
 import { 
   MapPin, 
@@ -236,24 +237,6 @@ export default function CoachListingDetailPage({ params }: PageProps) {
         </div>
       )}
       
-      {/* Verification Alert */}
-      {!isVerified && (
-        <div className="mb-6 p-4 rounded-lg bg-orange-500/10 border border-orange-200 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-orange-600" />
-          <div>
-            <p className="font-medium text-orange-800">Verification required to apply</p>
-            <p className="text-sm text-orange-700">
-              Complete your profile verification to apply for this opportunity
-            </p>
-          </div>
-          <Button size="sm" variant="outline" asChild>
-            <Link href="/coach/verify">
-              Get Verified
-            </Link>
-          </Button>
-        </div>
-      )}
-      
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
@@ -337,73 +320,114 @@ export default function CoachListingDetailPage({ params }: PageProps) {
         
         {/* Application Form */}
         <div>
-          {!hasApplied && isVerified && (
+          {!hasApplied && (
             <GlassCard className="sticky top-4">
               <h2 className="text-lg font-semibold mb-4">Apply for this opportunity</h2>
               
-              {error && (
-                <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                  {error}
-                </div>
-              )}
-              
-              {success ? (
-                <div className="text-center py-8">
-                  <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-600" />
-                  <p className="font-medium text-green-800 mb-2">Application sent!</p>
-                  <p className="text-sm text-muted-foreground">
-                    Redirecting to your applications...
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={(e) => { e.preventDefault(); handleApply(); }} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Message to organization</Label>
-                    <Textarea
-                      id="message"
-                      rows={4}
-                      placeholder="Introduce yourself and explain why you're a great fit for this role..."
-                      value={applicationMessage}
-                      onChange={(e) => setApplicationMessage(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="rate">Proposed rate ($/hr)</Label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        id="rate"
-                        type="number"
-                        min="0"
-                        step="5"
-                        placeholder={listing.pay_min ? listing.pay_min.toString() : "60"}
-                        className="pl-10"
-                        value={proposedRate}
-                        onChange={(e) => setProposedRate(e.target.value)}
-                      />
+              {isVerified ? (
+                // Show full application form for verified coaches
+                <>
+                  {error && (
+                    <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                      {error}
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Leave blank to discuss rate later
-                    </p>
+                  )}
+                  
+                  {success ? (
+                    <div className="text-center py-8">
+                      <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-600" />
+                      <p className="font-medium text-green-800 mb-2">Application sent!</p>
+                      <p className="text-sm text-muted-foreground">
+                        Redirecting to your applications...
+                      </p>
+                    </div>
+                  ) : (
+                    <form onSubmit={(e) => { e.preventDefault(); handleApply(); }} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="message">Message to organization</Label>
+                        <Textarea
+                          id="message"
+                          rows={4}
+                          placeholder="Introduce yourself and explain why you're a great fit for this role..."
+                          value={applicationMessage}
+                          onChange={(e) => setApplicationMessage(e.target.value)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="rate">Proposed rate ($/hr)</Label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="rate"
+                            type="number"
+                            min="0"
+                            step="5"
+                            placeholder={listing.pay_min ? listing.pay_min.toString() : "60"}
+                            className="pl-10"
+                            value={proposedRate}
+                            onChange={(e) => setProposedRate(e.target.value)}
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Leave blank to discuss rate later
+                        </p>
+                      </div>
+                      
+                      <Button 
+                        type="submit" 
+                        className="w-full" 
+                        disabled={applying}
+                      >
+                        {applying ? (
+                          "Sending..."
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 mr-2" />
+                            Send Application
+                          </>
+                        )}
+                      </Button>
+                    </form>
+                  )}
+                </>
+              ) : (
+                // Show grayed-out button for unverified coaches
+                <div className="space-y-4">
+                  <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-200 flex items-center gap-3 text-sm">
+                    <AlertCircle className="w-4 h-4 text-orange-600" />
+                    <span className="text-orange-700">
+                      Complete verification to unlock application features
+                    </span>
                   </div>
                   
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={applying}
-                  >
-                    {applying ? (
-                      "Sending..."
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4 mr-2" />
-                        Send Application
-                      </>
-                    )}
-                  </Button>
-                </form>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="w-full">
+                        <Button 
+                          className="w-full opacity-50 cursor-not-allowed" 
+                          disabled
+                          variant="secondary"
+                        >
+                          <Send className="w-4 h-4 mr-2" />
+                          Apply Now
+                        </Button>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Complete the verification process to apply today!
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  <div className="text-center">
+                    <Button size="sm" asChild>
+                      <Link href="/coach/verify">
+                        Get Verified Now
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
               )}
             </GlassCard>
           )}

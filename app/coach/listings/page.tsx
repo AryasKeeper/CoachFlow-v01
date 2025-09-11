@@ -1,5 +1,8 @@
-import { requireRole } from "@/lib/auth/utils"
-import { createServerSupabaseClient } from "@/lib/supabase/server"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import { ListingCard } from "@/components/ui/listing-card"
 import { EmptyState } from "@/components/ui/empty-state"
 import { GlassCard } from "@/components/ui/glass-card"
@@ -16,56 +19,96 @@ import {
   ClipboardList
 } from "lucide-react"
 
-export default async function CoachListingsPage() {
-  const user = await requireRole('coach')
-  const supabase = await createServerSupabaseClient()
+export default function CoachListingsPage() {
+  const router = useRouter()
+  const supabase = createClient()
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  const [listings, setListings] = useState<any[]>([])
+  const [existingApplications, setExistingApplications] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   
-  // Check if coach is verified
-  const { data: profile } = await supabase
-    .from('coach_profiles')
-    .select('wwcc_number, insurance_url, first_aid_url, suburbs')
-    .eq('user_id', user.id)
-    .single()
+  useEffect(() => {
+    async function loadData() {
+      try {
+        // Get current user
+        const { data: { user: currentUser } } = await supabase.auth.getUser()
+        if (!currentUser) {
+          router.push('/auth/sign-in')
+          return
+        }
+        
+        // Check if user is a coach
+        const { data: userData } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', currentUser.id)
+          .single()
+        
+        if (userData?.role !== 'coach') {
+          router.push('/')
+          return
+        }
+        
+        setUser(currentUser)
+        
+        // Get coach profile for verification check
+        const { data: profileData } = await supabase
+          .from('coach_profiles')
+          .select('wwcc_number, insurance_url, first_aid_url, suburbs')
+          .eq('user_id', currentUser.id)
+          .single()
+        
+        setProfile(profileData)
+        
+        // Get active listings for all coaches (verified and unverified can browse)
+        const { data: listingsData } = await supabase
+          .from('listings')
+          .select(`
+            *,
+            org:users!listings_org_id_fkey(
+              org_profiles!inner(
+                org_name
+              )
+            ),
+            applications!inner(count)
+          `)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+        
+        // Get coach's existing applications
+        const { data: applicationsData } = await supabase
+          .from('applications')
+          .select('listing_id')
+          .eq('coach_id', currentUser.id)
+        
+        setListings(listingsData || [])
+        setExistingApplications(applicationsData || [])
+      } catch (error) {
+        console.error('Error loading data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
     
+    loadData()
+  }, [router, supabase])
+  
   const isVerified = profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url
   
-  if (!isVerified) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Find Coaching Opportunities</h1>
-        <EmptyState
-          icon={ClipboardList}
-          title="Verification Required"
-          description="Complete your verification to start browsing and applying for coaching opportunities"
-          action={{
-            label: "Complete Verification",
-            onClick: () => window.location.href = '/coach/verify'
-          }}
-        />
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        </div>
       </div>
     )
   }
   
-  // Get active listings
-  const { data: listings } = await supabase
-    .from('listings')
-    .select(`
-      *,
-      org:users!listings_org_id_fkey(
-        org_profiles!inner(
-          org_name
-        )
-      ),
-      applications!inner(count)
-    `)
-    .eq('status', 'active')
-    .order('created_at', { ascending: false })
-  
-  // Get coach's existing applications to filter out already applied listings
-  const { data: existingApplications } = await supabase
-    .from('applications')
-    .select('listing_id')
-    .eq('coach_id', user.id)
+  // Now all coaches (verified and unverified) can browse listings
+  // The apply functionality will be restricted in the detail page
   
   const appliedListingIds = existingApplications?.map(app => app.listing_id) || []
   const availableListings = listings?.filter(listing => !appliedListingIds.includes(listing.id)) || []
@@ -178,7 +221,7 @@ export default async function CoachListingsPage() {
                   <ListingCard 
                     key={listing.id} 
                     listing={listing}
-                    onClick={() => window.location.href = `/coach/listings/${listing.id}`}
+                    onClick={() => router.push(`/coach/listings/${listing.id}`)}
                   />
                 ))}
               </div>
@@ -197,7 +240,7 @@ export default async function CoachListingsPage() {
                   <ListingCard 
                     key={listing.id} 
                     listing={listing}
-                    onClick={() => window.location.href = `/coach/listings/${listing.id}`}
+                    onClick={() => router.push(`/coach/listings/${listing.id}`)}
                   />
                 ))}
               </div>
@@ -216,7 +259,7 @@ export default async function CoachListingsPage() {
                   <ListingCard 
                     key={listing.id} 
                     listing={listing}
-                    onClick={() => window.location.href = `/coach/listings/${listing.id}`}
+                    onClick={() => router.push(`/coach/listings/${listing.id}`)}
                   />
                 ))}
               </div>
