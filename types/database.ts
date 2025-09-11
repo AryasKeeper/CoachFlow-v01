@@ -140,6 +140,7 @@ export type Database = {
           title: string
           description: string | null
           location: string
+          suburbs: string[]
           dates: Json
           time_intervals: Json
           pay_min: number | null
@@ -155,6 +156,7 @@ export type Database = {
           title: string
           description?: string | null
           location: string
+          suburbs?: string[]
           dates: Json
           time_intervals: Json
           pay_min?: number | null
@@ -170,8 +172,9 @@ export type Database = {
           title?: string
           description?: string | null
           location?: string
+          suburbs?: string[]
           dates?: Json
-          timeslots?: Json
+          time_intervals?: Json
           pay_min?: number | null
           pay_max?: number | null
           required_badges?: string[]

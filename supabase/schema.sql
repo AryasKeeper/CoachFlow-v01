@@ -50,6 +50,7 @@ CREATE TABLE public.listings (
   title TEXT NOT NULL,
   description TEXT,
   location TEXT NOT NULL,
+  suburbs TEXT[] NOT NULL DEFAULT '{}',
   dates JSONB NOT NULL,
   time_intervals JSONB NOT NULL,
   pay_min NUMERIC(10,2),
@@ -111,6 +112,7 @@ CREATE INDEX idx_coach_profiles_suburbs ON public.coach_profiles USING GIN(subur
 CREATE INDEX idx_org_profiles_suburbs ON public.org_profiles USING GIN(suburbs);
 CREATE INDEX idx_listings_org_id ON public.listings(org_id);
 CREATE INDEX idx_listings_status ON public.listings(status);
+CREATE INDEX idx_listings_suburbs ON public.listings USING GIN (suburbs);
 CREATE INDEX idx_applications_listing_id ON public.applications(listing_id);
 CREATE INDEX idx_applications_coach_id ON public.applications(coach_id);
 CREATE INDEX idx_bookings_org_id ON public.bookings(org_id);

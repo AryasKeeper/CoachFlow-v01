@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { TimeIntervalPicker, type TimeInterval } from "@/components/ui/time-interval-picker"
+import { SuburbSelector } from "@/components/ui/suburb-selector"
 import { useForm } from "react-hook-form"
 import { 
   MapPin, 
@@ -26,7 +27,6 @@ import {
 interface ListingForm {
   title: string
   description: string
-  location: string
   urgency: string
   pay_min?: number
   pay_max?: number
@@ -39,6 +39,7 @@ export default function PostListingPage() {
   const [dates, setDates] = useState<string[]>([])
   const [timeIntervals, setTimeIntervals] = useState<TimeInterval[]>([])
   const [requiredBadges, setRequiredBadges] = useState<string[]>([])
+  const [suburbs, setSuburbs] = useState<string[]>([])
   const [currentDate, setCurrentDate] = useState("")
   
   const supabase = createClient()
@@ -83,6 +84,11 @@ export default function PostListingPage() {
       return
     }
     
+    if (suburbs.length === 0) {
+      setError("Please select at least one suburb")
+      return
+    }
+    
     setIsLoading(true)
     setError(null)
     
@@ -100,7 +106,8 @@ export default function PostListingPage() {
           org_id: user.id,
           title: data.title,
           description: data.description,
-          location: data.location,
+          location: suburbs.join(", "), // Keep for backwards compatibility
+          suburbs: suburbs,
           dates,
           time_intervals: timeIntervals,
           pay_min: data.pay_min,
@@ -170,23 +177,15 @@ export default function PostListingPage() {
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="location">Location *</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="location"
-                  className="pl-10"
-                  placeholder="e.g., Bondi Beach Basketball Courts, Sydney"
-                  {...register("location", {
-                    required: "Location is required"
-                  })}
-                />
-              </div>
-              {errors.location && (
-                <p className="text-sm text-destructive">{errors.location.message}</p>
-              )}
-            </div>
+            <SuburbSelector
+              value={suburbs}
+              onChange={setSuburbs}
+              label="Location"
+              placeholder="Type suburb names..."
+              maxSuburbs={3}
+              required
+              description="Select up to 3 suburbs where coaching is needed"
+            />
             
             <div className="space-y-2">
               <Label htmlFor="urgency">Urgency</Label>

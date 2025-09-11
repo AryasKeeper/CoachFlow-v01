@@ -44,19 +44,7 @@ const SPECIALTIES_OPTIONS = [
   "Holiday Camps"
 ]
 
-const SYDNEY_SUBURBS = [
-  "Sydney CBD", "Bondi", "Coogee", "Randwick", "Maroubra",
-  "Newtown", "Marrickville", "Leichhardt", "Balmain", "Rozelle",
-  "Mosman", "Neutral Bay", "Cremorne", "Chatswood", "Willoughby",
-  "Manly", "Dee Why", "Brookvale", "Freshwater", "Curl Curl",
-  "Parramatta", "Westmead", "Harris Park", "Granville", "Merrylands",
-  "Liverpool", "Fairfield", "Cabramatta", "Bankstown", "Hurstville",
-  "Sutherland", "Cronulla", "Miranda", "Caringbah", "Gymea",
-  "Penrith", "St Marys", "Mount Druitt", "Blacktown", "Seven Hills",
-  "Castle Hill", "Baulkham Hills", "Bella Vista", "Kellyville", "Rouse Hill",
-  "Hornsby", "Wahroonga", "Turramurra", "Gordon", "Pymble",
-  "Macquarie Park", "Ryde", "Eastwood", "Epping", "Carlingford"
-]
+import { SuburbSelector } from "@/components/ui/suburb-selector"
 
 export default function CoachProfilePage() {
   const router = useRouter()
@@ -65,8 +53,6 @@ export default function CoachProfilePage() {
   const [success, setSuccess] = useState(false)
   const [specialties, setSpecialties] = useState<string[]>([])
   const [suburbs, setSuburbs] = useState<string[]>([])
-  const [currentSuburb, setCurrentSuburb] = useState("")
-  const [showSuburbSuggestions, setShowSuburbSuggestions] = useState(false)
   
   const supabase = createClient()
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<ProfileForm>()
@@ -104,22 +90,6 @@ export default function CoachProfilePage() {
     }
   }
   
-  const addSuburb = (suburb: string) => {
-    if (!suburbs.includes(suburb) && suburbs.length < 10) {
-      setSuburbs([...suburbs, suburb])
-      setCurrentSuburb("")
-      setShowSuburbSuggestions(false)
-    }
-  }
-  
-  const removeSuburb = (suburb: string) => {
-    setSuburbs(suburbs.filter(s => s !== suburb))
-  }
-  
-  const filteredSuburbs = SYDNEY_SUBURBS.filter(suburb =>
-    suburb.toLowerCase().includes(currentSuburb.toLowerCase()) &&
-    !suburbs.includes(suburb)
-  ).slice(0, 5)
   
   const onSubmit = async (data: ProfileForm) => {
     if (specialties.length === 0) {
@@ -275,61 +245,15 @@ export default function CoachProfilePage() {
         
         {/* Service Areas */}
         <GlassCard>
-          <h2 className="text-xl font-semibold mb-4">Service Areas</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Add up to 10 Sydney suburbs where you can coach
-          </p>
-          
-          <div className="relative mb-4">
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Type a suburb name..."
-                  className="pl-10"
-                  value={currentSuburb}
-                  onChange={(e) => {
-                    setCurrentSuburb(e.target.value)
-                    setShowSuburbSuggestions(true)
-                  }}
-                  onBlur={() => setTimeout(() => setShowSuburbSuggestions(false), 200)}
-                  disabled={suburbs.length >= 10}
-                />
-                
-                {showSuburbSuggestions && filteredSuburbs.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-background border rounded-lg shadow-lg z-10">
-                    {filteredSuburbs.map((suburb) => (
-                      <button
-                        key={suburb}
-                        type="button"
-                        className="w-full text-left px-4 py-2 hover:bg-muted/50 transition-colors"
-                        onClick={() => addSuburb(suburb)}
-                      >
-                        {suburb}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-2">
-            {suburbs.map((suburb) => (
-              <Badge key={suburb} variant="secondary" className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {suburb}
-                <button
-                  type="button"
-                  onClick={() => removeSuburb(suburb)}
-                  className="ml-1 hover:text-destructive"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
+          <SuburbSelector
+            value={suburbs}
+            onChange={setSuburbs}
+            label="Service Areas"
+            description="Select up to 10 Sydney suburbs where you can provide coaching services"
+            maxSuburbs={10}
+            required={true}
+            error={suburbs.length === 0 ? "Please select at least one service area" : undefined}
+          />
         </GlassCard>
         
         {/* Rates & Travel */}

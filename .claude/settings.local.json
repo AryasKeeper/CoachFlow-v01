@@ -13,7 +13,8 @@
       "Bash(taskkill:*)",
       "Bash(npx kill-port:*)",
       "WebFetch(domain:docs.sentry.io)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npx supabase db reset:*)"
     ],
     "deny": [],
     "ask": []

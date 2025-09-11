@@ -21,6 +21,7 @@ interface ListingCardProps {
     title: string
     description: string | null
     location: string
+    suburbs: string[]
     dates: ListingDate | ListingDate[] | null
     time_intervals: TimeInterval[] | null
     pay_min: number | null
@@ -81,6 +82,22 @@ export function ListingCard({ listing, onClick, className }: ListingCardProps) {
     
     return `${listing.time_intervals.length} time slots`
   }
+
+  const formatSuburbs = () => {
+    if (!listing.suburbs || listing.suburbs.length === 0) {
+      return listing.location || "Location TBD"
+    }
+    
+    if (listing.suburbs.length === 1) {
+      return listing.suburbs[0]
+    }
+    
+    if (listing.suburbs.length <= 2) {
+      return listing.suburbs.join(" & ")
+    }
+    
+    return `${listing.suburbs[0]} +${listing.suburbs.length - 1} more`
+  }
   
   return (
     <GlassCard
@@ -112,7 +129,7 @@ export function ListingCard({ listing, onClick, className }: ListingCardProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="w-4 h-4" />
-            <span>{listing.location}</span>
+            <span>{formatSuburbs()}</span>
           </div>
           
           <div className="flex items-center gap-2 text-muted-foreground">

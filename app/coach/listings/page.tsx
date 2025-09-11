@@ -116,9 +116,19 @@ export default function CoachListingsPage() {
   // Categorize listings
   const urgentListings = availableListings.filter(l => l.urgency === 'urgent')
   const nearbyListings = profile?.suburbs ? availableListings.filter(l => {
-    // Simple check if listing location contains any of coach's suburbs
-    return profile.suburbs.some((suburb: string) => 
-      l.location.toLowerCase().includes(suburb.toLowerCase())
+    // Proper suburb matching using array intersection
+    if (!l.suburbs || l.suburbs.length === 0) {
+      // Fallback to location text matching for legacy listings
+      return profile.suburbs.some((suburb: string) => 
+        l.location.toLowerCase().includes(suburb.toLowerCase())
+      )
+    }
+    
+    // Check if any of the coach's service areas match listing suburbs
+    return profile.suburbs.some((coachSuburb: string) =>
+      l.suburbs.some((listingSuburb: string) =>
+        coachSuburb.toLowerCase() === listingSuburb.toLowerCase()
+      )
     )
   }) : []
   const otherListings = availableListings.filter(l => 
