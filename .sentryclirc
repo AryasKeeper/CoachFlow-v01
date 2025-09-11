@@ -1,0 +1,10 @@
+[defaults]
+url=https://sentry.io/
+org=origvmi-2c
+project=javascript-nextjs
+
+[auth]
+token=
+
+[log]
+level=info

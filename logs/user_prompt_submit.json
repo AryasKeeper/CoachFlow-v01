@@ -30,5 +30,13 @@
     "permission_mode": "acceptEdits",
     "hook_event_name": "UserPromptSubmit",
     "prompt": "Perfect, let's commit this current state and apply a few more fixes before deploying to Vercel."
+  },
+  {
+    "session_id": "35fc7441-20e3-401f-979d-261b3a5b28ac",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\35fc7441-20e3-401f-979d-261b3a5b28ac.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "acceptEdits",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Okay before we do this, I just signed up on Sentry.io and it says:\n\nAutomatic Configuration (Recommended)\nConfigure your app automatically by running the Sentry wizard in the root of your project. Here's the code to do it:\nnpx @sentry/wizard@latest -i nextjs --saas --org origvmi-2c --project javascript-nextjs"
   }
 ]

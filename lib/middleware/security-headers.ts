@@ -44,7 +44,8 @@ const DEFAULT_CONFIG: SecurityHeadersConfig = {
         'https://va.vercel-scripts.com',
         'https://www.googletagmanager.com',
         'https://www.google-analytics.com',
-        'https://js.sentry-cdn.com'
+        'https://js.sentry-cdn.com',
+        'https://browser.sentry-cdn.com'
       ],
       'style-src': [
         "'self'",
@@ -70,7 +71,8 @@ const DEFAULT_CONFIG: SecurityHeadersConfig = {
         'https://api.openai.com',
         'https://vitals.vercel-insights.com',
         'https://www.google-analytics.com',
-        'https://o4507902734409728.ingest.sentry.io'
+        'https://o4507902734409728.ingest.sentry.io',
+        'https://*.ingest.sentry.io'
       ],
       'frame-src': [
         "'self'",

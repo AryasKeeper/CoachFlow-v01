@@ -72,6 +72,9 @@ CACHE_MAX_AGE=31536000
 
 # Monitoring (Critical for production)
 SENTRY_DSN=your_sentry_dsn_here
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn_here
+SENTRY_ORG=origvmi-2c
+SENTRY_PROJECT=javascript-nextjs
 GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
 
 # Feature Flags
