@@ -27,7 +27,7 @@ const navItems = [
   },
   {
     label: "Messages",
-    href: "/messages",
+    href: "/org/messages",
     icon: MessageSquare
   },
   {

@@ -11,7 +11,8 @@ import {
   FileText,
   MessageSquare,
   Settings,
-  LogOut
+  LogOut,
+  AlertCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -49,7 +50,7 @@ const navItems = [
   },
   {
     label: "Messages",
-    href: "/messages",
+    href: "/coach/messages",
     icon: MessageSquare
   },
   {
@@ -156,5 +157,3 @@ export default async function CoachLayout({
     </div>
   )
 }
-
-import { AlertCircle } from "lucide-react"
