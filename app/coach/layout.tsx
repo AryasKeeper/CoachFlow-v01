@@ -49,11 +49,12 @@ const navItems = [
     href: "/coach/applications",
     icon: FileText
   },
-  {
-    label: "Messages",
-    href: "/coach/messages",
-    icon: MessageSquare
-  },
+  // Messages feature temporarily disabled - will be replaced with contact details
+  // {
+  //   label: "Messages",
+  //   href: "/coach/messages",
+  //   icon: MessageSquare
+  // },
   {
     label: "Settings",
     href: "/coach/settings",

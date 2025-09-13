@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { GlassCard } from "@/components/ui/glass-card"
+import { ContactDetailsCard } from "@/components/contact-details-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,7 +21,6 @@ import {
   Calendar,
   DollarSign,
   Building2,
-  MessageSquare,
   Clock,
   AlertTriangle
 } from "lucide-react"
@@ -164,15 +164,24 @@ export function ApplicationCard({ application }: { application: any }) {
               </div>
             )}
 
-            <div className="flex gap-2">
-              {application.status === 'accepted' && (
-                <Link href={`/messages`}>
-                  <Button size="sm" variant="outline">
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Message Organization
-                  </Button>
-                </Link>
-              )}
+            {/* Show contact details for accepted applications */}
+            {application.status === 'accepted' && (
+              <div className="mt-4">
+                <ContactDetailsCard
+                  contactInfo={{
+                    name: listing?.org?.org_profiles?.[0]?.contact_person_name || listing?.org?.org_profiles?.[0]?.org_name,
+                    email: listing?.org?.email,
+                    phone: listing?.org?.org_profiles?.[0]?.contact_phone,
+                    organization: listing?.org?.org_profiles?.[0]?.org_name,
+                    location: listing?.location
+                  }}
+                  type="org"
+                  isRevealed={application.contact_revealed || false}
+                />
+              </div>
+            )}
+
+            <div className="flex gap-2 mt-4">
               {application.status === 'pending' && (
                 <Button
                   size="sm"

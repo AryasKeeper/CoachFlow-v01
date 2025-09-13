@@ -25,11 +25,12 @@ const navItems = [
     href: "/org/bookings",
     icon: Calendar
   },
-  {
-    label: "Messages",
-    href: "/org/messages",
-    icon: MessageSquare
-  },
+  // Messages feature temporarily disabled - will be replaced with contact details
+  // {
+  //   label: "Messages",
+  //   href: "/org/messages",
+  //   icon: MessageSquare
+  // },
   {
     label: "Settings",
     href: "/org/settings",

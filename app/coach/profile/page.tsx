@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useForm } from "react-hook-form"
-import { 
+import {
   User,
   DollarSign,
   MapPin,
@@ -19,7 +19,13 @@ import {
   Plus,
   X,
   Save,
-  AlertCircle
+  AlertCircle,
+  Phone,
+  Mail,
+  Linkedin,
+  Globe,
+  Calendar,
+  Award
 } from "lucide-react"
 
 interface ProfileForm {
@@ -29,6 +35,13 @@ interface ProfileForm {
   rate_flat?: number
   travel_km?: number
   abn?: string
+  phone_number?: string
+  preferred_contact_method?: string
+  contact_availability?: string
+  linkedin_url?: string
+  years_experience?: number
+  coaching_philosophy?: string
+  achievements?: string
 }
 
 const SPECIALTIES_OPTIONS = [
@@ -87,6 +100,13 @@ export default function CoachProfilePage() {
       setValue('rate_flat', profile.rate_flat || undefined)
       setValue('travel_km', profile.travel_km || undefined)
       setValue('abn', profile.abn || '')
+      setValue('phone_number', profile.phone_number || '')
+      setValue('preferred_contact_method', profile.preferred_contact_method || 'email')
+      setValue('contact_availability', profile.contact_availability || '')
+      setValue('linkedin_url', profile.linkedin_url || '')
+      setValue('years_experience', profile.years_experience || 0)
+      setValue('coaching_philosophy', profile.coaching_philosophy || '')
+      setValue('achievements', profile.achievements || '')
       setSpecialties(profile.specialties || [])
       setSuburbs(profile.suburbs || [])
     }
@@ -145,6 +165,13 @@ export default function CoachProfilePage() {
         rate_flat: data.rate_flat || null,
         travel_km: data.travel_km || null,
         abn: data.abn || null,
+        phone_number: data.phone_number || null,
+        preferred_contact_method: data.preferred_contact_method || 'email',
+        contact_availability: data.contact_availability || null,
+        linkedin_url: data.linkedin_url || null,
+        years_experience: data.years_experience || 0,
+        coaching_philosophy: data.coaching_philosophy || null,
+        achievements: data.achievements || null,
       }
       
       if (existingProfile) {
@@ -197,29 +224,139 @@ export default function CoachProfilePage() {
           </div>
         )}
         
+        {/* Contact Information */}
+        <GlassCard>
+          <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            This information will only be shared with organizations after they accept your application
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone_number">Phone Number</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="phone_number"
+                  type="tel"
+                  className="pl-10"
+                  placeholder="0412 345 678"
+                  {...register("phone_number")}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="preferred_contact_method">Preferred Contact Method</Label>
+              <Select
+                defaultValue="email"
+                onValueChange={(value) => setValue('preferred_contact_method', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select preferred contact" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="phone">Phone</SelectItem>
+                  <SelectItem value="both">Either Email or Phone</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contact_availability">Contact Availability</Label>
+              <Input
+                id="contact_availability"
+                type="text"
+                placeholder="e.g., Weekdays 9am-5pm"
+                {...register("contact_availability")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="linkedin_url">LinkedIn Profile</Label>
+              <div className="relative">
+                <Linkedin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="linkedin_url"
+                  type="url"
+                  className="pl-10"
+                  placeholder="https://linkedin.com/in/yourprofile"
+                  {...register("linkedin_url")}
+                />
+              </div>
+            </div>
+          </div>
+        </GlassCard>
+
         {/* Bio Section */}
         <GlassCard>
           <h2 className="text-xl font-semibold mb-4">About You</h2>
-          
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea
-              id="bio"
-              rows={4}
-              placeholder="Tell organizations about your coaching experience, philosophy, and what makes you unique..."
-              {...register("bio", {
-                maxLength: {
-                  value: 500,
-                  message: "Bio must be less than 500 characters"
-                }
-              })}
-            />
-            {errors.bio && (
-              <p className="text-sm text-destructive">{errors.bio.message}</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Max 500 characters
-            </p>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                rows={4}
+                placeholder="Tell organizations about your coaching experience, philosophy, and what makes you unique..."
+                {...register("bio", {
+                  maxLength: {
+                    value: 500,
+                    message: "Bio must be less than 500 characters"
+                  }
+                })}
+              />
+              {errors.bio && (
+                <p className="text-sm text-destructive">{errors.bio.message}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Max 500 characters
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="coaching_philosophy">Coaching Philosophy</Label>
+              <Textarea
+                id="coaching_philosophy"
+                rows={3}
+                placeholder="Describe your coaching approach and philosophy..."
+                {...register("coaching_philosophy")}
+              />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="years_experience">Years of Experience</Label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="years_experience"
+                    type="number"
+                    className="pl-10"
+                    placeholder="5"
+                    min="0"
+                    {...register("years_experience", {
+                      min: { value: 0, message: "Years must be positive" }
+                    })}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="achievements">Key Achievements</Label>
+                <div className="relative">
+                  <Award className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="achievements"
+                    type="text"
+                    className="pl-10"
+                    placeholder="e.g., State Champion 2023"
+                    {...register("achievements")}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </GlassCard>
         
