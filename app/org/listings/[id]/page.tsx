@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { BadgeRow } from "@/components/ui/badge-row"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ContactDetailsCard } from "@/components/contact-details-card"
 import Link from "next/link"
 import { 
   MapPin, 
@@ -239,10 +240,7 @@ export default async function ListingDetailPage({ params }: PageProps) {
           <GlassCard>
             <h2 className="text-lg font-semibold mb-2">Quick Actions</h2>
             <div className="space-y-2">
-              <Button className="w-full" variant="outline">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Message All Applicants
-              </Button>
+              {/* Messaging disabled - contact details shown after acceptance */}
               <Button className="w-full" variant="outline">
                 Close Listing
               </Button>
@@ -390,15 +388,28 @@ function ApplicationCard({ application, listingId }: { application: any, listing
           {application.status === 'pending' && (
             <div className="flex gap-2">
               <Button size="sm">
-                Accept & Book
-              </Button>
-              <Button size="sm" variant="outline">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Message
+                Accept Application
               </Button>
               <Button size="sm" variant="ghost" className="text-destructive">
                 Reject
               </Button>
+            </div>
+          )}
+
+          {application.status === 'accepted' && (
+            <div className="mt-4">
+              <ContactDetailsCard
+                contactInfo={{
+                  name: coach?.name,
+                  email: coach?.email,
+                  phone: profile?.phone_number,
+                  preferredContact: profile?.preferred_contact_method,
+                  linkedin: profile?.linkedin_url,
+                  location: profile?.suburbs?.join(", ")
+                }}
+                type="coach"
+                isRevealed={application.contact_revealed || false}
+              />
             </div>
           )}
         </div>

@@ -1,11 +1,12 @@
 import { requireRole } from "@/lib/auth/utils"
 import Link from "next/link"
-import { 
-  LayoutDashboard, 
-  ClipboardList, 
+import {
+  LayoutDashboard,
+  ClipboardList,
   Calendar,
   MessageSquare,
-  Settings
+  Settings,
+  Building2
 } from "lucide-react"
 import { SidebarSignOut } from "@/components/sidebar-signout"
 
@@ -14,6 +15,11 @@ const navItems = [
     label: "Dashboard",
     href: "/org/dashboard",
     icon: LayoutDashboard
+  },
+  {
+    label: "Profile",
+    href: "/org/profile",
+    icon: Building2
   },
   {
     label: "Listings",
