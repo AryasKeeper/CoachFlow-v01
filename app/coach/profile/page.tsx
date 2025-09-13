@@ -42,7 +42,7 @@ export default async function CoachProfileViewPage() {
         travel_km,
         years_experience,
         coaching_philosophy,
-        achievements,
+        // achievements, // Temporarily disabled - column needs to be added to database
         wwcc_number,
         insurance_url,
         first_aid_url,
@@ -260,8 +260,8 @@ export default async function CoachProfileViewPage() {
         )}
       </div>
 
-      {/* Achievements */}
-      {profile?.achievements && (
+      {/* Achievements - Temporarily disabled - column needs to be added to database */}
+      {/* {profile?.achievements && (
         <GlassCard className="mb-6">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
             <Award className="w-5 h-5 text-primary" />
@@ -269,7 +269,7 @@ export default async function CoachProfileViewPage() {
           </h2>
           <p className="text-muted-foreground">{profile.achievements}</p>
         </GlassCard>
-      )}
+      )} */}
 
       {/* Verifications */}
       <GlassCard>

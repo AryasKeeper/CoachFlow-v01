@@ -41,7 +41,7 @@ interface ProfileForm {
   linkedin_url?: string
   years_experience?: number
   coaching_philosophy?: string
-  achievements?: string
+  // achievements?: string // Temporarily disabled - column needs to be added to database
 }
 
 const SPECIALTIES_OPTIONS = [
@@ -106,7 +106,7 @@ export default function CoachProfilePage() {
       setValue('linkedin_url', profile.linkedin_url || '')
       setValue('years_experience', profile.years_experience || 0)
       setValue('coaching_philosophy', profile.coaching_philosophy || '')
-      setValue('achievements', profile.achievements || '')
+      // setValue('achievements', profile.achievements || '') // Temporarily disabled
       setSpecialties(profile.specialties || [])
       setSuburbs(profile.suburbs || [])
     }
@@ -171,7 +171,7 @@ export default function CoachProfilePage() {
         linkedin_url: data.linkedin_url || null,
         years_experience: data.years_experience || 0,
         coaching_philosophy: data.coaching_philosophy || null,
-        achievements: data.achievements || null,
+        // achievements: data.achievements || null, // Temporarily disabled
       }
       
       if (existingProfile) {
@@ -343,6 +343,7 @@ export default function CoachProfilePage() {
                 </div>
               </div>
 
+              {/* Temporarily disabled - achievements column needs to be added to database
               <div className="space-y-2">
                 <Label htmlFor="achievements">Key Achievements</Label>
                 <div className="relative">
@@ -355,7 +356,7 @@ export default function CoachProfilePage() {
                     {...register("achievements")}
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </GlassCard>
