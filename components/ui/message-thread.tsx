@@ -13,7 +13,7 @@ import {
   Clock
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { format, isToday, isYesterday } from "date-fns"
+import { formatTime, formatDateTime } from "@/lib/date-utils"
 
 interface Message {
   id: string
@@ -130,13 +130,18 @@ export function MessageThread({ threadId, currentUserId, otherUser, title }: Mes
   
   function formatMessageTime(dateString: string) {
     const date = new Date(dateString)
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const messageDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
     
-    if (isToday(date)) {
-      return `Today ${format(date, 'h:mm a')}`
-    } else if (isYesterday(date)) {
-      return `Yesterday ${format(date, 'h:mm a')}`
+    if (messageDay.getTime() === today.getTime()) {
+      return `Today ${formatTime(date)}`
+    } else if (messageDay.getTime() === yesterday.getTime()) {
+      return `Yesterday ${formatTime(date)}`
     } else {
-      return format(date, 'MMM d, h:mm a')
+      return formatDateTime(date)
     }
   }
   

@@ -15,7 +15,7 @@ import {
   Building2,
   MessageSquare
 } from "lucide-react"
-import { format } from "date-fns"
+import { formatDate } from "@/lib/date-utils"
 import Link from "next/link"
 
 export default async function CoachApplicationsPage() {
@@ -233,7 +233,7 @@ function ApplicationCard({ application }: { application: any }) {
               {nextDate && (
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span>Starts {format(nextDate, "MMM d, yyyy")}</span>
+                  <span>Starts {formatDate(nextDate, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 </div>
               )}
             </div>
@@ -247,7 +247,7 @@ function ApplicationCard({ application }: { application: any }) {
               )}
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>Applied {format(new Date(application.created_at), "MMM d, yyyy")}</span>
+                <span>Applied {formatDate(application.created_at, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
               </div>
             </div>
           </div>

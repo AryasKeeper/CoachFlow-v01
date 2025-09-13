@@ -25,7 +25,7 @@ import {
   AlertCircle,
   XCircle
 } from "lucide-react"
-import { format, parseISO, isFuture, isPast } from "date-fns"
+import { formatDate, formatTime } from "@/lib/date-utils"
 
 export default async function AdminBookingsPage() {
   const user = await requireRole('admin')
@@ -62,11 +62,11 @@ export default async function AdminBookingsPage() {
   const cancelledBookings = bookings?.filter(b => b.status === 'cancelled').length || 0
   
   const upcomingBookings = bookings?.filter(b => 
-    b.status === 'confirmed' && isFuture(parseISO(b.start_at))
+    b.status === 'confirmed' && new Date(b.start_at) > new Date()
   ).length || 0
   
   const pastBookings = bookings?.filter(b => 
-    isPast(parseISO(b.end_at))
+    new Date(b.end_at) <= new Date()
   ).length || 0
   
   const totalRevenue = bookings?.reduce((acc, booking) => {
@@ -173,7 +173,7 @@ export default async function AdminBookingsPage() {
             <div>
               <p className="text-sm text-muted-foreground">Average Rate</p>
               <p className="text-xl font-bold">
-                ${bookings?.length > 0 ? (bookings.reduce((acc, b) => acc + b.rate, 0) / bookings.length).toFixed(0) : 0}/hr
+                ${(bookings?.length || 0) > 0 ? (bookings!.reduce((acc, b) => acc + b.rate, 0) / bookings!.length).toFixed(0) : 0}/hr
               </p>
             </div>
             <DollarSign className="w-8 h-8 text-green-500" />
@@ -282,10 +282,10 @@ export default async function AdminBookingsPage() {
                     <TableCell>
                       <div className="space-y-1">
                         <p className="text-sm font-medium">
-                          {format(parseISO(booking.start_at), 'MMM d, yyyy')}
+                          {formatDate(new Date(booking.start_at), { month: 'short', day: 'numeric', year: 'numeric' })}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {format(parseISO(booking.start_at), 'h:mm a')} - {format(parseISO(booking.end_at), 'h:mm a')}
+                          {formatTime(new Date(booking.start_at))} - {formatTime(new Date(booking.end_at))}
                         </p>
                       </div>
                     </TableCell>

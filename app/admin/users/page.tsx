@@ -21,7 +21,7 @@ import {
   UserCheck,
   Building2
 } from "lucide-react"
-import { format } from "date-fns"
+import { formatDate } from "@/lib/date-utils"
 
 export default async function AdminUsersPage() {
   const user = await requireRole('admin')
@@ -96,6 +96,10 @@ export default async function AdminUsersPage() {
       wwcc_number: string | null
       insurance_url: string | null
       first_aid_url: string | null
+    } | null
+    org_profiles?: {
+      org_name: string | null
+      org_type: string | null
     } | null
   }
 
@@ -247,7 +251,7 @@ export default async function AdminUsersPage() {
                   
                   <TableCell>
                     <span className="text-sm text-muted-foreground">
-                      {format(new Date(user.created_at), 'MMM d, yyyy')}
+                      {formatDate(new Date(user.created_at), { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                   </TableCell>
                   

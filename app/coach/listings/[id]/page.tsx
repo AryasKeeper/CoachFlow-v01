@@ -23,7 +23,7 @@ import {
   AlertCircle,
   CheckCircle
 } from "lucide-react"
-import { format } from "date-fns"
+import { formatDate } from "@/lib/date-utils"
 
 interface PageProps {
   params: Promise<{
@@ -149,19 +149,19 @@ export default function CoachListingDetailPage({ params }: PageProps) {
       }
       
       // Create or get message thread for this application
-      if (listing?.org_id) {
-        // Get or create thread between coach and organization
-        const { data: thread, error: threadError } = await supabase
+      if (listing?.org_id && application) {
+        // Get or create thread for this application
+        const { data: threadId, error: threadError } = await supabase
           .rpc('get_or_create_message_thread', {
-            participant_ids: [user.id, listing.org_id]
+            p_application_id: application.id
           })
         
-        if (!threadError && thread) {
+        if (!threadError && threadId) {
           // Send the application message as the first message in the thread
           await supabase
             .from('messages')
             .insert({
-              thread_id: thread.id,
+              thread_id: threadId,
               sender_id: user.id,
               content: `Application for: ${listing.title}\n\n${applicationMessage}${proposedRate ? `\n\nProposed rate: $${proposedRate}/hr` : ''}`,
               metadata: {
@@ -176,7 +176,7 @@ export default function CoachListingDetailPage({ params }: PageProps) {
             .from('message_notifications')
             .insert({
               user_id: listing.org_id,
-              thread_id: thread.id,
+              thread_id: threadId,
               message: `New application for ${listing.title}`,
               type: 'application',
               metadata: {
@@ -337,7 +337,7 @@ export default function CoachListingDetailPage({ params }: PageProps) {
                     <div className="space-y-1">
                       {listing.dates.map((date: string, index: number) => (
                         <div key={index} className="text-sm text-muted-foreground">
-                          {format(new Date(date), "EEEE, MMMM d, yyyy")}
+                          {formatDate(date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                         </div>
                       ))}
                     </div>

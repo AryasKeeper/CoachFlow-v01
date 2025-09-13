@@ -24,7 +24,7 @@ import {
   CheckCircle,
   Clock
 } from "lucide-react"
-import { format } from "date-fns"
+import { formatDate } from "@/lib/date-utils"
 
 export default async function AdminListingsPage() {
   const user = await requireRole('admin')
@@ -239,7 +239,7 @@ export default async function AdminListingsPage() {
                   <TableCell>
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                       <Clock className="w-3 h-3" />
-                      <span>{format(new Date(listing.created_at), 'MMM d, yyyy')}</span>
+                      <span>{formatDate(new Date(listing.created_at), { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                   </TableCell>
                 </TableRow>

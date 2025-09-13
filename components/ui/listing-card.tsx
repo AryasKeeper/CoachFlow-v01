@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 import { GlassCard } from "./glass-card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Clock, DollarSign } from "lucide-react"
-import { format } from "date-fns"
+// Removed date-fns to fix Jest worker error
 
 type ListingDate = {
   start_date: string
@@ -146,7 +146,7 @@ export function ListingCard({ listing, onClick, className }: ListingCardProps) {
                   ? (() => {
                       try {
                         const date = new Date(listing.dates[0].start_date)
-                        return !isNaN(date.getTime()) ? format(date, "MMM d, yyyy") : "Date TBD"
+                        return !isNaN(date.getTime()) ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "Date TBD"
                       } catch {
                         return "Date TBD"
                       }

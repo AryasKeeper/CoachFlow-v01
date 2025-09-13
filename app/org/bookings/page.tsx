@@ -15,7 +15,7 @@ import {
   XCircle,
   AlertCircle
 } from "lucide-react"
-import { format } from "date-fns"
+import { formatDate, formatTime } from "@/lib/date-utils"
 import Link from "next/link"
 
 export default async function OrgBookingsPage() {
@@ -212,13 +212,13 @@ function BookingCard({
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
-                <span>{format(new Date(booking.start_at), "EEEE, MMMM d, yyyy")}</span>
+                <span>{formatDate(new Date(booking.start_at), { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="w-4 h-4 text-muted-foreground" />
                 <span>
-                  {format(new Date(booking.start_at), "h:mm a")} - 
-                  {format(new Date(booking.end_at), "h:mm a")}
+                  {formatTime(new Date(booking.start_at))} - 
+                  {formatTime(new Date(booking.end_at))}
                 </span>
               </div>
             </div>

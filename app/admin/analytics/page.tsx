@@ -14,7 +14,19 @@ import {
   Star,
   Clock
 } from "lucide-react"
-import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format } from "date-fns"
+// Date manipulation using native Date methods to replace date-fns
+
+// Helper functions to replace date-fns
+function startOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1)
+}
+
+function startOfWeek(date: Date): Date {
+  const d = new Date(date)
+  const day = d.getDay()
+  const diff = d.getDate() - day
+  return new Date(d.setDate(diff))
+}
 
 export default async function AdminAnalyticsPage() {
   const user = await requireRole('admin')
@@ -61,10 +73,10 @@ export default async function AdminAnalyticsPage() {
   ])
   
   // Calculate growth rates
-  const userGrowth = usersLastMonth > 0 ? ((usersThisMonth - usersLastMonth) / usersLastMonth * 100) : 0
-  const listingGrowth = listingsLastMonth > 0 ? ((listingsThisMonth - listingsLastMonth) / listingsLastMonth * 100) : 0
-  const applicationGrowth = applicationsLastMonth > 0 ? ((applicationsThisMonth - applicationsLastMonth) / applicationsLastMonth * 100) : 0
-  const bookingGrowth = bookingsLastMonth > 0 ? ((bookingsThisMonth - bookingsLastMonth) / bookingsLastMonth * 100) : 0
+  const userGrowth = (usersLastMonth || 0) > 0 ? (((usersThisMonth || 0) - (usersLastMonth || 0)) / (usersLastMonth || 0) * 100) : 0
+  const listingGrowth = (listingsLastMonth || 0) > 0 ? (((listingsThisMonth || 0) - (listingsLastMonth || 0)) / (listingsLastMonth || 0) * 100) : 0
+  const applicationGrowth = (applicationsLastMonth || 0) > 0 ? (((applicationsThisMonth || 0) - (applicationsLastMonth || 0)) / (applicationsLastMonth || 0) * 100) : 0
+  const bookingGrowth = (bookingsLastMonth || 0) > 0 ? (((bookingsThisMonth || 0) - (bookingsLastMonth || 0)) / (bookingsLastMonth || 0) * 100) : 0
   
   // Get top performing coaches
   const { data: topCoaches } = await supabase
@@ -212,7 +224,7 @@ export default async function AdminAnalyticsPage() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                      <span className="font-bold">{coach.rating_avg.toFixed(1)}</span>
+                      <span className="font-bold">{(coach.rating_avg || 0).toFixed(1)}</span>
                     </div>
                   </div>
                 ))
@@ -287,8 +299,8 @@ export default async function AdminAnalyticsPage() {
               </div>
             </div>
             <p className="text-2xl font-bold text-blue-600">
-              {bookingsThisMonth > 0 && applicationsThisMonth > 0 
-                ? `${((bookingsThisMonth / applicationsThisMonth) * 100).toFixed(1)}%`
+              {(bookingsThisMonth || 0) > 0 && (applicationsThisMonth || 0) > 0 
+                ? `${(((bookingsThisMonth || 0) / (applicationsThisMonth || 0)) * 100).toFixed(1)}%`
                 : "0%"
               }
             </p>

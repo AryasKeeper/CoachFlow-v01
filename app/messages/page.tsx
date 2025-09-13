@@ -5,7 +5,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { MessageSquare, Clock } from "lucide-react"
-import { format, isToday, isYesterday } from "date-fns"
+import { formatTime, formatDate } from "@/lib/date-utils"
 import Link from "next/link"
 
 export default async function MessagesPage() {
@@ -116,13 +116,18 @@ export default async function MessagesPage() {
   
   function formatMessageTime(dateString: string) {
     const date = new Date(dateString)
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const messageDay = new Date(date.getFullYear(), date.getMonth(), date.getDate())
     
-    if (isToday(date)) {
-      return format(date, 'h:mm a')
-    } else if (isYesterday(date)) {
+    if (messageDay.getTime() === today.getTime()) {
+      return formatTime(date)
+    } else if (messageDay.getTime() === yesterday.getTime()) {
       return 'Yesterday'
     } else {
-      return format(date, 'MMM d')
+      return formatDate(date, { month: 'short', day: 'numeric' })
     }
   }
   

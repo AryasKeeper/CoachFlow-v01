@@ -16,7 +16,7 @@ import {
   Building2,
   CheckCheck
 } from "lucide-react"
-import { format } from "date-fns"
+import { formatTime, formatMessageTime } from "@/lib/date-utils"
 import { cn } from "@/lib/utils"
 
 interface MessageThreadsProps {
@@ -123,19 +123,7 @@ export function MessageThreads({ threads, currentUserId, unreadCounts, isCoach }
     return messages[messages.length - 1]
   }
   
-  const formatMessageTime = (date: string) => {
-    const messageDate = new Date(date)
-    const now = new Date()
-    const diffInHours = (now.getTime() - messageDate.getTime()) / (1000 * 60 * 60)
-    
-    if (diffInHours < 24) {
-      return format(messageDate, 'HH:mm')
-    } else if (diffInHours < 168) { // 7 days
-      return format(messageDate, 'EEE')
-    } else {
-      return format(messageDate, 'dd/MM')
-    }
-  }
+  // Using formatMessageTime from date-utils instead
   
   const getThreadTitle = (thread: any) => {
     if (isCoach) {
@@ -289,7 +277,7 @@ export function MessageThreads({ threads, currentUserId, unreadCounts, isCoach }
                             "text-xs",
                             isOwn ? "text-primary-foreground/70" : "text-muted-foreground"
                           )}>
-                            {format(new Date(message.created_at), 'HH:mm')}
+                            {formatTime(message.created_at)}
                           </span>
                           {isOwn && message.is_read && (
                             <CheckCheck className="w-3 h-3 text-primary-foreground/70" />

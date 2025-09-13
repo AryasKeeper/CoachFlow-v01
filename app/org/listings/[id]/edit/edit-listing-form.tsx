@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { GlassCard } from "@/components/ui/glass-card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, AlertCircle, Plus, X, ArrowLeft, Save, Trash2 } from "lucide-react"
-import { format } from "date-fns"
+import { formatDate } from "@/lib/date-utils"
 import { SuburbSelector } from "@/components/ui/suburb-selector"
 import Link from "next/link"
 
@@ -299,7 +299,7 @@ export function EditListingForm({ listing }: EditListingFormProps) {
               {dates.map((date) => (
                 <Badge key={date} variant="secondary" className="pr-1">
                   <Calendar className="w-3 h-3 mr-1" />
-                  {format(new Date(date + 'T00:00:00'), 'MMM d, yyyy')}
+                  {formatDate(date + 'T00:00:00', { month: 'short', day: 'numeric', year: 'numeric' })}
                   <Button
                     type="button"
                     variant="ghost"

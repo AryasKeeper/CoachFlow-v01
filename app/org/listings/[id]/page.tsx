@@ -19,7 +19,7 @@ import {
   Share2,
   Edit
 } from "lucide-react"
-import { format } from "date-fns"
+// Removed date-fns to fix Jest worker error
 
 interface PageProps {
   params: Promise<{
@@ -178,7 +178,7 @@ export default async function ListingDetailPage({ params }: PageProps) {
                     <div className="space-y-1">
                       {listing.dates.map((date: string, index: number) => (
                         <div key={index} className="text-sm text-muted-foreground">
-                          {format(new Date(date), "EEEE, MMMM d, yyyy")}
+                          {new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                         </div>
                       ))}
                     </div>
