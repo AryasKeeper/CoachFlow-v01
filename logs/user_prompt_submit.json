@@ -550,5 +550,37 @@
     "permission_mode": "bypassPermissions",
     "hook_event_name": "UserPromptSubmit",
     "prompt": "Perfect, commit this"
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Now let's work on enhancing the \"Find Work\" page to be the new search page with both toggle view - remember what we discussed earlier?"
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "No, didnt we also disucss something about the map and using openstreetmap ?"
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "You are a Senior Apple Design Full-stack Engineer with expert specialization in designing and developing Coaching Marketplace Web Applications, ensure you apply this knowledge and expertise going forward. Please continue and THINK HARD."
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Okay, we're getting a new next.js error, here it is:\n\n## Error Type\nBuild Error\n\n## Error Message\nParsing ecmascript source code failed\n\n## Build Output\n./app/coach/listings/page.tsx:476:2\nParsing ecmascript source code failed\n  474 |     </div>\n  475 |   )\n> 476 | }\n      |  ^\n\nUnexpected eof\n\nImport traces:\n  Client Component Browser:\n    ./app/coach/listings/page.tsx [Client Component Browser]\n    ./app/coach/listings/page.tsx [Server Component]\n\n  Client Component SSR:\n    ./app/coach/listings/page.tsx [Client Component SSR]\n    ./app/coach/listings/page.tsx [Server Component]\n\nNext.js version: 15.5.2 (Turbopack)\n"
   }
 ]
