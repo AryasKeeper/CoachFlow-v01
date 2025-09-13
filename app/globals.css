@@ -151,6 +151,19 @@
     border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
   }
   
+  /* Animation utilities */
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+  
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+  
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+  
   /* Typography utilities */
   .text-h1 {
     font-size: var(--text-h1);

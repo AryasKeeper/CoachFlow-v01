@@ -43,6 +43,7 @@ export default function CoachListingDetailPage({ params }: PageProps) {
   const [applicationMessage, setApplicationMessage] = useState("")
   const [proposedRate, setProposedRate] = useState("")
   const [isVerified, setIsVerified] = useState(false)
+  const [isFirstApplication, setIsFirstApplication] = useState(false)
   
   const supabase = createClient()
   
@@ -98,6 +99,14 @@ export default function CoachListingDetailPage({ params }: PageProps) {
         .single()
         
       setHasApplied(!!existingApplication)
+      
+      // Check if this would be the coach's first application
+      const { count } = await supabase
+        .from('applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('coach_id', user.id)
+      
+      setIsFirstApplication(count === 0)
     } catch (err) {
       setError('Failed to load listing')
     } finally {
@@ -335,12 +344,35 @@ export default function CoachListingDetailPage({ params }: PageProps) {
                   )}
                   
                   {success ? (
-                    <div className="text-center py-8">
-                      <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-600" />
-                      <p className="font-medium text-green-800 mb-2">Application sent!</p>
-                      <p className="text-sm text-muted-foreground">
-                        Redirecting to your applications...
-                      </p>
+                    <div className="text-center py-8 relative">
+                      {isFirstApplication ? (
+                        <>
+                          {/* Firework animation for first application */}
+                          <div className="absolute inset-0 pointer-events-none">
+                            <div className="animate-ping absolute top-4 left-1/4 w-2 h-2 bg-yellow-400 rounded-full"></div>
+                            <div className="animate-ping absolute top-8 right-1/4 w-2 h-2 bg-blue-400 rounded-full animation-delay-200"></div>
+                            <div className="animate-ping absolute top-12 left-1/3 w-2 h-2 bg-green-400 rounded-full animation-delay-400"></div>
+                            <div className="animate-ping absolute top-6 right-1/3 w-2 h-2 bg-red-400 rounded-full animation-delay-600"></div>
+                          </div>
+                          <div className="text-6xl mb-4">🎉</div>
+                          <p className="text-xl font-bold text-green-800 mb-2">
+                            Congrats on your first application!
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            You're on your way to coaching greatness! Redirecting to your applications...
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-600" />
+                          <p className="text-lg font-semibold text-green-800 mb-2">
+                            Nice! You successfully applied for this listing
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            We'll notify you when the organization responds. Redirecting...
+                          </p>
+                        </>
+                      )}
                     </div>
                   ) : (
                     <form onSubmit={(e) => { e.preventDefault(); handleApply(); }} className="space-y-4">

@@ -149,14 +149,14 @@ export function Navigation() {
             {!isAuthPage && !isLoading && (
               <>
                 {!isLoggedIn ? (
-                  <>
-                    <Button variant="ghost" asChild>
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" asChild>
                       <Link href="/auth/sign-in">Sign In</Link>
                     </Button>
-                    <Button asChild>
-                      <Link href="/auth/sign-up">Get Started</Link>
+                    <Button size="sm" className="bg-primary hover:bg-primary/90" asChild>
+                      <Link href="/auth/sign-up">Sign Up</Link>
                     </Button>
-                  </>
+                  </div>
                 ) : (
                   <div className="flex items-center space-x-4">
                     {isDashboard && (
@@ -247,14 +247,14 @@ export function Navigation() {
               {!isAuthPage && !isLoading && (
                 <div className="space-y-2 pt-4 border-t">
                   {!isLoggedIn ? (
-                    <>
+                    <div className="space-y-2">
                       <Button variant="ghost" className="w-full" asChild>
                         <Link href="/auth/sign-in">Sign In</Link>
                       </Button>
-                      <Button className="w-full" asChild>
-                        <Link href="/auth/sign-up">Get Started</Link>
+                      <Button className="w-full bg-primary hover:bg-primary/90" asChild>
+                        <Link href="/auth/sign-up">Sign Up</Link>
                       </Button>
-                    </>
+                    </div>
                   ) : (
                     <div className="space-y-3">
                       {isDashboard && (

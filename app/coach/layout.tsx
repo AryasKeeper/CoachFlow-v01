@@ -14,7 +14,7 @@ import {
   LogOut,
   AlertCircle
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { SignOutButton } from "@/components/ui/sign-out-button"
 import { Badge } from "@/components/ui/badge"
 
 const navItems = [
@@ -77,13 +77,6 @@ export default async function CoachLayout({
   
   const isVerified = profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url
   
-  async function signOut() {
-    'use server'
-    const supabase = await createServerSupabaseClient()
-    await supabase.auth.signOut()
-    redirect('/')
-  }
-  
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
@@ -123,16 +116,7 @@ export default async function CoachLayout({
         </nav>
         
         <div className="p-4 mt-auto">
-          <form action={signOut}>
-            <Button 
-              type="submit"
-              variant="ghost" 
-              className="w-full justify-start gap-3"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </Button>
-          </form>
+          <SignOutButton className="w-full justify-start gap-3" />
         </div>
       </aside>
       

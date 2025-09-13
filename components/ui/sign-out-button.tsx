@@ -15,8 +15,8 @@ export function SignOutButton({ className }: SignOutButtonProps) {
   
   const handleSignOut = async () => {
     await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
+    // Force a hard refresh to clear all client-side state
+    window.location.href = '/'
   }
   
   return (

@@ -149,7 +149,6 @@ export default async function CoachApplicationsPage() {
               ))
             ) : (
               <EmptyState
-                icon={CheckCircle}
                 title="No accepted applications"
                 description="Accepted applications will appear here"
               />
@@ -163,7 +162,6 @@ export default async function CoachApplicationsPage() {
               ))
             ) : (
               <EmptyState
-                icon={XCircle}
                 title="No rejected applications"
                 description="Rejected applications will appear here"
               />
