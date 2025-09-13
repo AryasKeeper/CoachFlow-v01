@@ -10,9 +10,19 @@ import {
   Building2,
   Users
 } from "lucide-react"
-import { UserDropdown } from "@/components/user-dropdown"
+import { SidebarSignOut } from "@/components/sidebar-signout"
 
 const navItems = [
+  {
+    label: "Dashboard",
+    href: "/org/dashboard",
+    icon: LayoutDashboard
+  },
+  {
+    label: "Profile",
+    href: "/org/profile",
+    icon: Building2
+  },
   {
     label: "My Listings",
     href: "/org/listings",
@@ -27,6 +37,11 @@ const navItems = [
     label: "Bookings",
     href: "/org/bookings",
     icon: Calendar
+  },
+  {
+    label: "Settings",
+    href: "/org/settings",
+    icon: Settings
   }
 ]
 
@@ -68,20 +83,14 @@ export default async function OrgLayout({
             </Link>
           ))}
         </nav>
+
+        <div className="p-4 mt-auto">
+          <SidebarSignOut />
+        </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Header with User Dropdown */}
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-16 items-center justify-end px-6">
-            <UserDropdown
-              email={user.email}
-              role="org"
-              name={profile?.org_name || undefined}
-            />
-          </div>
-        </div>
         {children}
       </main>
     </div>

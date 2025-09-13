@@ -17,9 +17,19 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { UserDropdown } from "@/components/user-dropdown"
+import { SidebarSignOut } from "@/components/sidebar-signout"
 
 const navItems = [
+  {
+    label: "Dashboard",
+    href: "/coach/dashboard",
+    icon: LayoutDashboard
+  },
+  {
+    label: "Profile",
+    href: "/coach/profile",
+    icon: User
+  },
   {
     label: "Find Work",
     href: "/coach/listings",
@@ -39,6 +49,11 @@ const navItems = [
     label: "Availability",
     href: "/coach/availability",
     icon: Calendar
+  },
+  {
+    label: "Settings",
+    href: "/coach/settings",
+    icon: Settings
   }
 ]
 
@@ -50,14 +65,14 @@ export default async function CoachLayout({
   const user = await requireRole('coach')
   const supabase = await createServerSupabaseClient()
   
-  // Get coach profile and user details to check verification status
+  // Get coach profile to check verification status
   const { data: profile } = await supabase
     .from('coach_profiles')
-    .select('*, user:users!coach_profiles_user_id_fkey(first_name, last_name)')
+    .select('*')
     .eq('user_id', user.id)
     .single()
   
-  const isVerified = profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url
+  const isVerified = !!(profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url)
   
   return (
     <div className="min-h-screen flex">
@@ -65,6 +80,7 @@ export default async function CoachLayout({
       <aside className="w-64 border-r bg-muted/20">
         <div className="p-6">
           <h2 className="text-lg font-semibold mb-2">Coach Portal</h2>
+          <p className="text-sm text-muted-foreground">{user.email}</p>
           <div className="mt-3">
             {isVerified ? (
               <Badge className="bg-green-500/10 text-green-700 border-green-200">
@@ -95,21 +111,14 @@ export default async function CoachLayout({
             </Link>
           ))}
         </nav>
+
+        <div className="p-4 mt-auto">
+          <SidebarSignOut />
+        </div>
       </aside>
       
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Header with User Dropdown */}
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-16 items-center justify-end px-6">
-            <UserDropdown
-              email={user.email}
-              role="coach"
-              name={`${profile?.user?.first_name || ''} ${profile?.user?.last_name || ''}`.trim() || undefined}
-            />
-          </div>
-        </div>
-
         {!isVerified && (
           <div className="bg-orange-500/10 border-b border-orange-200 px-4 py-3">
             <div className="container mx-auto flex items-center justify-between">

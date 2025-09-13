@@ -184,12 +184,19 @@ export function Navigation() {
                           <LayoutDashboard className="mr-2 h-4 w-4" />
                           Dashboard
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => router.push(userRole === 'coach' ? '/coach/profile' : '/org/settings')}
+                        <DropdownMenuItem
+                          onClick={() => router.push(userRole === 'coach' ? '/coach/profile' : '/org/profile')}
+                          className="cursor-pointer"
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => router.push(userRole === 'coach' ? '/coach/settings' : '/org/settings')}
                           className="cursor-pointer"
                         >
                           <Settings className="mr-2 h-4 w-4" />
-                          {userRole === 'coach' ? 'Profile' : 'Settings'}
+                          Settings
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
@@ -296,12 +303,23 @@ export function Navigation() {
                           variant="ghost"
                           className="w-full justify-start"
                           onClick={() => {
-                            router.push(userRole === 'coach' ? '/coach/profile' : '/org/settings')
+                            router.push(userRole === 'coach' ? '/coach/profile' : '/org/profile')
+                            setIsMobileMenuOpen(false)
+                          }}
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          Profile
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            router.push(userRole === 'coach' ? '/coach/settings' : '/org/settings')
                             setIsMobileMenuOpen(false)
                           }}
                         >
                           <Settings className="mr-2 h-4 w-4" />
-                          {userRole === 'coach' ? 'Profile' : 'Settings'}
+                          Settings
                         </Button>
                       </div>
                       <Button
