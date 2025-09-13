@@ -366,5 +366,77 @@
     "permission_mode": "bypassPermissions",
     "hook_event_name": "UserPromptSubmit",
     "prompt": "Okay nice, so I tested the messaging functionality and applied using a coach account to one of the organizations demo acounts and the application had a message. I now logged into the organization account and can see that and can see the new application with the message under it but the messages wasnt delivered to my \"Messages\" page and i didnt get the notification. Any message that comes with an application should automatically appear in the messages box, the org can then click this message to open the message thread page and begin messaging back and forth with the coach with the \"Accept/decline/view profile (to be enabled when profile pages are developed)\" - do you get what im saying? \n\nadditionally, now when clicking the \"view\" button on listings we're getting this next.js error:\n\n## Error Type\nRuntime Error\n\n## Error Message\nJest worker encountered 2 child process exceptions, exceeding retry limit\n\nNext.js version: 15.5.2 (Turbopack)\n"
+  },
+  {
+    "session_id": "31a0949f-3856-4b95-84c5-749e483fa5b3",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\31a0949f-3856-4b95-84c5-749e483fa5b3.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "still getitng this:\n\n## Error Type\nRuntime Error\n\n## Error Message\nJest worker encountered 2 child process exceptions, exceeding retry limit\n\nNext.js version: 15.5.2 (Turbopack)\n\nTHINK HARD. THINK LIKE AN EXPERT COACHING APPICATION UX ARCHITECT."
+  },
+  {
+    "session_id": "31a0949f-3856-4b95-84c5-749e483fa5b3",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\31a0949f-3856-4b95-84c5-749e483fa5b3.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Please restart the frontend and backend, check ports, and then let me know when its ready for me to test it manually"
+  },
+  {
+    "session_id": "b0d17f12-b1c6-4257-ba5c-7d9cd0ebbe7c",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\b0d17f12-b1c6-4257-ba5c-7d9cd0ebbe7c.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "please restart both the frontend and the backend for me to test it manually"
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "kay, you just killed yourself lol now launch it please for me to test manuallky"
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "okay perfect, commit this and let's work on some things i have for you."
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Okay, so i just tested out the new listings messaging functionality with a fresh coach account with which i applied and sent a message - i then opened up the organization account and noticed that there were no notifications on the messages button on the sidepanel and when clicking the messages it stil says there are no messages. I think the messaging functionality may require some deep web research on how to configure/if we need to add dependencies or what not. THINK HARD. THINK LIKE AN EXPERT COACHING APPICATION UX ARCHITECT."
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "look up 2025 best practices not 2024"
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Now make the \"Withdraw Application\" functional for coaches so that when they click it, the application is deleted entirely, if they want to re-apply they can simply go to the listings page and apply again. Ensure there is a \"Are you sure you want to wirhdraw this application?\" pop-up message first."
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "okay, i just tried it and it got stuck on \"Withdrawing...\" and nothing happened, i then refreshed and tried again and it after confirming it simply closed the pop up and nothing happened (even on a manual refresh) the listing still is active and dashboard still says \"1 active listing\" ... THINK HARD."
   }
 ]

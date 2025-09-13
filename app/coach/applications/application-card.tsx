@@ -1,0 +1,224 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
+import { GlassCard } from "@/components/ui/glass-card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  MapPin,
+  Calendar,
+  DollarSign,
+  Building2,
+  MessageSquare,
+  Clock,
+  AlertTriangle
+} from "lucide-react"
+import { formatDate } from "@/lib/date-utils"
+
+export function ApplicationCard({ application }: { application: any }) {
+  const router = useRouter()
+  const [isWithdrawing, setIsWithdrawing] = useState(false)
+  const [showWithdrawDialog, setShowWithdrawDialog] = useState(false)
+  const listing = application.listing
+  const nextDate = listing?.dates && Array.isArray(listing.dates) && listing.dates.length > 0
+    ? new Date(listing.dates.sort()[0])
+    : null
+
+  const getStatusBadge = () => {
+    switch (application.status) {
+      case 'pending':
+        return <Badge variant="secondary">Pending Review</Badge>
+      case 'accepted':
+        return <Badge className="bg-green-500/10 text-green-700 border-green-200">Accepted</Badge>
+      case 'rejected':
+        return <Badge className="bg-red-500/10 text-red-700 border-red-200">Rejected</Badge>
+      default:
+        return <Badge variant="outline">{application.status}</Badge>
+    }
+  }
+
+  const handleWithdrawApplication = async () => {
+    setIsWithdrawing(true)
+    const supabase = createClient()
+
+    try {
+      console.log('Attempting to withdraw application:', application.id)
+
+      // Delete the application
+      const { data, error } = await supabase
+        .from('applications')
+        .delete()
+        .eq('id', application.id)
+        .select() // Return deleted rows to confirm deletion
+
+      if (error) {
+        console.error('Supabase error withdrawing application:', error)
+        // More specific error messages
+        if (error.code === 'PGRST116') {
+          alert('Permission denied. The application deletion policy may not be active yet. Please contact support or try again later.')
+        } else if (error.message?.includes('violates foreign key constraint')) {
+          alert('Cannot withdraw application due to existing messages. Please contact support.')
+        } else {
+          alert(`Failed to withdraw application: ${error.message || 'Unknown error'}`)
+        }
+      } else {
+        console.log('Application withdrawn successfully:', data)
+        // Close dialog first
+        setShowWithdrawDialog(false)
+        // Then refresh the page to show updated list
+        router.refresh()
+      }
+    } catch (error) {
+      console.error('Unexpected error withdrawing application:', error)
+      alert('An unexpected error occurred. Please check the console for details.')
+    } finally {
+      setIsWithdrawing(false)
+    }
+  }
+
+  return (
+    <>
+      <GlassCard>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <Link
+                  href={`/coach/listings/${listing?.id}`}
+                  className="text-lg font-semibold hover:text-primary transition-colors"
+                >
+                  {listing?.title || "Deleted Listing"}
+                </Link>
+                <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Building2 className="w-4 h-4" />
+                    {listing?.org?.org_profiles?.[0]?.org_name || "Unknown Organization"}
+                  </span>
+                  {listing?.status !== 'active' && (
+                    <Badge variant="outline" className="text-xs">
+                      Listing {listing?.status}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              {getStatusBadge()}
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span>{listing?.location || "Location TBD"}</span>
+                </div>
+                {nextDate && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
+                    <span>Starts {formatDate(nextDate, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2 text-sm">
+                {(listing?.pay_min || listing?.pay_max) && (
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-muted-foreground" />
+                    <span>
+                      {listing.pay_min && listing.pay_max
+                        ? `$${listing.pay_min} - $${listing.pay_max}/hr`
+                        : listing.pay_min
+                        ? `From $${listing.pay_min}/hr`
+                        : `Up to $${listing.pay_max}/hr`}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span>Applied {formatDate(application.created_at, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+              </div>
+            </div>
+
+            {application.message && (
+              <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+                <p className="text-sm font-medium mb-1">Your Application Message:</p>
+                <p className="text-sm text-muted-foreground">{application.message}</p>
+              </div>
+            )}
+
+            {application.proposed_rate && (
+              <div className="mb-4">
+                <Badge variant="outline">
+                  Proposed Rate: ${application.proposed_rate}/hr
+                </Badge>
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              {application.status === 'accepted' && (
+                <Link href={`/messages`}>
+                  <Button size="sm" variant="outline">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Message Organization
+                  </Button>
+                </Link>
+              )}
+              {application.status === 'pending' && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-muted-foreground hover:text-destructive"
+                  onClick={() => setShowWithdrawDialog(true)}
+                  disabled={isWithdrawing}
+                >
+                  {isWithdrawing ? 'Withdrawing...' : 'Withdraw Application'}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </GlassCard>
+
+      <Dialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Withdraw Application
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to withdraw this application for "{listing?.title}"?
+              This action cannot be undone. You can reapply to this listing later if needed.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowWithdrawDialog(false)}
+              disabled={isWithdrawing}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleWithdrawApplication}
+              disabled={isWithdrawing}
+              variant="destructive"
+            >
+              {isWithdrawing ? 'Withdrawing...' : 'Yes, Withdraw Application'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}

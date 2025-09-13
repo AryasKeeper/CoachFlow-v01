@@ -7,11 +7,27 @@ export default async function OrgMessagesPage() {
   const user = await requireRole('org')
   const supabase = await createServerSupabaseClient()
   
-  // Fetch message threads with latest message
+  // Fetch message threads where org is a participant
   const { data: threads } = await supabase
     .from('message_threads')
     .select(`
       *,
+      coach:users!message_threads_coach_id_fkey(
+        id,
+        email,
+        coach_profiles!inner(
+          full_name
+        )
+      ),
+      listing:listings!message_threads_listing_id_fkey(
+        id,
+        title
+      ),
+      application:applications!message_threads_application_id_fkey(
+        id,
+        status,
+        message
+      ),
       messages(
         content,
         sender_id,
@@ -20,8 +36,8 @@ export default async function OrgMessagesPage() {
         metadata
       )
     `)
-    .contains('participant_ids', [user.id])
-    .order('updated_at', { ascending: false })
+    .eq('org_id', user.id)
+    .order('last_message_at', { ascending: false })
   
   // Get unread counts
   const { data: notifications } = await supabase

@@ -4,24 +4,18 @@ import { GlassCard } from "@/components/ui/glass-card"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { 
+import {
   FileText,
   Clock,
   CheckCircle,
-  XCircle,
-  MapPin,
-  Calendar,
-  DollarSign,
-  Building2,
-  MessageSquare
+  XCircle
 } from "lucide-react"
-import { formatDate } from "@/lib/date-utils"
-import Link from "next/link"
+import { ApplicationCard } from "./application-card"
 
 export default async function CoachApplicationsPage() {
   const user = await requireRole('coach')
   const supabase = await createServerSupabaseClient()
-  
+
   // Get all applications with listing details
   const { data: applications } = await supabase
     .from('applications')
@@ -34,6 +28,8 @@ export default async function CoachApplicationsPage() {
         dates,
         timeslots,
         status,
+        pay_min,
+        pay_max,
         org:users!listings_org_id_fkey(
           org_profiles!inner(
             org_name
@@ -43,11 +39,11 @@ export default async function CoachApplicationsPage() {
     `)
     .eq('coach_id', user.id)
     .order('created_at', { ascending: false })
-  
+
   const pendingApplications = applications?.filter(a => a.status === 'pending') || []
   const acceptedApplications = applications?.filter(a => a.status === 'accepted') || []
   const rejectedApplications = applications?.filter(a => a.status === 'rejected') || []
-  
+
   const stats = [
     {
       label: "Total Applications",
@@ -78,7 +74,7 @@ export default async function CoachApplicationsPage() {
       bgColor: "bg-red-600/10"
     }
   ]
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -87,7 +83,7 @@ export default async function CoachApplicationsPage() {
           Track your coaching job applications
         </p>
       </div>
-      
+
       {/* Stats Grid */}
       <div className="grid md:grid-cols-4 gap-4 mb-8">
         {stats.map((stat) => (
@@ -104,7 +100,7 @@ export default async function CoachApplicationsPage() {
           </GlassCard>
         ))}
       </div>
-      
+
       {applications && applications.length > 0 ? (
         <Tabs defaultValue="all" className="space-y-4">
           <TabsList>
@@ -121,13 +117,13 @@ export default async function CoachApplicationsPage() {
               Rejected ({rejectedApplications.length})
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="all" className="space-y-4">
             {applications.map((application) => (
               <ApplicationCard key={application.id} application={application} />
             ))}
           </TabsContent>
-          
+
           <TabsContent value="pending" className="space-y-4">
             {pendingApplications.length > 0 ? (
               pendingApplications.map((application) => (
@@ -141,7 +137,7 @@ export default async function CoachApplicationsPage() {
               />
             )}
           </TabsContent>
-          
+
           <TabsContent value="accepted" className="space-y-4">
             {acceptedApplications.length > 0 ? (
               acceptedApplications.map((application) => (
@@ -154,7 +150,7 @@ export default async function CoachApplicationsPage() {
               />
             )}
           </TabsContent>
-          
+
           <TabsContent value="rejected" className="space-y-4">
             {rejectedApplications.length > 0 ? (
               rejectedApplications.map((application) => (
@@ -177,107 +173,3 @@ export default async function CoachApplicationsPage() {
     </div>
   )
 }
-
-function ApplicationCard({ application }: { application: any }) {
-  const listing = application.listing
-  const nextDate = listing?.dates && Array.isArray(listing.dates) && listing.dates.length > 0
-    ? new Date(listing.dates.sort()[0])
-    : null
-    
-  const getStatusBadge = () => {
-    switch (application.status) {
-      case 'pending':
-        return <Badge variant="secondary">Pending Review</Badge>
-      case 'accepted':
-        return <Badge className="bg-green-500/10 text-green-700 border-green-200">Accepted</Badge>
-      case 'rejected':
-        return <Badge className="bg-red-500/10 text-red-700 border-red-200">Rejected</Badge>
-      default:
-        return <Badge variant="outline">{application.status}</Badge>
-    }
-  }
-  
-  return (
-    <GlassCard>
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <Link 
-                href={`/coach/listings/${listing?.id}`}
-                className="text-lg font-semibold hover:text-primary transition-colors"
-              >
-                {listing?.title || "Deleted Listing"}
-              </Link>
-              <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Building2 className="w-4 h-4" />
-                  {listing?.org?.org_profiles?.org_name || "Unknown Organization"}
-                </span>
-                {listing?.status !== 'active' && (
-                  <Badge variant="outline" className="text-xs">
-                    Listing {listing?.status}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            {getStatusBadge()}
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-4 mb-4">
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-muted-foreground" />
-                <span>{listing?.location}</span>
-              </div>
-              {nextDate && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span>Starts {formatDate(nextDate, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2 text-sm">
-              {application.proposed_rate && (
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-muted-foreground" />
-                  <span>Proposed: ${application.proposed_rate}/hr</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>Applied {formatDate(application.created_at, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-              </div>
-            </div>
-          </div>
-          
-          {application.message && (
-            <div className="mb-4 p-3 rounded-lg bg-muted/50">
-              <p className="text-sm font-medium mb-1">Your message:</p>
-              <p className="text-sm text-muted-foreground">{application.message}</p>
-            </div>
-          )}
-          
-          <div className="flex gap-2">
-            {application.status === 'accepted' && (
-              <Link href={`/messages/${listing?.id}`}>
-                <Button size="sm" variant="outline">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Message Organization
-                </Button>
-              </Link>
-            )}
-            {application.status === 'pending' && (
-              <Button size="sm" variant="ghost" className="text-muted-foreground">
-                Withdraw Application
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-    </GlassCard>
-  )
-}
-
-import { Button } from "@/components/ui/button"
