@@ -172,13 +172,8 @@ export default async function CoachApplicationsPage() {
         </Tabs>
       ) : (
         <EmptyState
-          icon={FileText}
           title="No applications yet"
           description="Your job applications will appear here"
-          action={{
-            label: "Browse Opportunities",
-            onClick: () => window.location.href = '/coach/listings'
-          }}
         />
       )}
     </div>

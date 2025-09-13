@@ -163,13 +163,8 @@ export default async function OrgBookingsPage() {
         </Tabs>
       ) : (
         <EmptyState
-          icon={Calendar}
           title="No bookings yet"
           description="Accept applications from coaches to create bookings"
-          action={{
-            label: "View Listings",
-            onClick: () => window.location.href = '/org/listings'
-          }}
         />
       )}
     </div>

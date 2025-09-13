@@ -30,6 +30,7 @@ interface ListingForm {
   urgency: string
   pay_min?: number
   pay_max?: number
+  gender_preference?: string
 }
 
 export default function PostListingPage() {
@@ -40,10 +41,18 @@ export default function PostListingPage() {
   const [timeIntervals, setTimeIntervals] = useState<TimeInterval[]>([])
   const [requiredBadges, setRequiredBadges] = useState<string[]>([])
   const [suburbs, setSuburbs] = useState<string[]>([])
+  const [genderPreference, setGenderPreference] = useState<string>('no-preference')
   const [currentDate, setCurrentDate] = useState("")
   
   const supabase = createClient()
   const { register, handleSubmit, formState: { errors } } = useForm<ListingForm>()
+  
+  const GENDER_PREFERENCE_OPTIONS = [
+    { value: "no-preference", label: "No preference (shows to all coaches)" },
+    { value: "male", label: "Male coach preferred" },
+    { value: "female", label: "Female coach preferred" },
+    { value: "non-binary", label: "Non-binary coach preferred" }
+  ]
   
   const availableBadges = [
     { value: "wwcc", label: "WWCC (Working with Children)" },
@@ -114,6 +123,7 @@ export default function PostListingPage() {
           pay_max: data.pay_max,
           required_badges: requiredBadges,
           urgency: data.urgency,
+          gender_preference: genderPreference,
           status: 'active'
         })
         .select()
@@ -317,6 +327,35 @@ export default function PostListingPage() {
                 </div>
               </label>
             ))}
+          </div>
+        </GlassCard>
+        
+        {/* Coach Gender Preference */}
+        <GlassCard>
+          <h2 className="text-xl font-semibold mb-4">Coach Gender Preference</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Optional: Specify if you have a preference for coach gender (defaults to no preference)
+          </p>
+          
+          <div className="space-y-2">
+            <Label htmlFor="gender_preference">Gender Preference</Label>
+            <Select value={genderPreference} onValueChange={setGenderPreference}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select gender preference" />
+              </SelectTrigger>
+              <SelectContent>
+                {GENDER_PREFERENCE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {genderPreference === 'no-preference' 
+                ? "This listing will be visible to all coaches" 
+                : `This listing will only be visible to ${genderPreference} coaches`}
+            </p>
           </div>
         </GlassCard>
         

@@ -52,10 +52,10 @@ export default function CoachListingsPage() {
         
         setUser(currentUser)
         
-        // Get coach profile for verification check
+        // Get coach profile for verification check and gender matching
         const { data: profileData } = await supabase
           .from('coach_profiles')
-          .select('wwcc_number, insurance_url, first_aid_url, suburbs')
+          .select('wwcc_number, insurance_url, first_aid_url, suburbs, gender')
           .eq('user_id', currentUser.id)
           .single()
         
@@ -111,7 +111,23 @@ export default function CoachListingsPage() {
   // The apply functionality will be restricted in the detail page
   
   const appliedListingIds = existingApplications?.map(app => app.listing_id) || []
-  const availableListings = listings?.filter(listing => !appliedListingIds.includes(listing.id)) || []
+  
+  // Filter listings by gender preference and applications
+  const availableListings = listings?.filter(listing => {
+    // Skip listings coach has already applied to
+    if (appliedListingIds.includes(listing.id)) return false
+    
+    // Apply gender preference filter
+    if (listing.gender_preference && listing.gender_preference !== 'no-preference') {
+      // If listing has gender preference and coach doesn't have gender set, hide listing
+      if (!profile?.gender) return false
+      
+      // If listing gender preference doesn't match coach gender, hide listing
+      if (listing.gender_preference !== profile.gender) return false
+    }
+    
+    return true
+  }) || []
   
   // Categorize listings
   const urgentListings = availableListings.filter(l => l.urgency === 'urgent')

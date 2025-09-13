@@ -12,7 +12,6 @@ import {
   Calendar, 
   Clock, 
   DollarSign, 
-  Users,
   MessageSquare,
   CheckCircle,
   XCircle,
@@ -317,7 +316,6 @@ export default async function ListingDetailPage({ params }: PageProps) {
           </div>
         ) : (
           <EmptyState
-            icon={Users}
             title="No applications yet"
             description="Share this listing to start receiving applications from verified coaches"
           />

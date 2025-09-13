@@ -14,7 +14,9 @@
       "Bash(npx kill-port:*)",
       "WebFetch(domain:docs.sentry.io)",
       "Bash(curl:*)",
-      "Bash(npx supabase db reset:*)"
+      "Bash(npx supabase db reset:*)",
+      "Bash(git commit:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

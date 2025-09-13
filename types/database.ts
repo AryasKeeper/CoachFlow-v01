@@ -40,6 +40,7 @@ export type Database = {
         Row: {
           user_id: string
           bio: string | null
+          gender: string | null
           specialties: string[]
           suburbs: string[]
           rate_hourly: number | null
@@ -58,6 +59,7 @@ export type Database = {
         Insert: {
           user_id: string
           bio?: string | null
+          gender?: string | null
           specialties?: string[]
           suburbs?: string[]
           rate_hourly?: number | null
@@ -76,6 +78,7 @@ export type Database = {
         Update: {
           user_id?: string
           bio?: string | null
+          gender?: string | null
           specialties?: string[]
           suburbs?: string[]
           rate_hourly?: number | null
@@ -147,6 +150,7 @@ export type Database = {
           pay_max: number | null
           required_badges: string[]
           urgency: string | null
+          gender_preference: string | null
           status: string
           created_at: string
         }
@@ -163,6 +167,7 @@ export type Database = {
           pay_max?: number | null
           required_badges?: string[]
           urgency?: string | null
+          gender_preference?: string | null
           status?: string
           created_at?: string
         }
@@ -179,6 +184,7 @@ export type Database = {
           pay_max?: number | null
           required_badges?: string[]
           urgency?: string | null
+          gender_preference?: string | null
           status?: string
           created_at?: string
         }

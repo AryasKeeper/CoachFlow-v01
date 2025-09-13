@@ -1,15 +1,31 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Menu, X, User } from "lucide-react"
+import { 
+  Menu, 
+  X, 
+  User, 
+  ChevronDown, 
+  LayoutDashboard, 
+  Settings, 
+  LogOut 
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { SignOutButton } from "@/components/ui/sign-out-button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface NavItem {
   label: string
@@ -23,9 +39,11 @@ const publicNavItems: NavItem[] = [
 
 export function Navigation() {
   const pathname = usePathname()
+  const router = useRouter()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [userRole, setUserRole] = useState<'coach' | 'org' | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
   
@@ -48,19 +66,49 @@ export function Navigation() {
     async function getUser() {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+      
+      // Get user role from the database
+      if (user) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (userData) {
+          setUserRole(userData.role as 'coach' | 'org')
+        }
+      }
+      
       setIsLoading(false)
     }
     
     getUser()
     
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user || null)
+      
+      // Get user role when auth state changes
+      if (session?.user) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .single()
+        
+        if (userData) {
+          setUserRole(userData.role as 'coach' | 'org')
+        }
+      } else {
+        setUserRole(null)
+      }
+      
       setIsLoading(false)
     })
     
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [supabase.auth, supabase])
   
   const isAuthPage = pathname?.startsWith("/auth")
   const isDashboard = pathname?.includes("/dashboard")
@@ -116,11 +164,40 @@ export function Navigation() {
                         Free during beta
                       </Badge>
                     )}
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4" />
-                      <span className="text-sm font-medium">{user?.email}</span>
-                    </div>
-                    <SignOutButton />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="flex items-center space-x-2 hover:bg-accent"
+                        >
+                          <User className="w-4 h-4" />
+                          <span className="text-sm font-medium">{user?.email}</span>
+                          <ChevronDown className="w-4 h-4 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => router.push(userRole === 'coach' ? '/coach/dashboard' : '/org/dashboard')}
+                          className="cursor-pointer"
+                        >
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          Dashboard
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => router.push(userRole === 'coach' ? '/coach/profile' : '/org/settings')}
+                          className="cursor-pointer"
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          {userRole === 'coach' ? 'Profile' : 'Settings'}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="cursor-pointer p-0">
+                          <SignOutButton className="w-full justify-start px-2 py-1.5 h-auto font-normal" />
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 )}
               </>
@@ -185,9 +262,33 @@ export function Navigation() {
                           Free during beta
                         </Badge>
                       )}
-                      <div className="flex items-center space-x-2 px-2">
+                      <div className="flex items-center space-x-2 px-2 py-2 bg-muted/50 rounded-md">
                         <User className="w-4 h-4" />
                         <span className="text-sm font-medium">{user?.email}</span>
+                      </div>
+                      <div className="space-y-1">
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            router.push(userRole === 'coach' ? '/coach/dashboard' : '/org/dashboard')
+                            setIsMobileMenuOpen(false)
+                          }}
+                        >
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          Dashboard
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            router.push(userRole === 'coach' ? '/coach/profile' : '/org/settings')
+                            setIsMobileMenuOpen(false)
+                          }}
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          {userRole === 'coach' ? 'Profile' : 'Settings'}
+                        </Button>
                       </div>
                       <SignOutButton className="w-full" />
                     </div>

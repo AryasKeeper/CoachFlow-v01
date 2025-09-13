@@ -6,16 +6,36 @@ type UserRole = Tables<'users'>['role']
 
 export async function getUser() {
   const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  
+  // DEBUG: Log authentication details (temporarily disabled to reduce noise)
+  // console.log('🚨 CRITICAL DEBUG - Supabase Auth getUser:', {
+  //   user_id: user?.id,
+  //   user_email: user?.email,
+  //   authError,
+  //   timestamp: new Date().toISOString(),
+  //   session_info: user ? 'USER_EXISTS' : 'NO_USER'
+  // })
   
   if (!user) return null
   
   // Get the user's role from the users table
-  const { data: userData } = await supabase
+  const { data: userData, error: dbError } = await supabase
     .from('users')
     .select('*')
     .eq('id', user.id)
     .single()
+    
+  // DEBUG: Log database query results (temporarily disabled to reduce noise)
+  // console.log('🚨 CRITICAL DEBUG - Database query result:', {
+  //   query_user_id: user.id,
+  //   found_user_id: userData?.id,
+  //   found_user_email: userData?.email,
+  //   found_user_role: userData?.role,
+  //   dbError,
+  //   timestamp: new Date().toISOString(),
+  //   match: user.id === userData?.id ? 'MATCH' : 'MISMATCH'
+  // })
     
   return userData
 }

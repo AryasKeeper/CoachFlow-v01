@@ -32,7 +32,8 @@ const ORGANIZATION_TYPES = [
   "Youth Center",
   "Basketball Club",
   "Community Center",
-  "Charity Foundation"
+  "Charity Foundation",
+  "Skills Development Training"
 ]
 
 // Coach experience levels

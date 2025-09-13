@@ -27,6 +27,7 @@ interface ListingCardProps {
     pay_min: number | null
     pay_max: number | null
     urgency: string | null
+    gender_preference: string | null
     status: string
     created_at: string
     org?: {
@@ -159,9 +160,18 @@ export function ListingCard({ listing, onClick, className }: ListingCardProps) {
           "flex items-center justify-between pt-3 border-t",
           listing.status === "active" ? "border-green-200" : "border-border"
         )}>
-          <Badge variant={listing.status === "active" ? "default" : "secondary"}>
-            {listing.status}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={listing.status === "active" ? "default" : "secondary"}>
+              {listing.status}
+            </Badge>
+            {listing.gender_preference && listing.gender_preference !== 'no-preference' && (
+              <Badge variant="outline" className="text-xs">
+                {listing.gender_preference === 'male' && '♂ Male coach preferred'}
+                {listing.gender_preference === 'female' && '♀ Female coach preferred'}
+                {listing.gender_preference === 'non-binary' && '⚧ Non-binary coach preferred'}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
     </GlassCard>

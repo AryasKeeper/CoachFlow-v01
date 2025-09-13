@@ -31,6 +31,7 @@ CREATE TABLE public.coach_profiles (
   rating_avg NUMERIC(3,2),
   rating_count INTEGER DEFAULT 0,
   availability JSONB,
+  gender TEXT CHECK (gender IN ('male', 'female', 'non-binary', 'prefer-not-to-say')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -57,6 +58,7 @@ CREATE TABLE public.listings (
   pay_max NUMERIC(10,2),
   required_badges TEXT[] DEFAULT '{}',
   urgency TEXT CHECK (urgency IN ('urgent', 'soon', 'flexible')),
+  gender_preference TEXT CHECK (gender_preference IN ('male', 'female', 'non-binary', 'no-preference')) DEFAULT 'no-preference',
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'closed')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -109,10 +111,12 @@ CREATE TABLE public.subscriptions (
 
 -- Create indexes for better performance
 CREATE INDEX idx_coach_profiles_suburbs ON public.coach_profiles USING GIN(suburbs);
+CREATE INDEX idx_coach_profiles_gender ON public.coach_profiles(gender);
 CREATE INDEX idx_org_profiles_suburbs ON public.org_profiles USING GIN(suburbs);
 CREATE INDEX idx_listings_org_id ON public.listings(org_id);
 CREATE INDEX idx_listings_status ON public.listings(status);
 CREATE INDEX idx_listings_suburbs ON public.listings USING GIN (suburbs);
+CREATE INDEX idx_listings_gender_preference ON public.listings(gender_preference);
 CREATE INDEX idx_applications_listing_id ON public.applications(listing_id);
 CREATE INDEX idx_applications_coach_id ON public.applications(coach_id);
 CREATE INDEX idx_bookings_org_id ON public.bookings(org_id);
@@ -226,6 +230,14 @@ CREATE POLICY "Users can view their own subscription" ON public.subscriptions
   FOR SELECT USING (auth.uid() = subject_id::uuid);
 
 -- Functions and Triggers
+
+-- Diagnostic function to check what auth.uid() returns
+CREATE OR REPLACE FUNCTION public.get_auth_uid()
+RETURNS UUID AS $$
+BEGIN
+  RETURN auth.uid();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to automatically create user record after signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()

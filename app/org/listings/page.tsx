@@ -6,23 +6,74 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { Plus, ClipboardList } from "lucide-react"
+import { redirect } from "next/navigation"
 
 export default async function OrgListingsPage() {
   const user = await requireRole('org')
   const supabase = await createServerSupabaseClient()
   
-  // Get all listings for this organization
-  const { data: listings } = await supabase
+  // CRITICAL SECURITY CHECK: Validate user role and ID
+  if (!user || !user.id || user.role !== 'org') {
+    console.error('🚨 SECURITY ALERT - Invalid user accessing org listings:', {
+      user_id: user?.id,
+      user_role: user?.role,
+      timestamp: new Date().toISOString()
+    })
+    redirect('/auth/sign-in')
+  }
+  
+  // DEBUG: Log current user details
+  console.log('🚨 SECURITY - Current authenticated user accessing org listings:', {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    name: user.name,
+    timestamp: new Date().toISOString()
+  })
+
+  // SECURITY: Get listings with explicit user validation  
+  const { data: listings, error } = await supabase
     .from('listings')
     .select(`
       *,
       applications(count)
     `)
-    .eq('org_id', user.id)
+    .eq('org_id', user.id)  // Explicit match against current user
     .order('created_at', { ascending: false })
+    
+  // SECURITY: Additional validation - verify all returned listings belong to current user
+  let validListings = listings
+  if (listings && listings.length > 0) {
+    const invalidListings = listings.filter(listing => listing.org_id !== user.id)
+    if (invalidListings.length > 0) {
+      console.error('🚨 CRITICAL SECURITY BREACH - User received listings they don\'t own:', {
+        user_id: user.id,
+        user_email: user.email,
+        invalid_listings: invalidListings.map(l => ({
+          id: l.id,
+          title: l.title,
+          org_id: l.org_id,
+          actual_owner: l.org_id
+        })),
+        timestamp: new Date().toISOString()
+      })
+      // Filter out invalid listings as a security measure
+      validListings = listings.filter(listing => listing.org_id === user.id)
+      console.log('🔒 SECURITY - Filtered out invalid listings, returning only valid ones')
+    }
+  }
+    
+  // DEBUG: Log query results
+  console.log('🔍 DEBUG - Listings query result:', {
+    userId: user.id,
+    originalCount: listings?.length || 0,
+    validCount: validListings?.length || 0,
+    validListings: validListings?.map(l => ({ id: l.id, title: l.title, org_id: l.org_id })),
+    error
+  })
   
-  const activeListings = listings?.filter(l => l.status === 'active') || []
-  const inactiveListings = listings?.filter(l => l.status !== 'active') || []
+  const activeListings = validListings?.filter(l => l.status === 'active') || []
+  const inactiveListings = validListings?.filter(l => l.status !== 'active') || []
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -41,7 +92,7 @@ export default async function OrgListingsPage() {
         </Button>
       </div>
       
-      {listings && listings.length > 0 ? (
+      {validListings && validListings.length > 0 ? (
         <div className="space-y-8">
           {/* Active Listings */}
           {activeListings.length > 0 && (
@@ -78,15 +129,21 @@ export default async function OrgListingsPage() {
           )}
         </div>
       ) : (
-        <EmptyState
-          icon={ClipboardList}
-          title="No listings yet"
-          description="Post your first coaching need to start receiving applications from verified coaches"
-          action={{
-            label: "Post Your First Need",
-            onClick: () => window.location.href = '/org/post'
-          }}
-        />
+        <div className="space-y-6">
+          <EmptyState
+            icon={ClipboardList}
+            title="No listings yet"
+            description="Post your first coaching need to start receiving applications from verified coaches"
+          />
+          <div className="flex justify-center">
+            <Button asChild size="lg">
+              <Link href="/org/post">
+                <Plus className="w-4 h-4 mr-2" />
+                Post Your First Need
+              </Link>
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   )

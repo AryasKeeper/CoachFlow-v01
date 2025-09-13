@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useForm } from "react-hook-form"
 import { 
   User,
@@ -23,6 +24,7 @@ import {
 
 interface ProfileForm {
   bio: string
+  gender: string
   rate_hourly?: number
   rate_flat?: number
   travel_km?: number
@@ -42,6 +44,13 @@ const SPECIALTIES_OPTIONS = [
   "Elite Performance",
   "School Programs",
   "Holiday Camps"
+]
+
+const GENDER_OPTIONS = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "non-binary", label: "Non-binary" },
+  { value: "prefer-not-to-say", label: "Prefer not to say" }
 ]
 
 import { SuburbSelector } from "@/components/ui/suburb-selector"
@@ -73,6 +82,7 @@ export default function CoachProfilePage() {
       
     if (profile) {
       setValue('bio', profile.bio || '')
+      setValue('gender', profile.gender || '')
       setValue('rate_hourly', profile.rate_hourly || undefined)
       setValue('rate_flat', profile.rate_flat || undefined)
       setValue('travel_km', profile.travel_km || undefined)
@@ -102,6 +112,11 @@ export default function CoachProfilePage() {
       return
     }
     
+    if (!data.gender) {
+      setError("Please select your gender")
+      return
+    }
+    
     setIsLoading(true)
     setError(null)
     setSuccess(false)
@@ -123,6 +138,7 @@ export default function CoachProfilePage() {
       const profileData = {
         user_id: user.id,
         bio: data.bio,
+        gender: data.gender,
         specialties,
         suburbs,
         rate_hourly: data.rate_hourly || null,
@@ -204,6 +220,33 @@ export default function CoachProfilePage() {
             <p className="text-xs text-muted-foreground">
               Max 500 characters
             </p>
+          </div>
+        </GlassCard>
+        
+        {/* Gender */}
+        <GlassCard>
+          <h2 className="text-xl font-semibold mb-4">Gender</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            This helps organizations find the right coach for their specific needs
+          </p>
+          
+          <div className="space-y-2">
+            <Label htmlFor="gender">Gender *</Label>
+            <Select onValueChange={(value) => setValue('gender', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select your gender" />
+              </SelectTrigger>
+              <SelectContent>
+                {GENDER_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.gender && (
+              <p className="text-sm text-destructive">{errors.gender.message}</p>
+            )}
           </div>
         </GlassCard>
         
