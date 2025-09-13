@@ -470,5 +470,13 @@
     "permission_mode": "bypassPermissions",
     "hook_event_name": "UserPromptSubmit",
     "prompt": "Okay perfect, please proceed."
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "Okay so right now when clicking the profile button it takes me to what looks like settings for the profile but instead what we want is that when the profile button is pressed it takes the coaches/orgs to their public profile whereby they can they click a \"Edit Profile\" button there with which they can configure all their settings i.e   - Professional headshot/avatar\n  - Bio & coaching philosophy\n  - Certifications & qualifications\n  - Years of experience\n  - Sports/specializations\n  - Availability calendar\n  - Location (city/region)\n  - Preferred travel radius\n  - Past teams/achievements (optional)\n  - Rate range\n\n----\n\nWe should make it so that the drop-down menu that drops down from the email in the corcer has the following:\n\n- Dashboard\n- Profile\n- Settings\n\nDoes this make sense?\n\nTHINK HARD. THINK LIKE AN EXPERT COACHING APPICATION UX ARCHITECT."
   }
 ]
