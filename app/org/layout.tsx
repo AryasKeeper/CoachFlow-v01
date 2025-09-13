@@ -61,7 +61,7 @@ export default async function OrgLayout({
     .single()
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex h-[calc(100vh-4rem)]">
       {/* Sidebar */}
       <aside className="w-64 border-r bg-muted/20">
         <div className="p-6">

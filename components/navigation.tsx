@@ -145,9 +145,9 @@ export function Navigation() {
               </Link>
             ))}
             
-            {!isAuthPage && !isLoading && (
+            {!isAuthPage && (
               <>
-                {!isLoggedIn ? (
+                {isLoading ? null : !isLoggedIn ? (
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="sm" asChild>
                       <Link href="/auth/sign-in">Sign In</Link>
@@ -265,9 +265,9 @@ export function Navigation() {
                 </Link>
               ))}
               
-              {!isAuthPage && !isLoading && (
+              {!isAuthPage && (
                 <div className="space-y-2 pt-4 border-t">
-                  {!isLoggedIn ? (
+                  {isLoading ? null : !isLoggedIn ? (
                     <div className="space-y-2">
                       <Button variant="ghost" className="w-full" asChild>
                         <Link href="/auth/sign-in">Sign In</Link>

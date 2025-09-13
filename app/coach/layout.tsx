@@ -75,7 +75,7 @@ export default async function CoachLayout({
   const isVerified = !!(profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url)
   
   return (
-    <div className="min-h-screen flex">
+    <div className="flex h-[calc(100vh-4rem)]">
       {/* Sidebar */}
       <aside className="w-64 border-r bg-muted/20">
         <div className="p-6">
@@ -116,7 +116,7 @@ export default async function CoachLayout({
           <SidebarSignOut />
         </div>
       </aside>
-      
+
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {!isVerified && (
