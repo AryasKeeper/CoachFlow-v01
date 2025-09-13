@@ -25,8 +25,19 @@ import {
   Linkedin,
   Globe,
   Calendar,
-  Award
+  Award,
+  ArrowLeft
 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface ProfileForm {
   bio: string
@@ -75,13 +86,20 @@ export default function CoachProfilePage() {
   const [success, setSuccess] = useState(false)
   const [specialties, setSpecialties] = useState<string[]>([])
   const [suburbs, setSuburbs] = useState<string[]>([])
-  
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
+
   const supabase = createClient()
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<ProfileForm>()
+  const { register, handleSubmit, formState: { errors, isDirty }, setValue, watch } = useForm<ProfileForm>()
   
   useEffect(() => {
     loadProfile()
   }, [])
+
+  // Track unsaved changes
+  useEffect(() => {
+    setHasUnsavedChanges(isDirty || specialties.length > 0 || suburbs.length > 0)
+  }, [isDirty, specialties, suburbs])
   
   async function loadProfile() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -117,6 +135,14 @@ export default function CoachProfilePage() {
       setSpecialties(specialties.filter(s => s !== specialty))
     } else if (specialties.length < 6) {
       setSpecialties([...specialties, specialty])
+    }
+  }
+
+  const handleBackClick = () => {
+    if (hasUnsavedChanges) {
+      setShowUnsavedDialog(true)
+    } else {
+      router.push('/coach/profile')
     }
   }
   
@@ -196,9 +222,13 @@ export default function CoachProfilePage() {
           return
         }
       }
-      
+
       setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
+      setHasUnsavedChanges(false)  // Reset unsaved changes after successful save
+      setTimeout(() => {
+        setSuccess(false)
+        router.push('/coach/profile')  // Navigate back to profile after successful save
+      }, 1500)
     } catch (err) {
       setError('An unexpected error occurred')
     } finally {
@@ -208,7 +238,50 @@ export default function CoachProfilePage() {
   
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-8">Coach Profile</h1>
+      {/* Header with Back Button */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={handleBackClick}
+            className="gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Profile
+          </Button>
+          <h1 className="text-3xl font-bold">Edit Coach Profile</h1>
+        </div>
+        {hasUnsavedChanges && (
+          <Badge variant="secondary" className="text-orange-600">
+            Unsaved changes
+          </Badge>
+        )}
+      </div>
+
+      {/* Unsaved Changes Dialog */}
+      <AlertDialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Are you sure you want to leave? Your changes will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continue Editing</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowUnsavedDialog(false)
+                router.push('/coach/profile')
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Leave Without Saving
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {error && (
@@ -522,7 +595,7 @@ export default function CoachProfilePage() {
             type="button"
             size="lg"
             variant="outline"
-            onClick={() => router.back()}
+            onClick={handleBackClick}
           >
             Cancel
           </Button>
