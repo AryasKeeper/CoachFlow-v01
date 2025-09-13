@@ -17,7 +17,6 @@ import {
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
-import { SignOutButton } from "@/components/ui/sign-out-button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -193,8 +192,23 @@ export function Navigation() {
                           {userRole === 'coach' ? 'Profile' : 'Settings'}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="cursor-pointer p-0">
-                          <SignOutButton className="w-full justify-start px-2 py-1.5 h-auto font-normal" />
+                        <DropdownMenuItem 
+                          className="cursor-pointer"
+                          onSelect={async (e) => {
+                            e.preventDefault()
+                            try {
+                              await supabase.auth.signOut()
+                              localStorage.clear()
+                              sessionStorage.clear()
+                              window.location.href = '/'
+                            } catch (err) {
+                              console.error('Sign out error:', err)
+                              window.location.href = '/'
+                            }
+                          }}
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Sign Out
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -290,7 +304,24 @@ export function Navigation() {
                           {userRole === 'coach' ? 'Profile' : 'Settings'}
                         </Button>
                       </div>
-                      <SignOutButton className="w-full" />
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start"
+                        onClick={async () => {
+                          try {
+                            await supabase.auth.signOut()
+                            localStorage.clear()
+                            sessionStorage.clear()
+                            window.location.href = '/'
+                          } catch (err) {
+                            console.error('Sign out error:', err)
+                            window.location.href = '/'
+                          }
+                        }}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </Button>
                     </div>
                   )}
                 </div>

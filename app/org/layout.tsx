@@ -7,7 +7,7 @@ import {
   MessageSquare,
   Settings
 } from "lucide-react"
-import { SignOutButton } from "@/components/ui/sign-out-button"
+import { SidebarSignOut } from "@/components/sidebar-signout"
 
 const navItems = [
   {
@@ -67,7 +67,7 @@ export default async function OrgLayout({
         </nav>
         
         <div className="p-4 mt-auto">
-          <SignOutButton className="w-full justify-start gap-3" />
+          <SidebarSignOut />
         </div>
       </aside>
       

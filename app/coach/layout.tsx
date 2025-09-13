@@ -14,8 +14,9 @@ import {
   LogOut,
   AlertCircle
 } from "lucide-react"
-import { SignOutButton } from "@/components/ui/sign-out-button"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { SidebarSignOut } from "@/components/sidebar-signout"
 
 const navItems = [
   {
@@ -116,7 +117,7 @@ export default async function CoachLayout({
         </nav>
         
         <div className="p-4 mt-auto">
-          <SignOutButton className="w-full justify-start gap-3" />
+          <SidebarSignOut />
         </div>
       </aside>
       
