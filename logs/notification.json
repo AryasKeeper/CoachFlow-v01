@@ -173,5 +173,12 @@
     "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
     "hook_event_name": "Notification",
     "message": "Claude is waiting for your input"
+  },
+  {
+    "session_id": "31a0949f-3856-4b95-84c5-749e483fa5b3",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\31a0949f-3856-4b95-84c5-749e483fa5b3.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "hook_event_name": "Notification",
+    "message": "Claude is waiting for your input"
   }
 ]

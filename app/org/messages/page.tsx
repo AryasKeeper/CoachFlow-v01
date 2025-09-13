@@ -12,21 +12,16 @@ export default async function OrgMessagesPage() {
     .from('message_threads')
     .select(`
       *,
-      coach:coach_id(email),
-      listing:listings!inner(title),
-      application:applications!inner(
-        coach:coach_id(email),
-        status
-      ),
       messages(
         content,
         sender_id,
         created_at,
-        is_read
+        is_read,
+        metadata
       )
     `)
-    .eq('org_id', user.id)
-    .order('last_message_at', { ascending: false, nullsFirst: false })
+    .contains('participant_ids', [user.id])
+    .order('updated_at', { ascending: false })
   
   // Get unread counts
   const { data: notifications } = await supabase

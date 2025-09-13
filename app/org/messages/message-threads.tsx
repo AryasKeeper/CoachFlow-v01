@@ -182,7 +182,7 @@ export function MessageThreads({ threads, currentUserId, unreadCounts }: Message
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <p className="font-medium truncate">
-                            {thread.coach?.email || 'Coach'}
+                            {thread.participant_ids?.find((id: string) => id !== currentUserId) || 'Coach'}
                           </p>
                           {lastMessage && (
                             <span className="text-xs text-muted-foreground">
@@ -191,9 +191,11 @@ export function MessageThreads({ threads, currentUserId, unreadCounts }: Message
                           )}
                         </div>
                         
-                        <p className="text-sm text-muted-foreground truncate mb-1">
-                          {thread.listing?.title}
-                        </p>
+                        {lastMessage?.metadata?.type === 'application' && (
+                          <Badge variant="secondary" className="text-xs mb-1">
+                            New Application
+                          </Badge>
+                        )}
                         
                         {lastMessage && (
                           <p className={cn(

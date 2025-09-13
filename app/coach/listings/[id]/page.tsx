@@ -130,7 +130,8 @@ export default function CoachListingDetailPage({ params }: PageProps) {
         return
       }
       
-      const { error: applyError } = await supabase
+      // Create the application
+      const { data: application, error: applyError } = await supabase
         .from('applications')
         .insert({
           listing_id: resolvedParams.id,
@@ -139,10 +140,52 @@ export default function CoachListingDetailPage({ params }: PageProps) {
           proposed_rate: proposedRate ? parseFloat(proposedRate) : null,
           status: 'pending'
         })
+        .select()
+        .single()
         
       if (applyError) {
         setError(applyError.message)
         return
+      }
+      
+      // Create or get message thread for this application
+      if (listing?.org_id) {
+        // Get or create thread between coach and organization
+        const { data: thread, error: threadError } = await supabase
+          .rpc('get_or_create_message_thread', {
+            participant_ids: [user.id, listing.org_id]
+          })
+        
+        if (!threadError && thread) {
+          // Send the application message as the first message in the thread
+          await supabase
+            .from('messages')
+            .insert({
+              thread_id: thread.id,
+              sender_id: user.id,
+              content: `Application for: ${listing.title}\n\n${applicationMessage}${proposedRate ? `\n\nProposed rate: $${proposedRate}/hr` : ''}`,
+              metadata: {
+                type: 'application',
+                application_id: application.id,
+                listing_id: resolvedParams.id
+              }
+            })
+          
+          // Create notification for the organization
+          await supabase
+            .from('message_notifications')
+            .insert({
+              user_id: listing.org_id,
+              thread_id: thread.id,
+              message: `New application for ${listing.title}`,
+              type: 'application',
+              metadata: {
+                application_id: application.id,
+                listing_id: resolvedParams.id,
+                coach_id: user.id
+              }
+            })
+        }
       }
       
       setSuccess(true)

@@ -143,7 +143,14 @@ export function ListingCard({ listing, onClick, className }: ListingCardProps) {
               <Calendar className="w-4 h-4" />
               <span>
                 {listing.dates.length === 1 
-                  ? format(new Date(listing.dates[0]), "MMM d, yyyy")
+                  ? (() => {
+                      try {
+                        const date = new Date(listing.dates[0].start_date)
+                        return !isNaN(date.getTime()) ? format(date, "MMM d, yyyy") : "Date TBD"
+                      } catch {
+                        return "Date TBD"
+                      }
+                    })()
                   : `${listing.dates.length} dates`
                 }
               </span>
