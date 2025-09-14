@@ -33,7 +33,10 @@ interface AnimatedListingCardProps {
     status: string
     created_at: string
     org?: {
-      org_name: string
+      org_profiles?: {
+        org_name: string
+        location?: string
+      }
     }
   }
   onClick?: () => void
@@ -55,7 +58,7 @@ export function AnimatedListingCard({ listing, onClick, className, index = 0 }: 
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 0.3 + index * 0.05, type: "spring", stiffness: 400, damping: 17 }}
+        transition={{ delay: 0.1, type: "spring", stiffness: 500, damping: 20 }}
       >
         <Badge className={cn("ml-auto", urgencyColors[listing.urgency as keyof typeof urgencyColors])}>
           {listing.urgency}
@@ -111,16 +114,16 @@ export function AnimatedListingCard({ listing, onClick, className, index = 0 }: 
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
-        delay: index * 0.05,
-        duration: 0.5,
+        delay: Math.min(index * 0.02, 0.1), // Max 100ms delay
+        duration: 0.3, // Faster animation
         ease: [0.16, 1, 0.3, 1] // Apple's easing curve
       }}
       whileHover={{
         scale: 1.02,
-        transition: { duration: 0.2, ease: "easeOut" }
+        transition: { duration: 0.15, ease: "easeOut" }
       }}
       whileTap={{ scale: 0.98 }}
     >
@@ -145,12 +148,12 @@ export function AnimatedListingCard({ listing, onClick, className, index = 0 }: 
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 + index * 0.05 }}
+              transition={{ delay: 0.05 }}
             >
               <h3 className="text-xl font-semibold">{listing.title}</h3>
-              {listing.org && (
+              {listing.org?.org_profiles?.org_name && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {listing.org.org_name}
+                  {listing.org.org_profiles.org_name}
                 </p>
               )}
             </motion.div>
@@ -162,7 +165,7 @@ export function AnimatedListingCard({ listing, onClick, className, index = 0 }: 
               className="text-muted-foreground line-clamp-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.15 + index * 0.05 }}
+              transition={{ delay: 0.08 }}
             >
               {listing.description}
             </motion.p>
@@ -172,7 +175,7 @@ export function AnimatedListingCard({ listing, onClick, className, index = 0 }: 
             className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 + index * 0.05 }}
+            transition={{ delay: 0.1 }}
           >
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="w-4 h-4" />
@@ -216,7 +219,7 @@ export function AnimatedListingCard({ listing, onClick, className, index = 0 }: 
             )}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.25 + index * 0.05 }}
+            transition={{ delay: 0.12 }}
           >
             <div className="flex items-center gap-2">
               <Badge variant={listing.status === "active" ? "default" : "secondary"}>

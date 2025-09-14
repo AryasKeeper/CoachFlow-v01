@@ -54,6 +54,7 @@ export default function EnhancedCoachListingsPage() {
   const [listings, setListings] = useState<any[]>([])
   const [existingApplications, setExistingApplications] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // View and filter states
   const [viewMode, setViewMode] = useState<ViewMode>('card')
@@ -94,7 +95,15 @@ export default function EnhancedCoachListingsPage() {
 
         const { data: listingsData } = await supabase
           .from('listings')
-          .select('*')
+          .select(`
+            *,
+            org:users!listings_org_id_fkey(
+              org_profiles(
+                org_name,
+                location
+              )
+            )
+          `)
           .eq('status', 'active')
           .order('created_at', { ascending: false })
 
@@ -103,10 +112,16 @@ export default function EnhancedCoachListingsPage() {
           .select('listing_id')
           .eq('coach_id', currentUser.id)
 
+        if (!listingsData) {
+          console.warn('No listings data returned from Supabase')
+        }
+
         setListings(listingsData || [])
         setExistingApplications(applicationsData || [])
+        setError(null)
       } catch (error) {
         console.error('Error loading data:', error)
+        setError('Failed to load listings. Please refresh the page.')
       } finally {
         setIsLoading(false)
       }
@@ -320,6 +335,21 @@ export default function EnhancedCoachListingsPage() {
           {[1,2,3,4].map(i => (
             <SkeletonCard key={i} />
           ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Error Loading Listings</h2>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={() => window.location.reload()}>
+            Refresh Page
+          </Button>
         </div>
       </div>
     )
