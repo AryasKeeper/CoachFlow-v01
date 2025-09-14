@@ -11,26 +11,18 @@ export default async function CoachProfileViewPage() {
   const supabase = await createServerSupabaseClient()
 
   // First get the user data
-  const { data: userData, error: userError } = await supabase
+  const { data: userData } = await supabase
     .from('users')
     .select('id, email, first_name, last_name')
     .eq('id', user.id)
     .single()
 
-  if (userError) {
-    console.error('Error fetching user:', userError)
-  }
-
   // Then get the coach profile - use maybeSingle() to handle non-existent profile
-  const { data: profileData, error: profileError } = await supabase
+  const { data: profileData } = await supabase
     .from('coach_profiles')
     .select('*')
     .eq('user_id', user.id)
     .maybeSingle()
-
-  if (profileError) {
-    console.error('Error fetching coach profile:', profileError)
-  }
 
   // Combine the data - ensure we have a valid structure even if profile doesn't exist
   const coach = userData ? {
