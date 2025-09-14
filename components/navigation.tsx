@@ -18,6 +18,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { ThemeToggle, ThemeToggleMobile } from "@/components/theme/theme-toggle"
+import { NotificationCenter } from "@/components/notifications/notification-center"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -148,6 +149,11 @@ export function Navigation() {
 
             {/* Theme Toggle */}
             <ThemeToggle />
+
+            {/* Notification Center - Show only when logged in */}
+            {isLoggedIn && !isLoading && (
+              <NotificationCenter user={user} />
+            )}
 
             {!isAuthPage && (
               <>
@@ -282,7 +288,8 @@ export function Navigation() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex justify-end mb-2">
+                      <div className="flex justify-end gap-2 mb-2">
+                        <NotificationCenter user={user} />
                         <ThemeToggleMobile />
                       </div>
                       {isDashboard && (

@@ -3,6 +3,7 @@
 import { AiHelpDrawer } from "@/components/ai-help-drawer"
 import { ReactQueryProvider } from "@/lib/react-query"
 import { ThemeProvider } from "@/lib/theme/theme-context"
+import { NotificationProvider } from "@/components/notifications/notification-provider"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -38,8 +39,10 @@ function ProvidersInner({ children }: { children: React.ReactNode }) {
 
   return (
     <ReactQueryProvider>
-      {children}
-      {showAiHelp && <AiHelpDrawer />}
+      <NotificationProvider>
+        {children}
+        {showAiHelp && <AiHelpDrawer />}
+      </NotificationProvider>
     </ReactQueryProvider>
   )
 }
