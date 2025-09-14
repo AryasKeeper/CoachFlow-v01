@@ -28,6 +28,7 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
 
+
   // Refresh data when component mounts or when returning from edit
   useEffect(() => {
     const refreshProfile = async () => {
@@ -35,12 +36,12 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Get user data first
+      // Get user data first - use maybeSingle to handle missing records
       const { data: userData } = await supabase
         .from('users')
         .select('id, email, first_name, last_name')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
       // Get profile data separately
       const { data: profileData } = await supabase
@@ -49,11 +50,14 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
         .eq('user_id', user.id)
         .maybeSingle()
 
-      // Combine the data
-      const freshData = userData ? {
-        ...userData,
-        coach_profiles: profileData || {}
-      } : null
+      // Combine the data - always create a structure even if userData is null
+      const freshData = {
+        id: user.id,
+        email: userData?.email || user.email || '',
+        first_name: userData?.first_name || '',
+        last_name: userData?.last_name || '',
+        coach_profiles: profileData || null
+      }
 
       if (freshData) {
         setCoach(freshData)
@@ -77,7 +81,6 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
   // Handle both array and object structure from Supabase
   const profile = Array.isArray(coach?.coach_profiles) ? coach?.coach_profiles[0] : coach?.coach_profiles
 
-  // Handle empty profile data by using empty object defaults
 
   const verificationBadges = [
     {
@@ -94,24 +97,47 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
     },
   ] as const
 
-  const isVerified = !!(profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url)
+  const isVerified = Boolean(
+    profile?.wwcc_number &&
+    profile?.wwcc_number.trim().length > 0 &&
+    profile?.insurance_url &&
+    profile?.insurance_url.trim().length > 0 &&
+    profile?.first_aid_url &&
+    profile?.first_aid_url.trim().length > 0
+  )
 
   const completenessItems = [
     {
       label: "Bio & Philosophy",
-      completed: Boolean(profile?.bio && profile?.bio.length > 0 && profile?.coaching_philosophy && profile?.coaching_philosophy.length > 0)
+      completed: Boolean(
+        profile?.bio &&
+        profile?.bio.trim().length > 0 &&
+        profile?.coaching_philosophy &&
+        profile?.coaching_philosophy.trim().length > 0
+      )
     },
     {
       label: "Specializations",
-      completed: Boolean(Array.isArray(profile?.specialties) && profile?.specialties?.length > 0)
+      completed: Boolean(
+        profile?.specialties &&
+        Array.isArray(profile?.specialties) &&
+        profile?.specialties.length > 0
+      )
     },
     {
       label: "Service Areas",
-      completed: Boolean(Array.isArray(profile?.suburbs) && profile?.suburbs?.length > 0)
+      completed: Boolean(
+        profile?.suburbs &&
+        Array.isArray(profile?.suburbs) &&
+        profile?.suburbs.length > 0
+      )
     },
     {
       label: "Contact Information",
-      completed: Boolean(profile?.phone_number || profile?.linkedin_url)
+      completed: Boolean(
+        (profile?.phone_number && profile?.phone_number.trim().length > 0) ||
+        (profile?.linkedin_url && profile?.linkedin_url.trim().length > 0)
+      )
     },
     {
       label: "Verification Documents",

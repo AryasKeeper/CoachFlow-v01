@@ -10,12 +10,12 @@ export default async function CoachProfileViewPage() {
   const user = await requireRole('coach')
   const supabase = await createServerSupabaseClient()
 
-  // First get the user data
+  // First try to get user data from users table
   const { data: userData } = await supabase
     .from('users')
     .select('id, email, first_name, last_name')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   // Then get the coach profile - use maybeSingle() to handle non-existent profile
   const { data: profileData } = await supabase
@@ -24,16 +24,14 @@ export default async function CoachProfileViewPage() {
     .eq('user_id', user.id)
     .maybeSingle()
 
-  // Combine the data - ensure we have a valid structure even if profile doesn't exist
-  const coach = userData ? {
-    ...userData,
-    coach_profiles: profileData || {}
-  } : {
+
+  // Combine the data - use auth user data if users table doesn't have a record
+  const coach = {
     id: user.id,
-    email: user.email || '',
-    first_name: '',
-    last_name: '',
-    coach_profiles: {}
+    email: userData?.email || user.email || '',
+    first_name: userData?.first_name || '',
+    last_name: userData?.last_name || '',
+    coach_profiles: profileData || null
   }
 
   return <CoachProfileClient initialData={coach} />
