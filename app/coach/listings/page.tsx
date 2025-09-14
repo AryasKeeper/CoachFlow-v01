@@ -93,6 +93,13 @@ export default function EnhancedCoachListingsPage() {
 
         setProfile(profileData)
 
+        // First, let's check ALL listings to debug
+        const { data: allListings } = await supabase
+          .from('listings')
+          .select('*')
+
+        console.log('ALL listings in database:', allListings?.length, allListings)
+
         const { data: listingsData } = await supabase
           .from('listings')
           .select('*')
