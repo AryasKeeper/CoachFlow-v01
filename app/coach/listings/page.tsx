@@ -93,13 +93,6 @@ export default function EnhancedCoachListingsPage() {
 
         setProfile(profileData)
 
-        // First, let's check ALL listings to debug
-        const { data: allListings } = await supabase
-          .from('listings')
-          .select('*')
-
-        console.log('ALL listings in database:', allListings?.length, allListings)
-
         const { data: listingsData } = await supabase
           .from('listings')
           .select('*')
@@ -110,8 +103,6 @@ export default function EnhancedCoachListingsPage() {
           .from('applications')
           .select('listing_id')
           .eq('coach_id', currentUser.id)
-
-        console.log('Listings query result:', listingsData?.length, 'listings found')
 
         setListings(listingsData || [])
         setExistingApplications(applicationsData || [])
@@ -132,8 +123,6 @@ export default function EnhancedCoachListingsPage() {
 
   // Filter listings
   const filteredListings = useMemo(() => {
-    console.log('Filtering listings - Total:', listings.length, 'Applied IDs:', appliedListingIds.length)
-
     let filtered = listings.filter(listing => {
       // Skip already applied
       if (appliedListingIds.includes(listing.id)) return false

@@ -65,6 +65,10 @@ export function AnimatedListingCard({ listing, onClick, className, index = 0 }: 
   }
 
   const formatPayRange = () => {
+    // First check if we have pay_details string
+    if (listing.pay_details) return listing.pay_details
+
+    // Otherwise use min/max
     if (!listing.pay_min && !listing.pay_max) return "Rate negotiable"
     if (listing.pay_min && listing.pay_max) {
       return `$${listing.pay_min} - $${listing.pay_max}/hr`
