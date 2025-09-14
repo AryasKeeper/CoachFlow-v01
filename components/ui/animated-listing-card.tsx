@@ -32,12 +32,9 @@ interface AnimatedListingCardProps {
     gender_preference: string | null
     status: string
     created_at: string
-    org?: {
-      org_profiles?: {
-        org_name: string
-        location?: string
-      }
-    }
+    org?: any
+    org_id?: string
+    pay_details?: string
   }
   onClick?: () => void
   className?: string
@@ -151,11 +148,9 @@ export function AnimatedListingCard({ listing, onClick, className, index = 0 }: 
               transition={{ delay: 0.05 }}
             >
               <h3 className="text-xl font-semibold">{listing.title}</h3>
-              {listing.org?.org_profiles?.org_name && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {listing.org.org_profiles.org_name}
-                </p>
-              )}
+              <p className="text-sm text-muted-foreground mt-1">
+                Organization
+              </p>
             </motion.div>
             {getUrgencyBadge()}
           </div>

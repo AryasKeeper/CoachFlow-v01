@@ -95,15 +95,7 @@ export default function EnhancedCoachListingsPage() {
 
         const { data: listingsData } = await supabase
           .from('listings')
-          .select(`
-            *,
-            org:users!listings_org_id_fkey(
-              org_profiles(
-                org_name,
-                location
-              )
-            )
-          `)
+          .select('*')
           .eq('status', 'active')
           .order('created_at', { ascending: false })
 
@@ -112,9 +104,7 @@ export default function EnhancedCoachListingsPage() {
           .select('listing_id')
           .eq('coach_id', currentUser.id)
 
-        if (!listingsData) {
-          console.warn('No listings data returned from Supabase')
-        }
+        console.log('Listings query result:', listingsData?.length, 'listings found')
 
         setListings(listingsData || [])
         setExistingApplications(applicationsData || [])
@@ -135,6 +125,8 @@ export default function EnhancedCoachListingsPage() {
 
   // Filter listings
   const filteredListings = useMemo(() => {
+    console.log('Filtering listings - Total:', listings.length, 'Applied IDs:', appliedListingIds.length)
+
     let filtered = listings.filter(listing => {
       // Skip already applied
       if (appliedListingIds.includes(listing.id)) return false
@@ -154,8 +146,7 @@ export default function EnhancedCoachListingsPage() {
       filtered = filtered.filter(listing =>
         listing.title?.toLowerCase().includes(query) ||
         listing.description?.toLowerCase().includes(query) ||
-        listing.location?.toLowerCase().includes(query) ||
-        listing.org?.org_profiles?.org_name?.toLowerCase().includes(query)
+        listing.location?.toLowerCase().includes(query)
       )
     }
 
@@ -283,13 +274,13 @@ export default function EnhancedCoachListingsPage() {
               <td className="py-4 px-4">
                 <div className="font-medium">{listing.title}</div>
                 <div className="text-sm text-muted-foreground md:hidden">
-                  {listing.org?.org_profiles?.org_name}
+                  Organization
                 </div>
               </td>
               <td className="py-4 px-4 hidden md:table-cell">
                 <div className="flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">{listing.org?.org_profiles?.org_name}</span>
+                  <span className="text-sm">Organization</span>
                 </div>
               </td>
               <td className="py-4 px-4 hidden lg:table-cell">
