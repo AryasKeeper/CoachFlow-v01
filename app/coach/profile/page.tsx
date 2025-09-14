@@ -10,38 +10,39 @@ export default async function CoachProfileViewPage() {
   const user = await requireRole('coach')
   const supabase = await createServerSupabaseClient()
 
-  // Get coach's own profile
-  const { data: coach } = await supabase
+  // First get the user data
+  const { data: userData, error: userError } = await supabase
     .from('users')
-    .select(`
-      id,
-      email,
-      first_name,
-      last_name,
-      coach_profiles!inner(
-        bio,
-        gender,
-        specialties,
-        suburbs,
-        rate_hourly,
-        rate_flat,
-        travel_km,
-        years_experience,
-        coaching_philosophy,
-        achievements,
-        wwcc_number,
-        insurance_url,
-        first_aid_url,
-        rating_avg,
-        rating_count,
-        phone_number,
-        preferred_contact_method,
-        contact_availability,
-        linkedin_url
-      )
-    `)
+    .select('id, email, first_name, last_name')
     .eq('id', user.id)
     .single()
+
+  if (userError) {
+    console.error('Error fetching user:', userError)
+  }
+
+  // Then get the coach profile - use maybeSingle() to handle non-existent profile
+  const { data: profileData, error: profileError } = await supabase
+    .from('coach_profiles')
+    .select('*')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (profileError) {
+    console.error('Error fetching coach profile:', profileError)
+  }
+
+  // Combine the data - ensure we have a valid structure even if profile doesn't exist
+  const coach = userData ? {
+    ...userData,
+    coach_profiles: profileData || {}
+  } : {
+    id: user.id,
+    email: user.email || '',
+    first_name: '',
+    last_name: '',
+    coach_profiles: {}
+  }
 
   return <CoachProfileClient initialData={coach} />
 }

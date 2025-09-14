@@ -35,37 +35,25 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const { data: freshData } = await supabase
+      // Get user data first
+      const { data: userData } = await supabase
         .from('users')
-        .select(`
-          id,
-          email,
-          first_name,
-          last_name,
-          coach_profiles!inner(
-            bio,
-            gender,
-            specialties,
-            suburbs,
-            rate_hourly,
-            rate_flat,
-            travel_km,
-            years_experience,
-            coaching_philosophy,
-            achievements,
-            wwcc_number,
-            insurance_url,
-            first_aid_url,
-            rating_avg,
-            rating_count,
-            phone_number,
-            preferred_contact_method,
-            contact_availability,
-            linkedin_url
-          )
-        `)
+        .select('id, email, first_name, last_name')
         .eq('id', user.id)
         .single()
+
+      // Get profile data separately
+      const { data: profileData } = await supabase
+        .from('coach_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      // Combine the data
+      const freshData = userData ? {
+        ...userData,
+        coach_profiles: profileData || {}
+      } : null
 
       if (freshData) {
         setCoach(freshData)
@@ -86,7 +74,10 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
     }
   }, [supabase])
 
-  const profile = coach?.coach_profiles
+  // Handle both array and object structure from Supabase
+  const profile = Array.isArray(coach?.coach_profiles) ? coach?.coach_profiles[0] : coach?.coach_profiles
+
+  // Handle empty profile data by using empty object defaults
 
   const verificationBadges = [
     {
@@ -106,11 +97,26 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
   const isVerified = !!(profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url)
 
   const completenessItems = [
-    { label: "Bio & Philosophy", completed: !!(profile?.bio && profile?.coaching_philosophy) },
-    { label: "Specializations", completed: profile?.specialties?.length > 0 },
-    { label: "Service Areas", completed: profile?.suburbs?.length > 0 },
-    { label: "Contact Information", completed: !!(profile?.phone_number || profile?.linkedin_url) },
-    { label: "Verification Documents", completed: isVerified }
+    {
+      label: "Bio & Philosophy",
+      completed: Boolean(profile?.bio && profile?.bio.length > 0 && profile?.coaching_philosophy && profile?.coaching_philosophy.length > 0)
+    },
+    {
+      label: "Specializations",
+      completed: Boolean(Array.isArray(profile?.specialties) && profile?.specialties?.length > 0)
+    },
+    {
+      label: "Service Areas",
+      completed: Boolean(Array.isArray(profile?.suburbs) && profile?.suburbs?.length > 0)
+    },
+    {
+      label: "Contact Information",
+      completed: Boolean(profile?.phone_number || profile?.linkedin_url)
+    },
+    {
+      label: "Verification Documents",
+      completed: isVerified
+    }
   ]
 
   const completedCount = completenessItems.filter(item => item.completed).length
