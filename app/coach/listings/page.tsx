@@ -1,37 +1,39 @@
 "use client"
 
-import { useEffect, useState, useMemo, useCallback } from "react"
+import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
-import { createClient } from "@/lib/supabase/client"
+import { useListings, useCoachApplications, useCoachProfile } from "@/lib/react-query/hooks/use-listings"
 import { AnimatedListingCard } from "@/components/ui/animated-listing-card"
-import { Skeleton, SkeletonCard } from "@/components/ui/skeleton-shimmer"
 import { EmptyState } from "@/components/ui/empty-state"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Skeleton, SkeletonCard } from "@/components/ui/skeleton-shimmer"
 import { cn } from "@/lib/utils"
 import { formatDate } from "@/lib/date-utils"
+import { motion, AnimatePresence } from "framer-motion"
+import { useUser } from "@/lib/hooks/use-user"
 import {
   Search,
   MapPin,
   DollarSign,
   Calendar,
-  Filter,
   ClipboardList,
   Grid3x3,
   List,
-  Map,
+  Map as MapIcon,
   ChevronRight,
   Clock,
   Users,
   Building2,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from "lucide-react"
 
-// Dynamically import map component to avoid SSR issues
+// Dynamically import map component
 const MapView = dynamic(
   () => import("./map-view").then(mod => ({ default: mod.MapView })),
   {
@@ -46,80 +48,23 @@ const MapView = dynamic(
 
 type ViewMode = 'card' | 'list' | 'map'
 
-export default function EnhancedCoachListingsPage() {
+export default function ReactQueryListingsPage() {
   const router = useRouter()
-  const supabase = createClient()
-  const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
-  const [listings, setListings] = useState<any[]>([])
-  const [existingApplications, setExistingApplications] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { user } = useUser()
+
+  // React Query hooks
+  const { data: listings = [], isLoading: listingsLoading, error: listingsError, refetch } = useListings()
+  const { data: profile, isLoading: profileLoading } = useCoachProfile(user?.id)
+  const { data: applications = [], isLoading: applicationsLoading } = useCoachApplications(user?.id)
 
   // View and filter states
   const [viewMode, setViewMode] = useState<ViewMode>('card')
   const [searchQuery, setSearchQuery] = useState('')
   const [payFilter, setPayFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('all')
-  const [locationFilter, setLocationFilter] = useState('all')
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const { data: { user: currentUser } } = await supabase.auth.getUser()
-        if (!currentUser) {
-          router.push('/auth/sign-in')
-          return
-        }
-
-        const { data: userData } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', currentUser.id)
-          .single()
-
-        if (userData?.role !== 'coach') {
-          router.push('/')
-          return
-        }
-
-        setUser(currentUser)
-
-        const { data: profileData } = await supabase
-          .from('coach_profiles')
-          .select('wwcc_number, insurance_url, first_aid_url, suburbs, gender')
-          .eq('user_id', currentUser.id)
-          .single()
-
-        setProfile(profileData)
-
-        const { data: listingsData } = await supabase
-          .from('listings')
-          .select('*')
-          .eq('status', 'active')
-          .order('created_at', { ascending: false })
-
-        const { data: applicationsData } = await supabase
-          .from('applications')
-          .select('listing_id')
-          .eq('coach_id', currentUser.id)
-
-        setListings(listingsData || [])
-        setExistingApplications(applicationsData || [])
-        setError(null)
-      } catch (error) {
-        console.error('Error loading data:', error)
-        setError('Failed to load listings. Please refresh the page.')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadData()
-  }, [router, supabase])
-
-  const isVerified = profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url
-  const appliedListingIds = existingApplications?.map(app => app.listing_id) || []
+  const isLoading = listingsLoading || profileLoading || applicationsLoading
+  const appliedListingIds = applications?.map(app => app.listing_id) || []
 
   // Filter listings
   const filteredListings = useMemo(() => {
@@ -129,7 +74,6 @@ export default function EnhancedCoachListingsPage() {
 
       // Gender preference filter
       if (listing.gender_preference && listing.gender_preference !== 'no-preference' && profile?.gender) {
-        // Only filter by gender if the coach has specified their gender
         if (listing.gender_preference !== profile.gender) return false
       }
 
@@ -203,115 +147,31 @@ export default function EnhancedCoachListingsPage() {
     return { urgent, nearby, other }
   }, [filteredListings, profile])
 
-  // View toggle button component
+  // View Toggle with animation
   const ViewToggle = () => (
-    <div className="inline-flex items-center bg-muted/50 rounded-lg p-1">
-      <Button
-        variant={viewMode === 'card' ? 'default' : 'ghost'}
-        size="sm"
-        onClick={() => setViewMode('card')}
-        className={cn(
-          "gap-2 transition-all",
-          viewMode === 'card' && "shadow-sm"
-        )}
-      >
-        <Grid3x3 className="w-4 h-4" />
-        <span className="hidden sm:inline">Cards</span>
-      </Button>
-      <Button
-        variant={viewMode === 'list' ? 'default' : 'ghost'}
-        size="sm"
-        onClick={() => setViewMode('list')}
-        className={cn(
-          "gap-2 transition-all",
-          viewMode === 'list' && "shadow-sm"
-        )}
-      >
-        <List className="w-4 h-4" />
-        <span className="hidden sm:inline">List</span>
-      </Button>
-      <Button
-        variant={viewMode === 'map' ? 'default' : 'ghost'}
-        size="sm"
-        onClick={() => setViewMode('map')}
-        className={cn(
-          "gap-2 transition-all",
-          viewMode === 'map' && "shadow-sm"
-        )}
-      >
-        <Map className="w-4 h-4" />
-        <span className="hidden sm:inline">Map</span>
-      </Button>
-    </div>
-  )
-
-  // List view component
-  const ListView = () => (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Job Title</th>
-            <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground hidden md:table-cell">Organization</th>
-            <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground hidden lg:table-cell">Location</th>
-            <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Date</th>
-            <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Pay</th>
-            <th className="text-left py-3 px-4 font-medium text-sm text-muted-foreground">Status</th>
-            <th className="text-right py-3 px-4"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredListings.map((listing) => (
-            <tr
-              key={listing.id}
-              className="border-b hover:bg-muted/50 transition-colors cursor-pointer"
-              onClick={() => router.push(`/coach/listings/${listing.id}`)}
-            >
-              <td className="py-4 px-4">
-                <div className="font-medium">{listing.title}</div>
-                <div className="text-sm text-muted-foreground md:hidden">
-                  Organization
-                </div>
-              </td>
-              <td className="py-4 px-4 hidden md:table-cell">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">Organization</span>
-                </div>
-              </td>
-              <td className="py-4 px-4 hidden lg:table-cell">
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">{listing.location}</span>
-                </div>
-              </td>
-              <td className="py-4 px-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">{formatDate(listing.dates?.[0] || listing.created_at)}</span>
-                </div>
-              </td>
-              <td className="py-4 px-4">
-                <span className="font-medium text-green-600">{listing.pay_details}</span>
-              </td>
-              <td className="py-4 px-4">
-                <div className="flex gap-1">
-                  {listing.urgency === 'urgent' && (
-                    <Badge variant="destructive" className="text-xs">Urgent</Badge>
-                  )}
-                  {categorizedListings.nearby.includes(listing) && (
-                    <Badge className="text-xs bg-blue-500/10 text-blue-700 border-blue-200">Nearby</Badge>
-                  )}
-                </div>
-              </td>
-              <td className="py-4 px-4 text-right">
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <motion.div
+      className="inline-flex items-center bg-muted/50 rounded-lg p-1"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+    >
+      {(['card', 'list', 'map'] as ViewMode[]).map((mode) => (
+        <Button
+          key={mode}
+          variant={viewMode === mode ? 'default' : 'ghost'}
+          size="sm"
+          onClick={() => setViewMode(mode)}
+          className={cn(
+            "gap-2 transition-all",
+            viewMode === mode && "shadow-sm"
+          )}
+        >
+          {mode === 'card' && <Grid3x3 className="w-4 h-4" />}
+          {mode === 'list' && <List className="w-4 h-4" />}
+          {mode === 'map' && <MapIcon className="w-4 h-4" />}
+          <span className="hidden sm:inline">{mode.charAt(0).toUpperCase() + mode.slice(1)}</span>
+        </Button>
+      ))}
+    </motion.div>
   )
 
   if (isLoading) {
@@ -319,7 +179,7 @@ export default function EnhancedCoachListingsPage() {
       <div className="container mx-auto px-4 py-8">
         <Skeleton className="h-10 w-64 mb-8" shimmer />
         <div className="grid md:grid-cols-2 gap-6">
-          {[1,2,3,4].map(i => (
+          {[1, 2, 3, 4].map(i => (
             <SkeletonCard key={i} />
           ))}
         </div>
@@ -327,15 +187,16 @@ export default function EnhancedCoachListingsPage() {
     )
   }
 
-  if (error) {
+  if (listingsError) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-12">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">Error Loading Listings</h2>
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <Button onClick={() => window.location.reload()}>
-            Refresh Page
+          <p className="text-muted-foreground mb-4">Failed to load listings. Please try again.</p>
+          <Button onClick={() => refetch()}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Retry
           </Button>
         </div>
       </div>
@@ -345,7 +206,11 @@ export default function EnhancedCoachListingsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+      <motion.div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <div>
           <h1 className="text-3xl font-bold mb-2">Find Coaching Opportunities</h1>
           <p className="text-muted-foreground">
@@ -353,133 +218,159 @@ export default function EnhancedCoachListingsPage() {
           </p>
         </div>
         <ViewToggle />
-      </div>
+      </motion.div>
 
       {/* Search and Filters */}
-      <GlassCard className="mb-8">
-        <div className="grid md:grid-cols-4 gap-4">
-          <div className="relative md:col-span-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search jobs, organizations, locations..."
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <GlassCard className="mb-8">
+          <div className="grid md:grid-cols-4 gap-4">
+            <div className="relative md:col-span-2">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search jobs, organizations, locations..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <Select value={payFilter} onValueChange={setPayFilter}>
+              <SelectTrigger>
+                <DollarSign className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Pay range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All rates</SelectItem>
+                <SelectItem value="50">$50+/hr</SelectItem>
+                <SelectItem value="75">$75+/hr</SelectItem>
+                <SelectItem value="100">$100+/hr</SelectItem>
+                <SelectItem value="150">$150+/hr</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger>
+                <Calendar className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Date range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All dates</SelectItem>
+                <SelectItem value="week">This week</SelectItem>
+                <SelectItem value="month">This month</SelectItem>
+                <SelectItem value="future">Future dates</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+        </GlassCard>
+      </motion.div>
 
-          <Select value={payFilter} onValueChange={setPayFilter}>
-            <SelectTrigger>
-              <DollarSign className="w-4 h-4 mr-2" />
-              <SelectValue placeholder="Pay range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All rates</SelectItem>
-              <SelectItem value="50">$50+/hr</SelectItem>
-              <SelectItem value="75">$75+/hr</SelectItem>
-              <SelectItem value="100">$100+/hr</SelectItem>
-              <SelectItem value="150">$150+/hr</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={dateFilter} onValueChange={setDateFilter}>
-            <SelectTrigger>
-              <Calendar className="w-4 h-4 mr-2" />
-              <SelectValue placeholder="Date range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All dates</SelectItem>
-              <SelectItem value="week">This week</SelectItem>
-              <SelectItem value="month">This month</SelectItem>
-              <SelectItem value="future">Future dates</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </GlassCard>
-
-      {/* Stats Cards */}
+      {/* Stats Cards with animations */}
       {viewMode !== 'map' && (
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <GlassCard className="p-4 hover:scale-[1.02] transition-transform cursor-default">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Jobs</p>
-                <p className="text-2xl font-bold animate-[scale-in_0.5s_ease-out]">{filteredListings.length}</p>
-              </div>
-              <ClipboardList className="w-8 h-8 text-muted-foreground" />
-            </div>
-          </GlassCard>
-
-          <GlassCard className="p-4 hover:scale-[1.02] transition-transform cursor-default">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">In Your Area</p>
-                <p className="text-2xl font-bold text-blue-600 animate-[scale-in_0.5s_ease-out_200ms_both]">{categorizedListings.nearby.length}</p>
-              </div>
-              <MapPin className="w-8 h-8 text-blue-600" />
-            </div>
-          </GlassCard>
-
-          <GlassCard className="p-4 hover:scale-[1.02] transition-transform cursor-default">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Urgent</p>
-                <p className="text-2xl font-bold text-red-600 animate-[scale-in_0.5s_ease-out_400ms_both]">{categorizedListings.urgent.length}</p>
-              </div>
-              <AlertCircle className="w-8 h-8 text-red-600" />
-            </div>
-          </GlassCard>
-
-          <GlassCard className="p-4 hover:scale-[1.02] transition-transform cursor-default">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Applied</p>
-                <p className="text-2xl font-bold text-green-600 animate-[scale-in_0.5s_ease-out_600ms_both]">{appliedListingIds.length}</p>
-              </div>
-              <Users className="w-8 h-8 text-green-600" />
-            </div>
-          </GlassCard>
-        </div>
+        <motion.div
+          className="grid md:grid-cols-4 gap-4 mb-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          {[
+            { label: "Total Jobs", value: filteredListings.length, icon: ClipboardList, color: "text-muted-foreground" },
+            { label: "In Your Area", value: categorizedListings.nearby.length, icon: MapPin, color: "text-blue-600" },
+            { label: "Urgent", value: categorizedListings.urgent.length, icon: AlertCircle, color: "text-red-600" },
+            { label: "Applied", value: appliedListingIds.length, icon: Users, color: "text-green-600" }
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 + index * 0.05 }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <GlassCard className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-bold animate-[scale-in_0.3s_ease-out]">{stat.value}</p>
+                  </div>
+                  <stat.icon className={cn("w-8 h-8", stat.color)} />
+                </div>
+              </GlassCard>
+            </motion.div>
+          ))}
+        </motion.div>
       )}
 
       {/* Content based on view mode */}
-      {filteredListings.length > 0 ? (
-        <div className="transition-all duration-300">
-          {viewMode === 'card' && (
-            <div className="grid md:grid-cols-2 gap-6">
-              {filteredListings.map((listing, index) => (
-                <AnimatedListingCard
-                  key={listing.id}
-                  listing={listing}
-                  onClick={() => router.push(`/coach/listings/${listing.id}`)}
-                  index={index}
-                />
-              ))}
-            </div>
-          )}
+      <AnimatePresence mode="wait">
+        {filteredListings.length > 0 ? (
+          <motion.div
+            key={viewMode}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.2 }}
+          >
+            {viewMode === 'card' && (
+              <div className="grid md:grid-cols-2 gap-6">
+                {filteredListings.map((listing, index) => (
+                  <AnimatedListingCard
+                    key={listing.id}
+                    listing={listing}
+                    onClick={() => router.push(`/coach/listings/${listing.id}`)}
+                    index={index}
+                  />
+                ))}
+              </div>
+            )}
 
-          {viewMode === 'list' && (
-            <GlassCard className="overflow-hidden">
-              <ListView />
-            </GlassCard>
-          )}
+            {viewMode === 'list' && (
+              <GlassCard className="overflow-hidden">
+                {/* List view implementation */}
+                <div className="divide-y">
+                  {filteredListings.map((listing) => (
+                    <div
+                      key={listing.id}
+                      className="p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => router.push(`/coach/listings/${listing.id}`)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold">{listing.title}</h3>
+                          <p className="text-sm text-muted-foreground">{listing.location}</p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            )}
 
-          {viewMode === 'map' && (
-            <MapView
-              listings={filteredListings}
-              onListingClick={(id) => router.push(`/coach/listings/${id}`)}
-              userLocation={profile?.suburbs?.[0]}
+            {viewMode === 'map' && (
+              <MapView
+                listings={filteredListings}
+                onListingClick={(id) => router.push(`/coach/listings/${id}`)}
+                userLocation={profile?.suburbs?.[0]}
+              />
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <EmptyState
+              icon={ClipboardList}
+              title="No jobs found"
+              description="Try adjusting your search filters or check back later for new opportunities"
             />
-          )}
-        </div>
-      ) : (
-        <EmptyState
-          icon={ClipboardList}
-          title="No jobs found"
-          description="Try adjusting your search filters or check back later for new opportunities"
-        />
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

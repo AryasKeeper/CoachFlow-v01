@@ -4,7 +4,7 @@ import { GlassCard } from "@/components/ui/glass-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { BadgeRow } from "@/components/ui/badge-row"
-import { MiniProgressRing } from "@/components/ui/progress-ring"
+import { LazyMiniProgressRing } from "@/components/lazy"
 import Link from "next/link"
 import { 
   ClipboardList, 
@@ -237,7 +237,7 @@ export default async function CoachDashboardPage() {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <MiniProgressRing progress={profileCompletion} />
+                <LazyMiniProgressRing progress={profileCompletion} />
                 {profile?.rating_avg && profile.rating_count > 0 && (
                   <div className="text-right">
                     <div className="flex items-center gap-1">
