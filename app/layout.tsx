@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navigation } from "@/components/navigation";
+import { NavigationWrapper } from "@/components/navigation-wrapper";
 import { Providers } from "@/components/providers";
 
 const inter = Inter({
@@ -33,10 +33,12 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased`}
       >
         <Providers>
-          <Navigation />
-          <main className="min-h-screen pt-16">
-            {children}
-          </main>
+          <>
+            <NavigationWrapper />
+            <main className="min-h-screen pt-16">
+              {children}
+            </main>
+          </>
         </Providers>
       </body>
     </html>

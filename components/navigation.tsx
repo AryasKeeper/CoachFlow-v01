@@ -5,18 +5,19 @@ import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Menu, 
-  X, 
-  User, 
-  ChevronDown, 
-  LayoutDashboard, 
-  Settings, 
-  LogOut 
+import {
+  Menu,
+  X,
+  User,
+  ChevronDown,
+  LayoutDashboard,
+  Settings,
+  LogOut
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
+import { ThemeToggle, ThemeToggleMobile } from "@/components/theme/theme-toggle"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -144,7 +145,10 @@ export function Navigation() {
                 {item.label}
               </Link>
             ))}
-            
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {!isAuthPage && (
               <>
                 {isLoading ? null : !isLoggedIn ? (
@@ -278,14 +282,20 @@ export function Navigation() {
                     </div>
                   ) : (
                     <div className="space-y-3">
+                      <div className="flex justify-end mb-2">
+                        <ThemeToggleMobile />
+                      </div>
                       {isDashboard && (
                         <Badge variant="secondary" className="bg-green-500/10 text-green-700 border-green-200 w-full justify-center">
                           Free during beta
                         </Badge>
                       )}
-                      <div className="flex items-center space-x-2 px-2 py-2 bg-muted/50 rounded-md">
-                        <User className="w-4 h-4" />
-                        <span className="text-sm font-medium">{user?.email}</span>
+                      <div className="flex items-center justify-between px-2 py-2 bg-muted/50 rounded-md">
+                        <div className="flex items-center space-x-2">
+                          <User className="w-4 h-4" />
+                          <span className="text-sm font-medium">{user?.email}</span>
+                        </div>
+                        <ThemeToggleMobile />
                       </div>
                       <div className="space-y-1">
                         <Button
