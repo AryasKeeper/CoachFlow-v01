@@ -83,7 +83,7 @@ export default async function CoachDashboardPage() {
   const profileCompletion = (() => {
     if (!profile) return 0
     let completed = 0
-    let total = 8
+    const total = 8
 
     if (profile.bio) completed++
     if (profile.specialties?.length > 0) completed++
@@ -141,7 +141,7 @@ export default async function CoachDashboardPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Welcome back, {user.name || 'Coach'}!</h1>
         <p className="text-muted-foreground">
-          Here's your coaching dashboard
+          Here&apos;s your coaching dashboard
         </p>
       </div>
       

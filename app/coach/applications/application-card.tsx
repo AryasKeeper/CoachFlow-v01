@@ -26,7 +26,34 @@ import {
 } from "lucide-react"
 import { formatDate } from "@/lib/date-utils"
 
-export function ApplicationCard({ application }: { application: any }) {
+interface Application {
+  id: string
+  coach_id: string
+  listing_id: string
+  status: string
+  applied_at: string
+  cover_letter?: string
+  withdrawn_at?: string
+  created_at: string
+  listing?: {
+    id: string
+    title: string
+    location: string
+    dates?: string[]
+    time_intervals?: Array<{ start: string; end: string }>
+    pay_min?: number
+    pay_max?: number
+    urgency?: string
+    gender_preference?: string
+    org?: {
+      org_profiles?: {
+        org_name: string
+      }
+    }
+  }
+}
+
+export function ApplicationCard({ application }: { application: Application }) {
   const router = useRouter()
   const [isWithdrawing, setIsWithdrawing] = useState(false)
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false)
@@ -206,7 +233,7 @@ export function ApplicationCard({ application }: { application: any }) {
               Withdraw Application
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to withdraw this application for "{listing?.title}"?
+              Are you sure you want to withdraw this application for &ldquo;{listing?.title}&rdquo;?
               This action cannot be undone. You can reapply to this listing later if needed.
             </DialogDescription>
           </DialogHeader>

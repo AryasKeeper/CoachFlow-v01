@@ -222,7 +222,7 @@ export default function CoachAvailabilityPage() {
           <div className="flex items-center gap-3">
             <Calendar className="w-5 h-5 text-muted-foreground" />
             <span className="text-sm">
-              You're available <span className="font-semibold">{enabledDaysCount} days</span> per week
+              You&apos;re available <span className="font-semibold">{enabledDaysCount} days</span> per week
             </span>
           </div>
           <div className="flex gap-2">

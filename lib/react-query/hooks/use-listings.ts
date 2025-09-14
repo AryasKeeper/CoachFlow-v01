@@ -7,8 +7,8 @@ export interface Listing {
   description: string | null
   location: string
   suburbs: string[]
-  dates: any
-  time_intervals: any[]
+  dates: Record<string, unknown>
+  time_intervals: Array<{ start: string; end: string }>
   pay_min: number | null
   pay_max: number | null
   pay_details?: string
@@ -102,7 +102,7 @@ export function useApplyToListing() {
       queryClient.invalidateQueries({ queryKey: ['applications', variables.coachId] })
 
       // Optimistically update the applications cache
-      queryClient.setQueryData(['applications', variables.coachId], (old: any[] = []) => [
+      queryClient.setQueryData(['applications', variables.coachId], (old: Array<{ listing_id: string }> = []) => [
         ...old,
         { listing_id: variables.listingId }
       ])
