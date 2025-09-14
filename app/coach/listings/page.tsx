@@ -94,16 +94,7 @@ export default function EnhancedCoachListingsPage() {
 
         const { data: listingsData } = await supabase
           .from('listings')
-          .select(`
-            *,
-            org:users!listings_org_id_fkey(
-              org_profiles!inner(
-                org_name,
-                location
-              )
-            ),
-            applications!inner(count)
-          `)
+          .select('*')
           .eq('status', 'active')
           .order('created_at', { ascending: false })
 
@@ -134,8 +125,8 @@ export default function EnhancedCoachListingsPage() {
       if (appliedListingIds.includes(listing.id)) return false
 
       // Gender preference filter
-      if (listing.gender_preference && listing.gender_preference !== 'no-preference') {
-        if (!profile?.gender) return false
+      if (listing.gender_preference && listing.gender_preference !== 'no-preference' && profile?.gender) {
+        // Only filter by gender if the coach has specified their gender
         if (listing.gender_preference !== profile.gender) return false
       }
 
