@@ -211,9 +211,17 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
       <GlassCard className="mb-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white text-2xl font-bold">
-              {coach?.first_name?.[0]}{coach?.last_name?.[0]}
-            </div>
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt={`${coach?.first_name} ${coach?.last_name}`}
+                className="w-20 h-20 rounded-full object-cover border-2 border-primary/20"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white text-2xl font-bold">
+                {coach?.first_name?.[0]}{coach?.last_name?.[0]}
+              </div>
+            )}
             <div>
               <h1 className="text-2xl font-bold">
                 {coach?.first_name} {coach?.last_name}

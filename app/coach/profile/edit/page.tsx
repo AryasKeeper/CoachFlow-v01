@@ -26,7 +26,9 @@ import {
   Globe,
   Calendar,
   Award,
-  ArrowLeft
+  ArrowLeft,
+  Upload,
+  Camera
 } from "lucide-react"
 import {
   AlertDialog,
@@ -53,6 +55,7 @@ interface ProfileForm {
   years_experience?: number
   coaching_philosophy?: string
   achievements?: string
+  avatar_url?: string
 }
 
 const SPECIALTIES_OPTIONS = [
@@ -88,6 +91,8 @@ export default function CoachProfilePage() {
   const [suburbs, setSuburbs] = useState<string[]>([])
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   const supabase = createClient()
   const { register, handleSubmit, formState: { errors, isDirty }, setValue, watch } = useForm<ProfileForm>()
@@ -125,6 +130,8 @@ export default function CoachProfilePage() {
       setValue('years_experience', profile.years_experience || 0)
       setValue('coaching_philosophy', profile.coaching_philosophy || '')
       setValue('achievements', profile.achievements || '')
+      setValue('avatar_url', profile.avatar_url || '')
+      setAvatarUrl(profile.avatar_url || null)
       setSpecialties(profile.specialties || [])
       setSuburbs(profile.suburbs || [])
     }
@@ -143,6 +150,46 @@ export default function CoachProfilePage() {
       setShowUnsavedDialog(true)
     } else {
       router.push('/coach/profile')
+    }
+  }
+
+  const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploadingAvatar(true)
+      setError(null)
+
+      if (!event.target.files || event.target.files.length === 0) {
+        throw new Error('You must select an image to upload.')
+      }
+
+      const file = event.target.files[0]
+      const fileExt = file.name.split('.').pop()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) throw new Error('No user found')
+
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`
+      const filePath = `avatars/${fileName}`
+
+      // Upload image to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from('profiles')
+        .upload(filePath, file, { upsert: true })
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(filePath)
+
+      setAvatarUrl(publicUrl)
+      setValue('avatar_url', publicUrl)
+      setHasUnsavedChanges(true)
+    } catch (error: any) {
+      setError(error.message)
+    } finally {
+      setUploadingAvatar(false)
     }
   }
   
@@ -195,6 +242,7 @@ export default function CoachProfilePage() {
         preferred_contact_method: data.preferred_contact_method || 'email',
         contact_availability: data.contact_availability || null,
         linkedin_url: data.linkedin_url || null,
+        avatar_url: avatarUrl || null,
         years_experience: data.years_experience || 0,
         coaching_philosophy: data.coaching_philosophy || null,
         achievements: data.achievements || null,
@@ -296,7 +344,72 @@ export default function CoachProfilePage() {
             Profile updated successfully!
           </div>
         )}
-        
+
+        {/* Profile Picture */}
+        <GlassCard>
+          <h2 className="text-xl font-semibold mb-4">Profile Picture</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Upload a professional photo to help organizations recognize you
+          </p>
+
+          <div className="flex items-center gap-6">
+            {/* Avatar Preview */}
+            <div className="relative">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-primary/20"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white text-2xl font-bold">
+                  <User className="w-12 h-12" />
+                </div>
+              )}
+
+              {/* Upload Button Overlay */}
+              <label
+                htmlFor="avatar-upload"
+                className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
+              >
+                <Camera className="w-4 h-4" />
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={uploadAvatar}
+                  disabled={uploadingAvatar}
+                />
+              </label>
+            </div>
+
+            {/* Upload Instructions */}
+            <div className="flex-1">
+              <p className="text-sm font-medium mb-2">Upload a new photo</p>
+              <p className="text-xs text-muted-foreground mb-3">
+                JPG, PNG or GIF. Max file size 5MB. Recommended size 400x400px.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={uploadingAvatar}
+                onClick={() => document.getElementById('avatar-upload')?.click()}
+              >
+                {uploadingAvatar ? (
+                  <>Uploading...</>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Choose File
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </GlassCard>
+
         {/* Contact Information */}
         <GlassCard>
           <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
