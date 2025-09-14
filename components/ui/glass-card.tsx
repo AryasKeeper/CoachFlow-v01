@@ -14,13 +14,14 @@ const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
       md: "16px",
       lg: "24px"
     }
-    
+
     return (
       <div
         ref={ref}
         className={cn(
           "rounded-xl transition-all duration-200",
-          variant === "light" ? "glass" : "glass-dark",
+          // Always use glass class - dark mode is handled by CSS
+          "glass",
           !noPadding && "p-6",
           "shadow-soft hover:shadow-soft-lg",
           className

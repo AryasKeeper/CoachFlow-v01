@@ -101,7 +101,7 @@
   --background: oklch(0.22 0.04 250);
   --foreground: oklch(0.95 0 0);
   --card: oklch(0.25 0.04 250);
-  --card-foreground: oklch(0.95 0 0);
+  --card-foreground: oklch(0.90 0 0); /* Ensure good contrast */
   --popover: oklch(0.25 0.04 250);
   --popover-foreground: oklch(0.95 0 0);
   /* Primary - Vibrant cyan (brighter in dark mode) */
@@ -149,6 +149,7 @@
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
+    color: oklch(0.20 0.02 250); /* Dark text for light background */
   }
 
   .glass-dark {
@@ -156,6 +157,38 @@
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
+    color: oklch(0.95 0 0); /* Light text for dark background */
+  }
+
+  /* Dark mode glass card text fix */
+  .dark .glass {
+    background: rgba(30, 35, 45, 0.8);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: oklch(0.95 0 0); /* Light text in dark mode */
+  }
+
+  .dark .glass-dark {
+    background: rgba(10, 12, 18, 0.9);
+    color: oklch(0.95 0 0); /* Light text in dark mode */
+  }
+
+  /* Ensure all text in glass cards is readable */
+  .glass h1, .glass h2, .glass h3, .glass h4, .glass h5, .glass h6,
+  .glass p, .glass span, .glass div, .glass label {
+    color: inherit;
+  }
+
+  .dark .glass h1, .dark .glass h2, .dark .glass h3,
+  .dark .glass h4, .dark .glass h5, .dark .glass h6,
+  .dark .glass p, .dark .glass span, .dark .glass div,
+  .dark .glass label, .dark .glass .text-muted-foreground {
+    color: oklch(0.85 0 0);
+  }
+
+  .dark .glass .text-muted-foreground {
+    color: oklch(0.70 0 0) !important;
   }
 
   /* Animation utilities */
