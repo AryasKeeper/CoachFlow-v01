@@ -29,7 +29,9 @@ interface PreferencesSettingsProps {
 
 export function PreferencesSettings({ user, profile, onChanges }: PreferencesSettingsProps) {
   const [loading, setLoading] = useState(false)
-  const [preferences, setPreferences] = useState({
+
+  // Initialize from profile app_preferences or defaults
+  const defaultPreferences = {
     // Display
     theme: 'system', // light, dark, system
     language: 'en',
@@ -47,7 +49,11 @@ export function PreferencesSettings({ user, profile, onChanges }: PreferencesSet
     messagePreview: true,
     readReceipts: true,
     typingIndicators: true
-  })
+  }
+
+  const [preferences, setPreferences] = useState(
+    profile?.app_preferences || defaultPreferences
+  )
 
   const handleChange = (key: string, value: any) => {
     setPreferences(prev => ({ ...prev, [key]: value }))
@@ -56,12 +62,27 @@ export function PreferencesSettings({ user, profile, onChanges }: PreferencesSet
 
   const handleSave = async () => {
     setLoading(true)
-    // Save preferences logic here
-    setTimeout(() => {
+    const supabase = createClient()
+
+    try {
+      // Save app preferences to coach_profiles
+      const { error } = await supabase
+        .from('coach_profiles')
+        .upsert({
+          user_id: user.id,
+          app_preferences: preferences
+        })
+
+      if (error) throw error
+
       toast.success('Preferences updated')
       onChanges(false)
+    } catch (error) {
+      console.error('Error updating preferences:', error)
+      toast.error('Failed to update preferences')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (

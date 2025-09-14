@@ -30,7 +30,9 @@ interface PrivacySettingsProps {
 
 export function PrivacySettings({ user, profile, onChanges }: PrivacySettingsProps) {
   const [loading, setLoading] = useState(false)
-  const [privacy, setPrivacy] = useState({
+
+  // Initialize from profile privacy_settings or defaults
+  const defaultPrivacy = {
     profileVisibility: 'public', // public, organizations, private
     showEmail: false,
     showPhone: false,
@@ -40,7 +42,11 @@ export function PrivacySettings({ user, profile, onChanges }: PrivacySettingsPro
     allowMessages: true,
     searchable: true,
     showInDirectory: true
-  })
+  }
+
+  const [privacy, setPrivacy] = useState(
+    profile?.privacy_settings || defaultPrivacy
+  )
 
   const handleChange = (key: string, value: any) => {
     setPrivacy(prev => ({ ...prev, [key]: value }))
@@ -49,12 +55,27 @@ export function PrivacySettings({ user, profile, onChanges }: PrivacySettingsPro
 
   const handleSave = async () => {
     setLoading(true)
-    // Save privacy settings logic here
-    setTimeout(() => {
+    const supabase = createClient()
+
+    try {
+      // Save privacy settings to coach_profiles
+      const { error } = await supabase
+        .from('coach_profiles')
+        .upsert({
+          user_id: user.id,
+          privacy_settings: privacy
+        })
+
+      if (error) throw error
+
       toast.success('Privacy settings updated')
       onChanges(false)
+    } catch (error) {
+      console.error('Error updating privacy settings:', error)
+      toast.error('Failed to update privacy settings')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (

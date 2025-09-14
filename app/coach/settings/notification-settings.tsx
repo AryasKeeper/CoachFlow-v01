@@ -29,7 +29,9 @@ interface NotificationSettingsProps {
 
 export function NotificationSettings({ user, profile, onChanges }: NotificationSettingsProps) {
   const [loading, setLoading] = useState(false)
-  const [notifications, setNotifications] = useState({
+
+  // Initialize from profile notification_preferences or defaults
+  const defaultPreferences = {
     // Email Notifications
     emailNewBookings: true,
     emailApplicationStatus: true,
@@ -48,7 +50,11 @@ export function NotificationSettings({ user, profile, onChanges }: NotificationS
     inAppBookings: true,
     inAppMessages: true,
     inAppUpdates: true
-  })
+  }
+
+  const [notifications, setNotifications] = useState(
+    profile?.notification_preferences || defaultPreferences
+  )
 
   const handleToggle = (key: string) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
@@ -57,12 +63,27 @@ export function NotificationSettings({ user, profile, onChanges }: NotificationS
 
   const handleSave = async () => {
     setLoading(true)
-    // Save notification preferences logic here
-    setTimeout(() => {
+    const supabase = createClient()
+
+    try {
+      // Save notification preferences to coach_profiles
+      const { error } = await supabase
+        .from('coach_profiles')
+        .upsert({
+          user_id: user.id,
+          notification_preferences: notifications
+        })
+
+      if (error) throw error
+
       toast.success('Notification preferences updated')
       onChanges(false)
+    } catch (error) {
+      console.error('Error updating notification preferences:', error)
+      toast.error('Failed to update notification preferences')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   const notificationGroups = [

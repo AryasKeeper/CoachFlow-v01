@@ -49,15 +49,19 @@ const LOCATIONS = [
 
 export function AvailabilitySettings({ user, profile, onChanges }: AvailabilitySettingsProps) {
   const [loading, setLoading] = useState(false)
-  const [availability, setAvailability] = useState({
+
+  // Initialize from profile or defaults
+  const defaultAvailability = {
     isAvailable: true,
     immediateAvailability: false,
     maxDistance: '25km',
-    preferredLocations: ['Sydney CBD', 'North Sydney'],
-    availableDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    availableSlots: ['Morning (9am-12pm)', 'Afternoon (12pm-3pm)'],
-    minimumNotice: '24 hours'
-  })
+    preferredLocations: profile?.suburbs || ['Sydney CBD', 'North Sydney'],
+    availableDays: profile?.availability?.days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    availableSlots: profile?.availability?.slots || ['Morning (9am-12pm)', 'Afternoon (12pm-3pm)'],
+    minimumNotice: profile?.availability?.minimum_notice || '24 hours'
+  }
+
+  const [availability, setAvailability] = useState(defaultAvailability)
 
   const handleChange = (key: string, value: any) => {
     setAvailability(prev => ({ ...prev, [key]: value }))
@@ -87,12 +91,34 @@ export function AvailabilitySettings({ user, profile, onChanges }: AvailabilityS
 
   const handleSave = async () => {
     setLoading(true)
-    // Save availability settings logic here
-    setTimeout(() => {
+    const supabase = createClient()
+
+    try {
+      // Save availability settings to coach_profiles
+      const { error } = await supabase
+        .from('coach_profiles')
+        .upsert({
+          user_id: user.id,
+          availability: {
+            days: availability.availableDays,
+            slots: availability.availableSlots,
+            minimum_notice: availability.minimumNotice,
+            immediate: availability.immediateAvailability,
+            max_distance: availability.maxDistance
+          },
+          suburbs: availability.preferredLocations
+        })
+
+      if (error) throw error
+
       toast.success('Availability settings updated')
       onChanges(false)
+    } catch (error) {
+      console.error('Error updating availability settings:', error)
+      toast.error('Failed to update availability settings')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (

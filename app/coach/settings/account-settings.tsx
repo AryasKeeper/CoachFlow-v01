@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Avatar } from "@/components/ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import {
@@ -18,7 +18,8 @@ import {
   Camera,
   Loader2,
   Check,
-  X
+  X,
+  Upload
 } from "lucide-react"
 
 interface AccountSettingsProps {
@@ -30,18 +31,83 @@ interface AccountSettingsProps {
 
 export function AccountSettings({ user, userData, profile, onChanges }: AccountSettingsProps) {
   const [loading, setLoading] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const supabase = createClient()
+
   const [formData, setFormData] = useState({
     email: user.email || '',
     firstName: userData?.first_name || '',
     lastName: userData?.last_name || '',
-    phone: profile?.phone || '',
-    location: profile?.location || '',
-    website: profile?.website || ''
+    phone: profile?.phone_number || '', // Using phone_number from coach_profiles
+    location: profile?.suburbs?.[0] || '', // Using first suburb as location
+    website: profile?.linkedin_url || '' // Using linkedin_url as website for now
   })
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     onChanges(true)
+  }
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB')
+      return
+    }
+
+    setUploadingAvatar(true)
+
+    try {
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`
+      const filePath = `avatars/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, {
+          upsert: true
+        })
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath)
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('coach_profiles')
+        .upsert({
+          user_id: user.id,
+          avatar_url: publicUrl
+        })
+
+      if (updateError) throw updateError
+
+      setAvatarUrl(publicUrl)
+      toast.success('Avatar updated successfully')
+      onChanges(false)
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      toast.error('Failed to upload avatar')
+    } finally {
+      setUploadingAvatar(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
   }
 
   const handleSave = async () => {
@@ -60,14 +126,14 @@ export function AccountSettings({ user, userData, profile, onChanges }: AccountS
 
       if (userError) throw userError
 
-      // Update coach_profiles table
+      // Update coach_profiles table with correct field names
       const { error: profileError } = await supabase
         .from('coach_profiles')
         .upsert({
           user_id: user.id,
-          phone: formData.phone,
-          location: formData.location,
-          website: formData.website
+          phone_number: formData.phone, // Changed from 'phone' to 'phone_number'
+          suburbs: formData.location ? [formData.location] : [], // Convert to array for suburbs field
+          linkedin_url: formData.website // Using linkedin_url field
         })
 
       if (profileError) throw profileError
@@ -106,14 +172,43 @@ export function AccountSettings({ user, userData, profile, onChanges }: AccountS
         <Label>Profile Picture</Label>
         <div className="flex items-center gap-4">
           <Avatar className="w-24 h-24">
-            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-              <User className="w-12 h-12 text-primary" />
-            </div>
+            {avatarUrl ? (
+              <AvatarImage src={avatarUrl} alt={`${formData.firstName} ${formData.lastName}`} />
+            ) : null}
+            <AvatarFallback>
+              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                {formData.firstName && formData.lastName ? (
+                  <span className="text-2xl font-semibold text-primary">
+                    {formData.firstName[0]}{formData.lastName[0]}
+                  </span>
+                ) : (
+                  <User className="w-12 h-12 text-primary" />
+                )}
+              </div>
+            </AvatarFallback>
           </Avatar>
           <div className="space-y-2">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Camera className="w-4 h-4" />
-              Change Photo
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+              id="avatar-upload"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
+            >
+              {uploadingAvatar ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
+              {uploadingAvatar ? 'Uploading...' : 'Change Photo'}
             </Button>
             <p className="text-xs text-muted-foreground">
               JPG, PNG or GIF. Max size 5MB.
