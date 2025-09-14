@@ -4,14 +4,14 @@ import { useEffect, useState, useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 import { createClient } from "@/lib/supabase/client"
-import { ListingCard } from "@/components/ui/listing-card"
+import { AnimatedListingCard } from "@/components/ui/animated-listing-card"
+import { Skeleton, SkeletonCard } from "@/components/ui/skeleton-shimmer"
 import { EmptyState } from "@/components/ui/empty-state"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import { formatDate } from "@/lib/date-utils"
 import {
@@ -315,10 +315,10 @@ export default function EnhancedCoachListingsPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Skeleton className="h-10 w-64 mb-8" />
+        <Skeleton className="h-10 w-64 mb-8" shimmer />
         <div className="grid md:grid-cols-2 gap-6">
           {[1,2,3,4].map(i => (
-            <Skeleton key={i} className="h-48" />
+            <SkeletonCard key={i} />
           ))}
         </div>
       </div>
@@ -384,41 +384,41 @@ export default function EnhancedCoachListingsPage() {
       {/* Stats Cards */}
       {viewMode !== 'map' && (
         <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <GlassCard className="p-4">
+          <GlassCard className="p-4 hover:scale-[1.02] transition-transform cursor-default">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Jobs</p>
-                <p className="text-2xl font-bold">{filteredListings.length}</p>
+                <p className="text-2xl font-bold animate-[scale-in_0.5s_ease-out]">{filteredListings.length}</p>
               </div>
               <ClipboardList className="w-8 h-8 text-muted-foreground" />
             </div>
           </GlassCard>
 
-          <GlassCard className="p-4">
+          <GlassCard className="p-4 hover:scale-[1.02] transition-transform cursor-default">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">In Your Area</p>
-                <p className="text-2xl font-bold text-blue-600">{categorizedListings.nearby.length}</p>
+                <p className="text-2xl font-bold text-blue-600 animate-[scale-in_0.5s_ease-out_200ms_both]">{categorizedListings.nearby.length}</p>
               </div>
               <MapPin className="w-8 h-8 text-blue-600" />
             </div>
           </GlassCard>
 
-          <GlassCard className="p-4">
+          <GlassCard className="p-4 hover:scale-[1.02] transition-transform cursor-default">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Urgent</p>
-                <p className="text-2xl font-bold text-red-600">{categorizedListings.urgent.length}</p>
+                <p className="text-2xl font-bold text-red-600 animate-[scale-in_0.5s_ease-out_400ms_both]">{categorizedListings.urgent.length}</p>
               </div>
               <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
           </GlassCard>
 
-          <GlassCard className="p-4">
+          <GlassCard className="p-4 hover:scale-[1.02] transition-transform cursor-default">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Applied</p>
-                <p className="text-2xl font-bold text-green-600">{appliedListingIds.length}</p>
+                <p className="text-2xl font-bold text-green-600 animate-[scale-in_0.5s_ease-out_600ms_both]">{appliedListingIds.length}</p>
               </div>
               <Users className="w-8 h-8 text-green-600" />
             </div>
@@ -431,11 +431,12 @@ export default function EnhancedCoachListingsPage() {
         <div className="transition-all duration-300">
           {viewMode === 'card' && (
             <div className="grid md:grid-cols-2 gap-6">
-              {filteredListings.map((listing) => (
-                <ListingCard
+              {filteredListings.map((listing, index) => (
+                <AnimatedListingCard
                   key={listing.id}
                   listing={listing}
                   onClick={() => router.push(`/coach/listings/${listing.id}`)}
+                  index={index}
                 />
               ))}
             </div>

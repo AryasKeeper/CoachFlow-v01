@@ -143,23 +143,66 @@
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
   }
-  
+
   .glass-dark {
     background: rgba(0, 0, 0, var(--glass-opacity));
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
   }
-  
+
   /* Animation utilities */
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.95);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(0.95);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-up-fade {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
   .animation-delay-200 {
     animation-delay: 200ms;
   }
-  
+
   .animation-delay-400 {
     animation-delay: 400ms;
   }
-  
+
   .animation-delay-600 {
     animation-delay: 600ms;
   }

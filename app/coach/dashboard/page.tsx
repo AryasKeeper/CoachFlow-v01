@@ -4,6 +4,7 @@ import { GlassCard } from "@/components/ui/glass-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { BadgeRow } from "@/components/ui/badge-row"
+import { MiniProgressRing } from "@/components/ui/progress-ring"
 import Link from "next/link"
 import { 
   ClipboardList, 
@@ -70,13 +71,31 @@ export default async function CoachDashboardPage() {
     .order('created_at', { ascending: false })
     .limit(3)
   
-  const isProfileComplete = profile && 
-    profile.bio && 
-    profile.specialties?.length > 0 && 
+  const isProfileComplete = profile &&
+    profile.bio &&
+    profile.specialties?.length > 0 &&
     profile.suburbs?.length > 0 &&
     (profile.rate_hourly || profile.rate_flat)
-  
+
   const isVerified = profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url
+
+  // Calculate profile completion percentage
+  const profileCompletion = (() => {
+    if (!profile) return 0
+    let completed = 0
+    let total = 8
+
+    if (profile.bio) completed++
+    if (profile.specialties?.length > 0) completed++
+    if (profile.suburbs?.length > 0) completed++
+    if (profile.rate_hourly || profile.rate_flat) completed++
+    if (profile.wwcc_number) completed++
+    if (profile.insurance_url) completed++
+    if (profile.first_aid_url) completed++
+    if (profile.travel_km) completed++
+
+    return Math.round((completed / total) * 100)
+  })()
   
   const verificationBadges = [
     {
@@ -188,11 +207,11 @@ export default async function CoachDashboardPage() {
       {/* Stats Grid */}
       <div className="grid md:grid-cols-3 gap-6 mb-12">
         {stats.map((stat) => (
-          <GlassCard key={stat.label} className="p-6">
+          <GlassCard key={stat.label} className="p-6 hover:scale-[1.02] transition-transform cursor-default">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold">{stat.value}</p>
+                <p className="text-3xl font-bold animate-[scale-in_0.5s_ease-out]">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-lg ${stat.bgColor} flex items-center justify-center`}>
                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
@@ -217,15 +236,18 @@ export default async function CoachDashboardPage() {
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
               </div>
-              {profile?.rating_avg && profile.rating_count > 0 && (
-                <div className="text-right">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                    <span className="font-semibold">{profile.rating_avg.toFixed(1)}</span>
+              <div className="flex items-center gap-4">
+                <MiniProgressRing progress={profileCompletion} />
+                {profile?.rating_avg && profile.rating_count > 0 && (
+                  <div className="text-right">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                      <span className="font-semibold">{profile.rating_avg.toFixed(1)}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{profile.rating_count} reviews</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{profile.rating_count} reviews</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
             
             <div className="space-y-3 pt-2">
