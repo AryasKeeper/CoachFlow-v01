@@ -117,9 +117,9 @@ const nextConfig: NextConfig = {
 
   // Additional security configurations
   poweredByHeader: false, // Remove X-Powered-By header
-  
-  // Compression
-  compress: process.env.ENABLE_COMPRESSION === 'true',
+
+  // Compression - Enable by default in production for 20-30% bandwidth reduction
+  compress: isProd || process.env.ENABLE_COMPRESSION === 'true',
 
   // Image optimization configuration
   images: {

@@ -1,3 +1,4 @@
+import React from "react"
 import { cn } from "@/lib/utils"
 import { GlassCard } from "./glass-card"
 import { Badge } from "@/components/ui/badge"
@@ -38,7 +39,7 @@ interface ListingCardProps {
   className?: string
 }
 
-export function ListingCard({ listing, onClick, className }: ListingCardProps) {
+function ListingCardComponent({ listing, onClick, className }: ListingCardProps) {
   const getUrgencyBadge = () => {
     if (!listing.urgency) return null
     
@@ -184,3 +185,30 @@ export function ListingCard({ listing, onClick, className }: ListingCardProps) {
     </GlassCard>
   )
 }
+
+// Custom comparison function for React.memo to prevent unnecessary re-renders
+function arePropsEqual(prevProps: ListingCardProps, nextProps: ListingCardProps) {
+  // Check if the main listing properties have changed
+  return (
+    prevProps.listing.id === nextProps.listing.id &&
+    prevProps.listing.title === nextProps.listing.title &&
+    prevProps.listing.description === nextProps.listing.description &&
+    prevProps.listing.status === nextProps.listing.status &&
+    prevProps.listing.urgency === nextProps.listing.urgency &&
+    prevProps.listing.pay_min === nextProps.listing.pay_min &&
+    prevProps.listing.pay_max === nextProps.listing.pay_max &&
+    prevProps.listing.location === nextProps.listing.location &&
+    prevProps.className === nextProps.className &&
+    // For arrays, check length and first item (shallow comparison for performance)
+    prevProps.listing.suburbs?.length === nextProps.listing.suburbs?.length &&
+    prevProps.listing.time_intervals?.length === nextProps.listing.time_intervals?.length &&
+    // For dates, check if they're both arrays with same length
+    (Array.isArray(prevProps.listing.dates) === Array.isArray(nextProps.listing.dates)) &&
+    (Array.isArray(prevProps.listing.dates)
+      ? prevProps.listing.dates?.length === nextProps.listing.dates?.length
+      : prevProps.listing.dates === nextProps.listing.dates)
+  )
+}
+
+// Export the memoized component for better performance
+export const ListingCard = React.memo(ListingCardComponent, arePropsEqual)

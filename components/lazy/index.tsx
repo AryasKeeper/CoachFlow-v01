@@ -27,3 +27,7 @@ export const LazyMiniProgressRing = dynamic(
     ssr: false
   }
 )
+
+// Export lazy loaded image components
+export { OptimizedImage } from '@/components/ui/optimized-image'
+export { LazyAvatar } from '@/components/ui/lazy-avatar'
