@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { OptimizedLink } from "./optimized-link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -160,10 +161,10 @@ export function Navigation() {
                 {isLoading ? null : !isLoggedIn ? (
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="sm" asChild>
-                      <Link href="/auth/sign-in">Sign In</Link>
+                      <OptimizedLink href="/auth/sign-in">Sign In</OptimizedLink>
                     </Button>
                     <Button size="sm" className="bg-primary hover:bg-primary/90" asChild>
-                      <Link href="/auth/sign-up">Sign Up</Link>
+                      <OptimizedLink href="/auth/sign-up">Sign Up</OptimizedLink>
                     </Button>
                   </div>
                 ) : (

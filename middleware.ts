@@ -9,7 +9,7 @@ import { securityHeadersMiddleware, productionSecurityConfig } from './lib/middl
 
 export async function middleware(request: NextRequest) {
   const { pathname } = new URL(request.url)
-  
+
   // Skip middleware for static files and internal Next.js routes
   if (
     pathname.startsWith('/_next/static/') ||
@@ -21,8 +21,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // PERFORMANCE OPTIMIZATION: Skip heavy middleware in development
+  if (process.env.NODE_ENV === 'development') {
+    // Only apply minimal security headers in dev
+    const response = NextResponse.next()
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+    response.headers.set('X-Frame-Options', 'DENY')
+    return response
+  }
+
   try {
-    // 1. Apply rate limiting first
+    // 1. Apply rate limiting first (PRODUCTION ONLY)
     const rateLimitResult = await rateLimitMiddleware(request)
     
     if (!rateLimitResult.allowed) {
