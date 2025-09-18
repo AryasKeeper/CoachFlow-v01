@@ -1,5 +1,4 @@
-import { openai } from '@ai-sdk/openai'
-import { streamText } from 'ai'
+import OpenAI from 'openai'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
 import { 
@@ -24,17 +23,48 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
 const RATE_LIMIT = 10 // requests per hour
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour in milliseconds
 
-// TODO: Configure with actual system prompt for CoachFlow
-const SYSTEM_PROMPT = `You are a helpful assistant for CoachFlow, a platform connecting basketball organizations with vetted coaches in Sydney, Australia.
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+})
 
-Your role is to:
-1. Help organizations create effective job listings
-2. Guide coaches through the application process
-3. Explain verification requirements (WWCC, insurance, first aid)
-4. Provide tips for successful matches
-5. Answer questions about the platform
+// CoachFlow-specific system prompt
+const getSystemPrompt = (userRole: 'coach' | 'org' | 'admin' = 'coach') => {
+  const basePrompt = `You are the CoachFlow Assistant, the expert AI helper for Sydney's premier basketball coaching marketplace.
 
-Be friendly, professional, and concise. Focus on practical advice.`
+You have deep knowledge of:
+• Basketball coaching in Sydney (schools, clubs, PCYC programs)
+• Australian requirements (WWCC, insurance, certifications)
+• The CoachFlow platform and all its features
+• Local basketball ecosystem (Basketball NSW, associations)
+
+Your personality:
+• Friendly and encouraging with Australian warmth
+• Professional yet approachable
+• Action-oriented and practical
+• Enthusiastic about basketball
+
+Platform status: Beta (100% FREE for all users)`
+
+  const roleSpecific = {
+    coach: `
+You're helping a COACH. Focus on:
+- Finding and applying for opportunities
+- Profile optimization
+- Setting competitive rates ($40-120/hour)
+- Building relationships with organizations`,
+    org: `
+You're helping an ORGANIZATION. Focus on:
+- Creating attractive listings
+- Finding qualified coaches quickly
+- Understanding coach credentials
+- Managing applications efficiently`,
+    admin: `
+You're helping an ADMIN with platform operations and technical support.`
+  }
+
+  return basePrompt + (roleSpecific[userRole] || roleSpecific.coach)
+}
 
 async function chatHandler(req: NextRequest) {
   // 1. Authentication check
@@ -101,40 +131,121 @@ async function chatHandler(req: NextRequest) {
   // Start performance timer
   const endTimer = performanceMonitor.startTimer('ai_chat_generation')
 
-  // 5. Generate AI response
+  // Get user role for personalized responses
+  const { data: userData } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const userRole = userData?.role as 'coach' | 'org' | 'admin' || 'coach'
+
+  // 5. Generate AI response with GPT-5
   try {
-    const result = streamText({
-      model: openai('gpt-4o'), // Will use GPT-5 when available
-      system: SYSTEM_PROMPT,
-      messages,
+    const response = await openai.chat.completions.create({
+      model: process.env.AI_MODEL || 'gpt-5',
+      messages: [
+        { role: 'system', content: getSystemPrompt(userRole) },
+        ...messages
+      ],
       temperature: 0.7,
-      maxTokens: 500,
+      max_tokens: 2000,
+      stream: true,
+      // GPT-5 specific parameters
+      // @ts-ignore - New GPT-5 parameters
+      verbosity: process.env.AI_VERBOSITY || 'medium',
+      reasoning_effort: process.env.AI_REASONING_EFFORT || 'medium'
     })
-    
-    // Stop timer and log success
+
+    // Create streaming response
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of response) {
+            const content = chunk.choices[0]?.delta?.content || ''
+            if (content) {
+              // Format as SSE for compatibility
+              const data = JSON.stringify({ content })
+              controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`))
+            }
+          }
+          controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'))
+          controller.close()
+        } catch (error) {
+          controller.error(error)
+        }
+      }
+    })
+
     const duration = endTimer()
-    apiLogger.info('AI chat response generated', {
+    apiLogger.info('GPT-5 response generated', {
       userId: user.id,
+      userRole,
       duration,
       messageCount: messages.length
     })
-    
-    return result.toDataStreamResponse()
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+      }
+    })
   } catch (aiError) {
-    // Stop timer and log error
     const duration = endTimer()
-    apiLogger.error('AI chat generation failed', {
+    apiLogger.error('GPT-5 generation failed, trying fallback', {
       userId: user.id,
       duration,
-      messageCount: messages.length,
       error: aiError instanceof Error ? aiError.message : 'Unknown error'
     })
-    
-    throw createInternalError('AI service temporarily unavailable', aiError as Error, {
-      userId: user.id,
-      messageCount: messages.length,
-      duration
-    })
+
+    // Fallback to GPT-4 if GPT-5 fails
+    try {
+      const fallbackResponse = await openai.chat.completions.create({
+        model: process.env.AI_MODEL_FALLBACK || 'gpt-4o',
+        messages: [
+          { role: 'system', content: getSystemPrompt(userRole) },
+          ...messages
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+        stream: true
+      })
+
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const chunk of fallbackResponse) {
+              const content = chunk.choices[0]?.delta?.content || ''
+              if (content) {
+                const data = JSON.stringify({ content })
+                controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`))
+              }
+            }
+            controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'))
+            controller.close()
+          } catch (error) {
+            controller.error(error)
+          }
+        }
+      })
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive'
+        }
+      })
+
+    } catch (fallbackError) {
+      throw createInternalError('AI service temporarily unavailable', fallbackError as Error, {
+        userId: user.id,
+        messageCount: messages.length,
+        duration
+      })
+    }
   }
 }
 

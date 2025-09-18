@@ -13,65 +13,36 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-// TODO: Uncomment and configure when AI provider keys are available
-// import { useChat } from 'ai/react'
-
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: Date
-}
+import { useCoachflowChat } from '@/hooks/use-coachflow-chat'
 
 export function AiHelpDrawer() {
   const [isOpen, setIsOpen] = useState(false)
-  const [input, setInput] = useState('')
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Hi! I\'m your CoachFlow assistant. I can help you navigate the platform, answer questions about coaching, and guide you through creating listings or applications. How can I help you today?',
-      timestamp: new Date()
-    }
-  ])
-  
-  // TODO: Replace with actual AI SDK implementation
-  // const { messages, input, handleInputChange, handleSubmit } = useChat({
-  //   api: '/api/chat',
-  //   initialMessages: [
-  //     {
-  //       id: '1',
-  //       role: 'assistant',
-  //       content: 'Hi! I\'m your CoachFlow assistant...'
-  //     }
-  //   ]
-  // })
-  
-  const handleSend = () => {
-    if (!input.trim()) return
-    
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input,
-      timestamp: new Date()
-    }
-    
-    setMessages(prev => [...prev, userMessage])
-    setInput('')
-    
-    // Simulate AI response (replace with actual AI call)
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+
+  // Use the CoachFlow AI assistant
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useCoachflowChat({
+    api: '/api/chat',
+    initialMessages: [
+      {
+        id: '1',
         role: 'assistant',
-        content: 'I\'m currently in beta mode. Once the AI integration is complete, I\'ll be able to help you with:\n\n• Finding the right coaches for your needs\n• Creating compelling job listings\n• Understanding the verification process\n• Tips for successful applications\n• And much more!\n\nFor now, please explore the platform or contact support for assistance.',
-        timestamp: new Date()
+        content: `G'day! 👋 I'm your CoachFlow Assistant.
+
+I'm here to help you with:
+• 🔍 Finding coaching opportunities (for coaches)
+• 📝 Creating standout listings (for organizations)
+• ✅ Understanding verification requirements
+• 💰 Setting competitive rates ($40-120/hour typical)
+• 🏀 Navigating the platform features
+• 🏐 Sydney basketball ecosystem insights
+
+During our beta, everything is 100% FREE! How can I help you today?`,
+        createdAt: new Date()
       }
-      setMessages(prev => [...prev, assistantMessage])
-    }, 1000)
-  }
+    ],
+    onError: (error) => {
+      console.error('CoachFlow AI Error:', error)
+    }
+  })
   
   return (
     <>
@@ -121,52 +92,70 @@ export function AiHelpDrawer() {
                   )}
                 >
                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  <p className={cn(
-                    "text-xs mt-1",
-                    message.role === 'user'
-                      ? 'text-primary-foreground/70'
-                      : 'text-muted-foreground'
-                  )}>
-                    {message.timestamp.toLocaleTimeString([], { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
-                  </p>
+                  {message.createdAt && (
+                    <p className={cn(
+                      "text-xs mt-1",
+                      message.role === 'user'
+                        ? 'text-primary-foreground/70'
+                        : 'text-muted-foreground'
+                    )}>
+                      {new Date(message.createdAt).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="max-w-[80%] rounded-lg px-4 py-3 bg-muted">
+                  <div className="flex gap-1">
+                    <span className="animate-bounce">•</span>
+                    <span className="animate-bounce" style={{ animationDelay: '100ms' }}>•</span>
+                    <span className="animate-bounce" style={{ animationDelay: '200ms' }}>•</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           
           {/* Input */}
           <div className="border-t p-4">
             <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                handleSend()
-              }}
+              onSubmit={handleSubmit}
               className="flex gap-2"
             >
               <Textarea
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask me anything about CoachFlow..."
+                onChange={handleInputChange}
+                placeholder="Ask about rates, listings, verification, or anything else..."
                 className="flex-1 min-h-[60px] max-h-[120px] resize-none"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault()
-                    handleSend()
+                    handleSubmit(e as any)
                   }
                 }}
+                disabled={isLoading}
               />
-              <Button type="submit" size="icon" disabled={!input.trim()}>
-                <Send className="h-4 w-4" />
+              <Button type="submit" size="icon" disabled={!input.trim() || isLoading}>
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
                 <span className="sr-only">Send message</span>
               </Button>
             </form>
-            
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              AI assistance powered by GPT-5 (coming soon)
-            </p>
+
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <p className="text-xs text-muted-foreground">
+                Beta Mode
+              </p>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
