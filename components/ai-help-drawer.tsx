@@ -12,6 +12,7 @@ import {
   X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { parseMarkdown } from "@/lib/markdown-parser"
 
 import { useCoachflowChat } from '@/hooks/use-coachflow-chat'
 
@@ -25,17 +26,17 @@ export function AiHelpDrawer() {
       {
         id: '1',
         role: 'assistant',
-        content: `G'day! 👋 I'm your CoachFlow Assistant.
+        content: `G'day! 👋 I'm your **CoachFlow Assistant**.
 
 I'm here to help you with:
-• 🔍 Finding coaching opportunities (for coaches)
-• 📝 Creating standout listings (for organizations)
-• ✅ Understanding verification requirements
-• 💰 Setting competitive rates ($40-120/hour typical)
-• 🏀 Navigating the platform features
-• 🏐 Sydney basketball ecosystem insights
+• 🔍 **Finding coaching opportunities** (for coaches)
+• 📝 **Creating standout listings** (for organizations)
+• ✅ **Understanding verification requirements**
+• 💰 **Setting competitive rates** ($40-120/hour typical)
+• 🏀 **Navigating the platform** features
+• 🏐 **Sydney basketball** ecosystem insights
 
-During our beta, everything is 100% FREE! How can I help you today?`,
+During our beta, everything is *100% FREE!* How can I help you today?`,
         createdAt: new Date()
       }
     ],
@@ -91,7 +92,13 @@ During our beta, everything is 100% FREE! How can I help you today?`,
                       : 'bg-muted'
                   )}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <div className="text-sm">
+                    {message.role === 'user' ? (
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    ) : (
+                      parseMarkdown(message.content)
+                    )}
+                  </div>
                   {message.createdAt && (
                     <p className={cn(
                       "text-xs mt-1",
