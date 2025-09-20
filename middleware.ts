@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { rateLimitMiddleware } from './lib/middleware/rate-limiting'
 import { securityHeadersMiddleware, productionSecurityConfig } from './lib/middleware/security-headers'
+import { authProtectionMiddleware } from './lib/middleware/auth-protection'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = new URL(request.url)
@@ -21,51 +22,65 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Check authentication for protected routes FIRST (both dev and prod)
+  const authResult = await authProtectionMiddleware(request)
+
+  // If auth middleware returned a redirect, use it immediately
+  if (authResult.status === 307 || authResult.status === 302 || authResult.status === 301) {
+    return authResult
+  }
+
   // PERFORMANCE OPTIMIZATION: Skip heavy middleware in development
   if (process.env.NODE_ENV === 'development') {
-    // Only apply minimal security headers in dev
-    const response = NextResponse.next()
-    response.headers.set('X-Content-Type-Options', 'nosniff')
-    response.headers.set('X-Frame-Options', 'DENY')
-    return response
+    // Apply minimal security headers to the auth result
+    authResult.headers.set('X-Content-Type-Options', 'nosniff')
+    authResult.headers.set('X-Frame-Options', 'DENY')
+    return authResult
   }
 
   try {
     // 1. Apply rate limiting first (PRODUCTION ONLY)
     const rateLimitResult = await rateLimitMiddleware(request)
-    
+
     if (!rateLimitResult.allowed) {
       // Rate limit exceeded - return rate limit response with security headers
       const { response } = securityHeadersMiddleware(request, productionSecurityConfig)
-      
+
       // Merge rate limit response with security headers
       if (rateLimitResult.response) {
         const secureRateLimitResponse = rateLimitResult.response.clone()
-        
+
         // Apply security headers to rate limit response
         const tempResponse = NextResponse.next()
         const securityResult = securityHeadersMiddleware(request, productionSecurityConfig)
-        
+
         // Copy security headers to rate limit response
         securityResult.response.headers.forEach((value, key) => {
-          if (key.toLowerCase().startsWith('x-') || 
+          if (key.toLowerCase().startsWith('x-') ||
               key.toLowerCase().includes('security') ||
               key.toLowerCase().includes('csp') ||
               key.toLowerCase().includes('hsts')) {
             secureRateLimitResponse.headers.set(key, value)
           }
         })
-        
+
         return secureRateLimitResponse
       }
     }
 
-    // 2. Apply security headers to successful requests (less strict in development)
-    const config = process.env.NODE_ENV === 'development' 
+    // 2. Apply security headers to the auth result (less strict in development)
+    const config = process.env.NODE_ENV === 'development'
       ? { ...productionSecurityConfig, csp: { enabled: false } }
       : productionSecurityConfig
+
+    // Apply security headers to the auth result response
+    let response = authResult
     const securityResult = securityHeadersMiddleware(request, config)
-    let response = securityResult.response
+
+    // Copy security headers to the auth result
+    securityResult.response.headers.forEach((value, key) => {
+      response.headers.set(key, value)
+    })
 
     // 3. Add rate limit headers if available
     if (rateLimitResult.headers && rateLimitResult.allowed) {

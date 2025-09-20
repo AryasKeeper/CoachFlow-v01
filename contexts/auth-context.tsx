@@ -120,7 +120,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Handle sign out event
       if (event === 'SIGNED_OUT') {
-        router.push('/')
+        // Clear all state and redirect to sign in
+        setUser(null)
+        setUserRole(null)
+        localStorage.clear()
+        sessionStorage.clear()
+        router.push('/auth/sign-in')
       }
     })
 
@@ -133,28 +138,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign out function
   const signOut = useCallback(async () => {
     try {
+      console.log('Starting sign out process...')
+
+      // Clear state immediately for instant UI feedback
+      setUser(null)
+      setUserRole(null)
       setIsLoading(true)
 
-      // Sign out from Supabase
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
-
-      // Clear all storage
+      // Clear all storage first
       localStorage.clear()
       sessionStorage.clear()
 
-      // Clear state
-      setUser(null)
-      setUserRole(null)
+      // Clear any cookies that might exist
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/")
+      })
 
-      // Force redirect to home
-      window.location.href = '/'
+      // Sign out from Supabase - wait for it to complete
+      const { error } = await supabase.auth.signOut()
+
+      if (error) {
+        console.error('Supabase sign out error:', error)
+        // Continue with redirect even if there's an error
+      }
+
+      // Force a hard refresh to /auth/sign-in to clear all state
+      window.location.replace('/auth/sign-in')
+
     } catch (error) {
       console.error('Sign out error:', error)
       // Force redirect even on error
-      window.location.href = '/'
-    } finally {
-      setIsLoading(false)
+      window.location.replace('/auth/sign-in')
     }
   }, [supabase])
 
