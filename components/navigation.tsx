@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/contexts/auth-context"
 import { ThemeToggle, ThemeToggleMobile } from "@/components/theme/theme-toggle"
 import { NotificationCenter } from "@/components/notifications/notification-center"
 import {
@@ -44,10 +44,7 @@ export function Navigation() {
   const router = useRouter()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
-  const [userRole, setUserRole] = useState<'coach' | 'org' | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const supabase = createClient()
+  const { user, userRole, isLoading, signOut } = useAuth()
   
   useEffect(() => {
     const handleScroll = () => {
@@ -62,55 +59,6 @@ export function Navigation() {
   useEffect(() => {
     setIsMobileMenuOpen(false)
   }, [pathname])
-  
-  // Check authentication state
-  useEffect(() => {
-    async function getUser() {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      
-      // Get user role from the database
-      if (user) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', user.id)
-          .single()
-        
-        if (userData) {
-          setUserRole(userData.role as 'coach' | 'org')
-        }
-      }
-      
-      setIsLoading(false)
-    }
-    
-    getUser()
-    
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user || null)
-      
-      // Get user role when auth state changes
-      if (session?.user) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', session.user.id)
-          .single()
-        
-        if (userData) {
-          setUserRole(userData.role as 'coach' | 'org')
-        }
-      } else {
-        setUserRole(null)
-      }
-      
-      setIsLoading(false)
-    })
-    
-    return () => subscription.unsubscribe()
-  }, [supabase.auth, supabase])
   
   const isAuthPage = pathname?.startsWith("/auth")
   const isDashboard = pathname?.includes("/dashboard")
@@ -210,19 +158,11 @@ export function Navigation() {
                           Settings
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           className="cursor-pointer"
                           onSelect={async (e) => {
                             e.preventDefault()
-                            try {
-                              await supabase.auth.signOut()
-                              localStorage.clear()
-                              sessionStorage.clear()
-                              window.location.href = '/'
-                            } catch (err) {
-                              console.error('Sign out error:', err)
-                              window.location.href = '/'
-                            }
+                            await signOut()
                           }}
                         >
                           <LogOut className="mr-2 h-4 w-4" />
@@ -343,17 +283,7 @@ export function Navigation() {
                       <Button
                         variant="ghost"
                         className="w-full justify-start"
-                        onClick={async () => {
-                          try {
-                            await supabase.auth.signOut()
-                            localStorage.clear()
-                            sessionStorage.clear()
-                            window.location.href = '/'
-                          } catch (err) {
-                            console.error('Sign out error:', err)
-                            window.location.href = '/'
-                          }
-                        }}
+                        onClick={signOut}
                       >
                         <LogOut className="mr-2 h-4 w-4" />
                         Sign Out

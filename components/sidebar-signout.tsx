@@ -2,30 +2,20 @@
 
 import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/contexts/auth-context"
 
 export function SidebarSignOut() {
-  const handleSignOut = async () => {
-    const supabase = createClient()
-    try {
-      await supabase.auth.signOut()
-      localStorage.clear()
-      sessionStorage.clear()
-      window.location.href = '/'
-    } catch (err) {
-      console.error('Sign out error:', err)
-      window.location.href = '/'
-    }
-  }
-  
+  const { signOut } = useAuth()
+
   return (
-    <Button 
+    <Button
       variant="ghost"
-      className="w-full justify-start gap-3"
-      onClick={handleSignOut}
+      className="w-full justify-start gap-3 cursor-pointer hover:bg-muted/50"
+      onClick={signOut}
+      type="button"
     >
       <LogOut className="w-4 h-4" />
-      Sign Out
+      <span>Sign Out</span>
     </Button>
   )
 }

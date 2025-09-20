@@ -5,31 +5,15 @@ import { ReactQueryProvider } from "@/lib/react-query"
 import { ThemeProvider } from "@/lib/theme/theme-context"
 import { NotificationProvider } from "@/components/notifications/notification-provider"
 import { NavigationLoadingProvider } from "@/components/navigation-loading-provider"
+import { AuthProvider, useAuth } from "@/contexts/auth-context"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
 
-function ProvidersInner({ children }: { children: React.ReactNode }) {
+function AiHelpWrapper() {
   const pathname = usePathname()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const supabase = createClient()
-
-  useEffect(() => {
-    // Check authentication status
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setIsAuthenticated(!!user)
-    })
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  const { user } = useAuth()
 
   // Show AI help drawer on authenticated pages (dashboards, etc)
-  const showAiHelp = isAuthenticated && (
+  const showAiHelp = !!user && (
     pathname?.includes('/dashboard') ||
     pathname?.includes('/listings') ||
     pathname?.includes('/bookings') ||
@@ -38,22 +22,22 @@ function ProvidersInner({ children }: { children: React.ReactNode }) {
     pathname?.includes('/post')
   )
 
-  return (
-    <ReactQueryProvider>
-      <NavigationLoadingProvider>
-        <NotificationProvider>
-          {children}
-          {showAiHelp && <AiHelpDrawer />}
-        </NotificationProvider>
-      </NavigationLoadingProvider>
-    </ReactQueryProvider>
-  )
+  return showAiHelp ? <AiHelpDrawer /> : null
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
-      <ProvidersInner>{children}</ProvidersInner>
+      <AuthProvider>
+        <ReactQueryProvider>
+          <NavigationLoadingProvider>
+            <NotificationProvider>
+              {children}
+              <AiHelpWrapper />
+            </NotificationProvider>
+          </NavigationLoadingProvider>
+        </ReactQueryProvider>
+      </AuthProvider>
     </ThemeProvider>
   )
 }

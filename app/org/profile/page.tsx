@@ -36,13 +36,18 @@ export default async function OrgProfileViewPage() {
     .eq('org_id', user.id)
     .eq('status', 'active')
 
-  // Get total applications received
+  // Get total applications received - first get org's listings, then count applications
+  const { data: orgListings } = await supabase
+    .from('listings')
+    .select('id')
+    .eq('org_id', user.id)
+
+  const listingIds = orgListings?.map(l => l.id) || []
+
   const { count: totalApplications } = await supabase
     .from('applications')
-    .select('a.id', { count: 'exact', head: true })
-    .from('applications as a')
-    .innerJoin('listings as l', 'l.id', 'a.listing_id')
-    .eq('l.org_id', user.id)
+    .select('*', { count: 'exact', head: true })
+    .in('listing_id', listingIds.length > 0 ? listingIds : ['-1']) // -1 ensures no match if no listings
 
   const hasCompleteProfile = org && org.org_name && org.contact_person_name && org.contact_email
 
