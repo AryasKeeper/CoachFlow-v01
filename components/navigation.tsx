@@ -104,18 +104,17 @@ export function Navigation() {
               <NotificationCenter user={user} />
             )}
 
-            {!isAuthPage && (
-              <>
-                {isLoading ? null : !isLoggedIn ? (
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" asChild>
-                      <OptimizedLink href="/auth/sign-in">Sign In</OptimizedLink>
-                    </Button>
-                    <Button size="sm" className="bg-primary hover:bg-primary/90" asChild>
-                      <OptimizedLink href="/auth/sign-up">Sign Up</OptimizedLink>
-                    </Button>
-                  </div>
-                ) : (
+            {/* Auth buttons - Show on ALL pages when not logged in, hide on auth pages when logged in */}
+            {isLoading ? null : !isLoggedIn ? (
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" asChild>
+                  <OptimizedLink href="/auth/sign-in">Sign In</OptimizedLink>
+                </Button>
+                <Button size="sm" className="bg-primary hover:bg-primary/90" asChild>
+                  <OptimizedLink href="/auth/sign-up">Sign Up</OptimizedLink>
+                </Button>
+              </div>
+            ) : !isAuthPage ? (
                   <div className="flex items-center space-x-4">
                     {isDashboard && (
                       <Badge variant="secondary" className="bg-green-500/10 text-green-700 border-green-200">
@@ -171,9 +170,7 @@ export function Navigation() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                )}
-              </>
-            )}
+            ) : null}
           </div>
           
           {/* Mobile Menu Button */}
@@ -216,18 +213,18 @@ export function Navigation() {
                 </Link>
               ))}
               
-              {!isAuthPage && (
-                <div className="space-y-2 pt-4 border-t">
-                  {isLoading ? null : !isLoggedIn ? (
-                    <div className="space-y-2">
-                      <Button variant="ghost" className="w-full" asChild>
-                        <Link href="/auth/sign-in">Sign In</Link>
-                      </Button>
-                      <Button className="w-full bg-primary hover:bg-primary/90" asChild>
-                        <Link href="/auth/sign-up">Sign Up</Link>
-                      </Button>
-                    </div>
-                  ) : (
+              {/* Mobile Auth Section - Show auth buttons on ALL pages when not logged in */}
+              <div className="space-y-2 pt-4 border-t">
+                {isLoading ? null : !isLoggedIn ? (
+                  <div className="space-y-2">
+                    <Button variant="ghost" className="w-full" asChild>
+                      <Link href="/auth/sign-in">Sign In</Link>
+                    </Button>
+                    <Button className="w-full bg-primary hover:bg-primary/90" asChild>
+                      <Link href="/auth/sign-up">Sign Up</Link>
+                    </Button>
+                  </div>
+                ) : (
                     <div className="space-y-3">
                       <div className="flex justify-end gap-2 mb-2">
                         <NotificationCenter user={user} />
@@ -289,9 +286,8 @@ export function Navigation() {
                         Sign Out
                       </Button>
                     </div>
-                  )}
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </motion.div>
         )}

@@ -93,40 +93,56 @@ export function OrgProfileForm({ userId, userEmail, initialData }: OrgProfileFor
     setSuccess(false)
 
     try {
-      // Check if profile exists
-      const { data: existingProfile } = await supabase
-        .from('org_profiles')
-        .select('user_id')
-        .eq('user_id', userId)
-        .single()
+      console.log('Starting profile save...', { userId, formData, facilityFeatures })
 
       const profileData = {
         ...formData,
         user_id: userId,
-        facility_features: facilityFeatures
+        facility_features: facilityFeatures,
+        coaching_staff_size: formData.coaching_staff_size || 0
       }
 
-      if (existingProfile) {
-        // Update existing profile
-        const { error: updateError } = await supabase
-          .from('org_profiles')
-          .update(profileData)
-          .eq('user_id', userId)
+      console.log('Profile data to save:', profileData)
 
-        if (updateError) throw updateError
-      } else {
-        // Create new profile
-        const { error: insertError } = await supabase
-          .from('org_profiles')
-          .insert(profileData)
+      // Use API route to handle the save
+      const response = await fetch('/api/org/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData)
+      })
 
-        if (insertError) throw insertError
+      const result = await response.json()
+      console.log('API response:', result)
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to save profile')
+      }
+
+      // Show warning if facility features couldn't be saved
+      if (result.warning) {
+        console.warn('Warning:', result.warning)
       }
 
       setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
+      // Redirect to profile view after successful save
+      setTimeout(() => {
+        router.push('/org/profile')
+      }, 2000)
     } catch (err: any) {
-      setError(err.message || 'An error occurred saving the profile')
+      console.error('Profile save error:', err)
+      // Show more detailed error message
+      const errorMessage = err.message || 'An error occurred saving the profile'
+
+      // Check for common database errors
+      if (errorMessage.includes('column') && errorMessage.includes('does not exist')) {
+        setError('Database schema issue: Some fields cannot be saved. Please contact support.')
+      } else if (errorMessage.includes('permission') || errorMessage.includes('policy')) {
+        setError('Permission denied. Please make sure you are logged in.')
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -142,8 +158,14 @@ export function OrgProfileForm({ userId, userEmail, initialData }: OrgProfileFor
       )}
 
       {success && (
-        <div className="p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-200">
-          Profile updated successfully!
+        <div className="p-4 rounded-lg bg-green-500/10 text-green-700 border border-green-200 flex items-center gap-3">
+          <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          <div>
+            <p className="font-semibold">Profile updated successfully!</p>
+            <p className="text-sm">Redirecting to your profile...</p>
+          </div>
         </div>
       )}
 

@@ -6,5 +6,45 @@
     "permission_mode": "bypassPermissions",
     "hook_event_name": "SubagentStop",
     "stop_hook_active": false
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false
+  },
+  {
+    "session_id": "441502b9-ded8-403a-ba60-821d37d380d5",
+    "transcript_path": "C:\\Users\\jonah\\.claude\\projects\\C--Users-jonah-Desktop-Coach-Flow-coachflow\\441502b9-ded8-403a-ba60-821d37d380d5.jsonl",
+    "cwd": "C:\\Users\\jonah\\Desktop\\Coach Flow\\coachflow",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false
   }
 ]

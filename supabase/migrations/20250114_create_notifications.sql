@@ -90,6 +90,18 @@ ADD COLUMN IF NOT EXISTS notification_preferences JSONB DEFAULT '{
   }
 }'::jsonb;
 
+-- Create organization_profiles table if it doesn't exist
+CREATE TABLE IF NOT EXISTS organization_profiles (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT,
+  description TEXT,
+  website TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id)
+);
+
 -- Add notification preferences to organization_profiles
 ALTER TABLE organization_profiles
 ADD COLUMN IF NOT EXISTS notification_channels JSONB DEFAULT '{
