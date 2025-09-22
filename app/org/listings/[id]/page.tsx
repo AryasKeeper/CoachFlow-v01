@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button"
 import { BadgeRow } from "@/components/ui/badge-row"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ContactDetailsCard } from "@/components/contact-details-card"
+import { QuickActions } from "./quick-actions"
 import Link from "next/link"
-import { 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  DollarSign, 
+import {
+  MapPin,
+  Calendar,
+  Clock,
+  DollarSign,
   MessageSquare,
   CheckCircle,
   XCircle,
@@ -237,20 +238,17 @@ export default async function ListingDetailPage({ params }: PageProps) {
             </div>
           </GlassCard>
           
-          <GlassCard>
-            <h2 className="text-lg font-semibold mb-2">Quick Actions</h2>
-            <div className="space-y-2">
-              {/* Messaging disabled - contact details shown after acceptance */}
-              <Button className="w-full" variant="outline">
-                Close Listing
-              </Button>
-            </div>
-          </GlassCard>
+          <QuickActions
+            listingId={listing.id}
+            listingTitle={listing.title}
+            status={listing.status}
+            applicationCount={applications?.length || 0}
+          />
         </div>
       </div>
       
       {/* Applications List */}
-      <div className="mt-12">
+      <div id="applications-section" className="mt-12">
         <h2 className="text-2xl font-semibold mb-6">Applications</h2>
         
         {applications && applications.length > 0 ? (

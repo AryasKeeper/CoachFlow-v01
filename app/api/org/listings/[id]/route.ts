@@ -43,7 +43,29 @@ export async function PUT(
       )
     }
 
-    // Update the listing (remove updated_at as it doesn't exist in schema)
+    // If only updating status (quick action), handle separately
+    if (body.status && Object.keys(body).length === 1) {
+      const { data, error } = await supabase
+        .from('listings')
+        .update({ status: body.status })
+        .eq('id', listingId)
+        .eq('org_id', user.id)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Status update error:', error)
+        return NextResponse.json(
+          { error: error.message || 'Failed to update listing status' },
+          { status: 500 }
+        )
+      }
+
+      console.log('Listing status updated successfully:', data)
+      return NextResponse.json({ data })
+    }
+
+    // Full update - update all fields except status
     const { data, error } = await supabase
       .from('listings')
       .update({
