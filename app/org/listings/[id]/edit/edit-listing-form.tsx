@@ -124,47 +124,61 @@ export function EditListingForm({ listing }: EditListingFormProps) {
       setError("Please add at least one date")
       return
     }
-    
+
     if (timeIntervals.length === 0) {
       setError("Please add at least one time interval")
       return
     }
-    
+
     if (suburbs.length === 0) {
       setError("Please select at least one suburb")
       return
     }
-    
+
     setIsLoading(true)
     setError(null)
-    
+
     try {
-      const { error: updateError } = await supabase
-        .from('listings')
-        .update({
-          title: data.title,
-          description: data.description,
-          location: suburbs.join(", "), // Keep for backwards compatibility
-          suburbs: suburbs,
-          dates,
-          time_intervals: timeIntervals,
-          pay_min: data.pay_min,
-          pay_max: data.pay_max,
-          required_badges: requiredBadges,
-          urgency: data.urgency,
-          gender_preference: genderPreference
-        })
-        .eq('id', listing.id)
-      
-      if (updateError) {
-        setError(updateError.message)
-        return
+      console.log('Starting listing update...', { listingId: listing.id })
+
+      const updateData = {
+        title: data.title,
+        description: data.description,
+        location: suburbs.join(", "), // Keep for backwards compatibility
+        suburbs: suburbs,
+        dates,
+        time_intervals: timeIntervals,
+        pay_min: data.pay_min,
+        pay_max: data.pay_max,
+        required_badges: requiredBadges,
+        urgency: data.urgency,
+        gender_preference: genderPreference
       }
-      
+
+      console.log('Update data:', updateData)
+
+      // Use API route to handle the update
+      const response = await fetch(`/api/org/listings/${listing.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+      })
+
+      const result = await response.json()
+      console.log('API response:', result)
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update listing')
+      }
+
+      console.log('Listing updated successfully, redirecting...')
       router.push(`/org/listings/${listing.id}`)
       router.refresh()
-    } catch (err) {
-      setError('An unexpected error occurred')
+    } catch (err: any) {
+      console.error('Listing update error:', err)
+      setError(err.message || 'An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -174,25 +188,34 @@ export function EditListingForm({ listing }: EditListingFormProps) {
     if (!confirm("Are you sure you want to delete this listing? This action cannot be undone.")) {
       return
     }
-    
+
     setIsDeleting(true)
     setError(null)
-    
+
     try {
-      const { error: deleteError } = await supabase
-        .from('listings')
-        .delete()
-        .eq('id', listing.id)
-      
-      if (deleteError) {
-        setError(deleteError.message)
-        return
+      console.log('Starting listing delete...', { listingId: listing.id })
+
+      // Use API route to handle the delete
+      const response = await fetch(`/api/org/listings/${listing.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+
+      const result = await response.json()
+      console.log('Delete API response:', result)
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to delete listing')
       }
-      
+
+      console.log('Listing deleted successfully, redirecting...')
       router.push('/org/listings')
       router.refresh()
-    } catch (err) {
-      setError('An unexpected error occurred')
+    } catch (err: any) {
+      console.error('Listing delete error:', err)
+      setError(err.message || 'An unexpected error occurred')
     } finally {
       setIsDeleting(false)
     }

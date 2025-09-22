@@ -3,15 +3,18 @@ import { createServerSupabaseClient } from "@/lib/supabase/server"
 import { notFound, redirect } from "next/navigation"
 import { EditListingForm } from "./edit-listing-form"
 
-export default async function EditListingPage({ params }: { params: { id: string } }) {
+export default async function EditListingPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireRole('org')
   const supabase = await createServerSupabaseClient()
-  
+
+  // Await params as required in Next.js 15
+  const { id } = await params
+
   // Fetch the listing
   const { data: listing, error } = await supabase
     .from('listings')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('org_id', user.id) // Ensure user owns this listing
     .single()
   
