@@ -102,14 +102,9 @@ export default async function OrgProfileViewPage() {
         </div>
       </GlassCard>
 
-      {/* Contact Information (Private) */}
-      <GlassCard className="mb-6 border-primary/20 bg-primary/5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Contact Information</h2>
-          <Badge variant="outline" className="text-xs">
-            Private - Shared with accepted coaches
-          </Badge>
-        </div>
+      {/* Contact Information */}
+      <GlassCard className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-muted-foreground mb-1">Contact Person</p>
