@@ -204,18 +204,31 @@ export function EditListingForm({ listing }: EditListingFormProps) {
       })
 
       const result = await response.json()
-      console.log('Delete API response:', result)
+      console.log('Delete API response:', {
+        status: response.status,
+        ok: response.ok,
+        result
+      })
 
       if (!response.ok) {
+        console.error('Delete failed:', result.error)
         throw new Error(result.error || 'Failed to delete listing')
       }
 
+      // Verify the listing was actually deleted
+      if (result.deleted) {
+        console.log('Listing confirmed deleted:', result.deleted)
+      }
+
       console.log('Listing deleted successfully, redirecting...')
-      router.push('/org/listings')
+
+      // Use replace to prevent back navigation to deleted listing
+      router.replace('/org/listings')
       router.refresh()
     } catch (err: any) {
       console.error('Listing delete error:', err)
-      setError(err.message || 'An unexpected error occurred')
+      setError(err.message || 'An unexpected error occurred while deleting the listing')
+      // Keep the modal open so user can see the error
     } finally {
       setIsDeleting(false)
     }

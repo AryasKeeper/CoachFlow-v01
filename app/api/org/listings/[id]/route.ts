@@ -106,9 +106,16 @@ export async function DELETE(
     // Verify ownership of the listing
     const { data: existingListing, error: checkError } = await supabase
       .from('listings')
-      .select('org_id')
+      .select('org_id, title, status')
       .eq('id', listingId)
       .single()
+
+    console.log('Existing listing check:', {
+      listingId,
+      existingListing,
+      checkError,
+      userId: user.id
+    })
 
     if (checkError || !existingListing) {
       console.error('Listing not found:', checkError)
@@ -119,30 +126,70 @@ export async function DELETE(
     }
 
     if (existingListing.org_id !== user.id) {
-      console.error('Unauthorized: User does not own this listing')
+      console.error('Unauthorized: User does not own this listing', {
+        listingOrgId: existingListing.org_id,
+        userId: user.id
+      })
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 403 }
       )
     }
 
-    // Delete the listing
-    const { error } = await supabase
+    console.log('Authorization passed, proceeding with delete...')
+
+    // Delete the listing and return the deleted record to confirm
+    console.log('Attempting to delete listing...')
+    const { data: deletedListing, error } = await supabase
       .from('listings')
       .delete()
       .eq('id', listingId)
       .eq('org_id', user.id) // Double-check ownership
+      .select()
+      .single()
+
+    console.log('Delete operation result:', {
+      deletedListing,
+      error,
+      errorMessage: error?.message,
+      errorDetails: error?.details
+    })
 
     if (error) {
       console.error('Delete error:', error)
+      // Check if it's a policy violation
+      if (error.code === '42501' || error.message?.includes('policy')) {
+        console.error('RLS Policy violation - user may not have delete permission')
+        return NextResponse.json(
+          { error: 'Permission denied - please ensure the delete policy is configured in Supabase' },
+          { status: 403 }
+        )
+      }
       return NextResponse.json(
         { error: error.message || 'Failed to delete listing' },
         { status: 500 }
       )
     }
 
-    console.log('Listing deleted successfully:', listingId)
-    return NextResponse.json({ success: true })
+    if (!deletedListing) {
+      console.error('No listing was deleted - may not exist or not owned by user')
+      // Try to verify if the listing still exists
+      const { data: stillExists } = await supabase
+        .from('listings')
+        .select('id')
+        .eq('id', listingId)
+        .single()
+
+      console.log('Verification check - listing still exists?', stillExists)
+
+      return NextResponse.json(
+        { error: 'Failed to delete listing - listing may not exist or RLS policy preventing deletion' },
+        { status: 404 }
+      )
+    }
+
+    console.log('Listing deleted successfully:', deletedListing)
+    return NextResponse.json({ success: true, deleted: deletedListing })
 
   } catch (error: any) {
     console.error('Listing delete error:', error)
