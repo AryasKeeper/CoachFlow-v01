@@ -68,16 +68,20 @@ export default function CoachListingDetailPage({ params }: PageProps) {
         
       setIsVerified(!!(profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url))
       
-      // Get listing details
+      // Get listing details with organization profile
       const { data: listingData, error: listingError } = await supabase
         .from('listings')
         .select(`
           *,
-          org:users!listings_org_id_fkey(
-            org_profiles!inner(
-              org_name,
-              org_type
-            )
+          org_profiles!inner(
+            org_id:user_id,
+            org_name,
+            org_type,
+            bio,
+            website,
+            phone,
+            address,
+            logo_url
           )
         `)
         .eq('id', resolvedParams.id)
@@ -253,7 +257,7 @@ export default function CoachListingDetailPage({ params }: PageProps) {
             <div className="flex items-center gap-4 text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4" />
-                <span>{listing.org?.org_profiles?.org_name}</span>
+                <span>{listing.org_profiles?.org_name || 'Organization'}</span>
               </div>
               {listing.urgency && (
                 <Badge 
@@ -510,15 +514,87 @@ export default function CoachListingDetailPage({ params }: PageProps) {
           
           {/* Organization Info */}
           <GlassCard className="mt-4">
-            <h3 className="font-semibold mb-2">About the organization</h3>
-            <div className="space-y-2 text-sm">
-              <p>{listing.org?.org_profiles?.org_name}</p>
-              {listing.org?.org_profiles?.org_type && (
-                <p className="text-muted-foreground">
-                  Type: {listing.org.org_profiles.org_type}
-                </p>
-              )}
-            </div>
+            <h3 className="font-semibold mb-4">About the organization</h3>
+            {listing.org_profiles ? (
+              <div className="space-y-3">
+                {/* Org Logo and Name */}
+                <div className="flex items-start gap-3">
+                  {listing.org_profiles.logo_url ? (
+                    <img
+                      src={listing.org_profiles.logo_url}
+                      alt={listing.org_profiles.org_name}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Building2 className="w-6 h-6 text-primary" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <p className="font-medium">{listing.org_profiles.org_name}</p>
+                    {listing.org_profiles.org_type && (
+                      <p className="text-sm text-muted-foreground capitalize">
+                        {listing.org_profiles.org_type.replace('_', ' ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Bio */}
+                {listing.org_profiles.bio && (
+                  <p className="text-sm text-muted-foreground">
+                    {listing.org_profiles.bio}
+                  </p>
+                )}
+
+                {/* Contact Details */}
+                <div className="space-y-2 text-sm">
+                  {listing.org_profiles.website && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span className="text-xs">🌐</span>
+                      <a
+                        href={listing.org_profiles.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-foreground transition-colors"
+                      >
+                        {listing.org_profiles.website.replace(/^https?:\/\//, '')}
+                      </a>
+                    </div>
+                  )}
+                  {listing.org_profiles.phone && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span className="text-xs">📞</span>
+                      <span>{listing.org_profiles.phone}</span>
+                    </div>
+                  )}
+                  {listing.org_profiles.address && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span className="text-xs">📍</span>
+                      <span>{listing.org_profiles.address}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* View Profile Button */}
+                <div className="pt-3 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    asChild
+                  >
+                    <Link href={`/org/${listing.org_id}`}>
+                      View Organization Profile
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Organization information not available
+              </p>
+            )}
           </GlassCard>
         </div>
       </div>

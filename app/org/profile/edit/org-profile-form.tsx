@@ -24,7 +24,8 @@ import {
   Target,
   Image,
   Plus,
-  X
+  X,
+  Camera
 } from "lucide-react"
 
 interface OrgProfileFormProps {
@@ -39,6 +40,8 @@ export function OrgProfileForm({ userId, userEmail, initialData }: OrgProfileFor
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [logoUrl, setLogoUrl] = useState<string | null>(initialData?.logo_url || null)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -56,7 +59,8 @@ export function OrgProfileForm({ userId, userEmail, initialData }: OrgProfileFor
     city: initialData?.city || '',
     state: initialData?.state || 'NSW',
     zip_code: initialData?.zip_code || '',
-    facility_features: initialData?.facility_features || []
+    facility_features: initialData?.facility_features || [],
+    logo_url: initialData?.logo_url || ''
   })
 
   const [facilityFeatures, setFacilityFeatures] = useState<string[]>(
@@ -83,6 +87,41 @@ export function OrgProfileForm({ userId, userEmail, initialData }: OrgProfileFor
       setFacilityFeatures(facilityFeatures.filter(f => f !== feature))
     } else {
       setFacilityFeatures([...facilityFeatures, feature])
+    }
+  }
+
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploadingLogo(true)
+      setError(null)
+
+      if (!event.target.files || event.target.files.length === 0) {
+        throw new Error('You must select an image to upload.')
+      }
+
+      const file = event.target.files[0]
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${userId}-${Date.now()}.${fileExt}`
+      const filePath = `org-logos/${fileName}`
+
+      // Upload image to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from('profiles')
+        .upload(filePath, file, { upsert: true })
+
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profiles')
+        .getPublicUrl(filePath)
+
+      setLogoUrl(publicUrl)
+      setFormData(prev => ({ ...prev, logo_url: publicUrl }))
+    } catch (error: any) {
+      setError(error.message)
+    } finally {
+      setUploadingLogo(false)
     }
   }
 
@@ -168,6 +207,63 @@ export function OrgProfileForm({ userId, userEmail, initialData }: OrgProfileFor
           </div>
         </div>
       )}
+
+      {/* Logo Upload */}
+      <GlassCard>
+        <div className="flex items-center gap-3 mb-6">
+          <Image className="w-5 h-5 text-primary" />
+          <h2 className="text-xl font-semibold">Organization Logo</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Upload your organization's logo to build trust and recognition with coaches
+        </p>
+
+        <div className="flex items-center gap-6">
+          {/* Logo Preview */}
+          <div className="relative">
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt="Organization Logo"
+                className="w-24 h-24 rounded-lg object-cover border-2 border-primary/20"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                <Building2 className="w-10 h-10 text-primary/50" />
+              </div>
+            )}
+
+            {/* Upload Button Overlay */}
+            <label
+              htmlFor="logo-upload"
+              className="absolute bottom-0 right-0 p-2 bg-primary text-white rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
+            >
+              <Camera className="w-4 h-4" />
+              <input
+                id="logo-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                disabled={uploadingLogo}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          {/* Upload Instructions */}
+          <div className="flex-1">
+            <p className="text-sm font-medium mb-2">Logo Requirements</p>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Recommended size: 200x200 pixels</li>
+              <li>• Maximum file size: 5MB</li>
+              <li>• Supported formats: JPG, PNG, SVG</li>
+            </ul>
+            {uploadingLogo && (
+              <p className="text-sm text-primary mt-2">Uploading...</p>
+            )}
+          </div>
+        </div>
+      </GlassCard>
 
       {/* Organization Details */}
       <GlassCard>

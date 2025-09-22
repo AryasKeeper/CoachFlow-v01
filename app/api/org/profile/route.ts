@@ -12,9 +12,6 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     console.log('Profile update request:', body)
 
-    // Remove facility_features temporarily if the column doesn't exist
-    const { facility_features, ...profileDataWithoutFeatures } = body
-
     // Check if profile exists
     const { data: existingProfile, error: checkError } = await supabase
       .from('org_profiles')
@@ -32,61 +29,29 @@ export async function PUT(request: NextRequest) {
 
     let result
 
-    // Try to save with all fields first
-    try {
-      if (existingProfile) {
-        // Update existing profile - try with all fields
-        result = await supabase
-          .from('org_profiles')
-          .update(body)
-          .eq('user_id', user.id)
-          .select()
-          .single()
-      } else {
-        // Create new profile - try with all fields
-        result = await supabase
-          .from('org_profiles')
-          .insert({ ...body, user_id: user.id })
-          .select()
-          .single()
-      }
+    if (existingProfile) {
+      // Update existing profile
+      result = await supabase
+        .from('org_profiles')
+        .update(body)
+        .eq('user_id', user.id)
+        .select()
+        .single()
+    } else {
+      // Create new profile
+      result = await supabase
+        .from('org_profiles')
+        .insert({ ...body, user_id: user.id })
+        .select()
+        .single()
+    }
 
-      if (result.error) throw result.error
-
-    } catch (fullError: any) {
-      console.log('Full save failed, trying without facility_features:', fullError.message)
-
-      // If it fails due to missing column, try without facility_features
-      if (fullError.message?.includes('facility_features')) {
-        if (existingProfile) {
-          result = await supabase
-            .from('org_profiles')
-            .update(profileDataWithoutFeatures)
-            .eq('user_id', user.id)
-            .select()
-            .single()
-        } else {
-          result = await supabase
-            .from('org_profiles')
-            .insert({ ...profileDataWithoutFeatures, user_id: user.id })
-            .select()
-            .single()
-        }
-
-        if (result.error) {
-          console.error('Save without features failed:', result.error)
-          throw result.error
-        }
-
-        // Return with a warning about facility features
-        return NextResponse.json({
-          data: result.data,
-          warning: 'Facility features could not be saved due to database schema limitations.'
-        })
-      } else {
-        // Re-throw if it's a different error
-        throw fullError
-      }
+    if (result.error) {
+      console.error('Profile save error:', result.error)
+      return NextResponse.json(
+        { error: result.error.message || 'Failed to save profile' },
+        { status: 500 }
+      )
     }
 
     console.log('Profile saved successfully:', result.data)

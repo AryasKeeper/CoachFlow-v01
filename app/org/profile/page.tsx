@@ -67,9 +67,17 @@ export default async function OrgProfileViewPage() {
       <GlassCard className="mb-6">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-4">
-            <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-              <Building2 className="w-10 h-10 text-primary" />
-            </div>
+            {org?.logo_url ? (
+              <img
+                src={org.logo_url}
+                alt={org.org_name || "Organization Logo"}
+                className="w-20 h-20 rounded-lg object-cover border-2 border-primary/20"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                <Building2 className="w-10 h-10 text-primary" />
+              </div>
+            )}
             <div>
               <h1 className="text-2xl font-bold mb-1">
                 {org?.org_name || "Organization Name"}
