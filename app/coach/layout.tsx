@@ -37,11 +37,6 @@ const navItems = [
     icon: Briefcase
   },
   {
-    label: "Map View",
-    href: "/coach/maps",
-    icon: Map
-  },
-  {
     label: "My Applications",
     href: "/coach/applications",
     icon: FileText

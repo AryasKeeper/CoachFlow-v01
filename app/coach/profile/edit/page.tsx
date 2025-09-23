@@ -42,6 +42,8 @@ import {
 } from "@/components/ui/alert-dialog"
 
 interface ProfileForm {
+  first_name: string
+  last_name: string
   bio: string
   gender: string
   rate_hourly?: number
@@ -56,6 +58,8 @@ interface ProfileForm {
   coaching_philosophy?: string
   achievements?: string
   avatar_url?: string
+  primary_suburb?: string
+  service_radius_km?: number
 }
 
 const SPECIALTIES_OPTIONS = [
@@ -81,6 +85,7 @@ const GENDER_OPTIONS = [
 ]
 
 import { SuburbSelector } from "@/components/ui/suburb-selector"
+import { getCoordinatesForSuburb } from "@/lib/utils/suburb-coordinates"
 
 export default function CoachProfilePage() {
   const router = useRouter()
@@ -109,14 +114,24 @@ export default function CoachProfilePage() {
   async function loadProfile() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    
+
+    // First get the user's name from users table
+    const { data: userData } = await supabase
+      .from('users')
+      .select('first_name, last_name')
+      .eq('id', user.id)
+      .single()
+
     const { data: profile } = await supabase
       .from('coach_profiles')
       .select('*')
       .eq('user_id', user.id)
       .single()
-      
+
     if (profile) {
+      // Use profile names if they exist, otherwise fall back to users table
+      setValue('first_name', profile.first_name || userData?.first_name || '')
+      setValue('last_name', profile.last_name || userData?.last_name || '')
       setValue('bio', profile.bio || '')
       setValue('gender', profile.gender || '')
       setValue('rate_hourly', profile.rate_hourly || undefined)
@@ -131,9 +146,15 @@ export default function CoachProfilePage() {
       setValue('coaching_philosophy', profile.coaching_philosophy || '')
       setValue('achievements', profile.achievements || '')
       setValue('avatar_url', profile.avatar_url || '')
+      setValue('primary_suburb', profile.primary_suburb || '')
+      setValue('service_radius_km', profile.service_radius_km || 20)
       setAvatarUrl(profile.avatar_url || null)
       setSpecialties(profile.specialties || [])
       setSuburbs(profile.suburbs || [])
+    } else if (userData) {
+      // No profile yet, but we have user data - pre-populate names
+      setValue('first_name', userData.first_name || '')
+      setValue('last_name', userData.last_name || '')
     }
   }
   
@@ -195,16 +216,21 @@ export default function CoachProfilePage() {
   
   
   const onSubmit = async (data: ProfileForm) => {
+    if (!data.first_name || !data.last_name) {
+      setError("Please provide your first and last name")
+      return
+    }
+
     if (specialties.length === 0) {
       setError("Please select at least one specialty")
       return
     }
-    
+
     if (suburbs.length === 0) {
       setError("Please select at least one service area")
       return
     }
-    
+
     if (!data.gender) {
       setError("Please select your gender")
       return
@@ -228,8 +254,17 @@ export default function CoachProfilePage() {
         .eq('user_id', user.id)
         .single()
       
+      // Get coordinates for the primary suburb
+      const primaryCoords = data.primary_suburb ? getCoordinatesForSuburb(data.primary_suburb) : null
+
+      console.log('Primary suburb:', data.primary_suburb)
+      console.log('Coordinates:', primaryCoords)
+      console.log('Service radius:', data.service_radius_km)
+
       const profileData = {
         user_id: user.id,
+        first_name: data.first_name,
+        last_name: data.last_name,
         bio: data.bio,
         gender: data.gender,
         specialties,
@@ -246,17 +281,36 @@ export default function CoachProfilePage() {
         years_experience: data.years_experience || 0,
         coaching_philosophy: data.coaching_philosophy || null,
         achievements: data.achievements || null,
+        primary_suburb: data.primary_suburb || null,
+        primary_suburb_lat: primaryCoords?.lat || null,
+        primary_suburb_lng: primaryCoords?.lng || null,
+        service_radius_km: data.service_radius_km || 20,
       }
       
+      // Also update the users table with first_name and last_name
+      const { error: userUpdateError } = await supabase
+        .from('users')
+        .update({
+          first_name: data.first_name,
+          last_name: data.last_name
+        })
+        .eq('id', user.id)
+
+      if (userUpdateError) {
+        console.error('User update error:', userUpdateError)
+        // Don't fail the whole operation if users table update fails
+      }
+
       if (existingProfile) {
         // Update existing profile
         const { error: updateError } = await supabase
           .from('coach_profiles')
           .update(profileData)
           .eq('user_id', user.id)
-          
+
         if (updateError) {
-          setError(updateError.message)
+          console.error('Update error:', updateError)
+          setError(`Failed to update profile: ${updateError.message}`)
           return
         }
       } else {
@@ -264,9 +318,10 @@ export default function CoachProfilePage() {
         const { error: insertError } = await supabase
           .from('coach_profiles')
           .insert(profileData)
-          
+
         if (insertError) {
-          setError(insertError.message)
+          console.error('Insert error:', insertError)
+          setError(`Failed to create profile: ${insertError.message}`)
           return
         }
       }
@@ -406,6 +461,50 @@ export default function CoachProfilePage() {
                   </>
                 )}
               </Button>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Personal Information */}
+        <GlassCard>
+          <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="first_name">First Name *</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="first_name"
+                  type="text"
+                  className="pl-10"
+                  placeholder="John"
+                  {...register("first_name", {
+                    required: "First name is required"
+                  })}
+                />
+              </div>
+              {errors.first_name && (
+                <p className="text-sm text-destructive">{errors.first_name.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="last_name">Last Name *</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="last_name"
+                  type="text"
+                  className="pl-10"
+                  placeholder="Smith"
+                  {...register("last_name", {
+                    required: "Last name is required"
+                  })}
+                />
+              </div>
+              {errors.last_name && (
+                <p className="text-sm text-destructive">{errors.last_name.message}</p>
+              )}
             </div>
           </div>
         </GlassCard>
@@ -621,7 +720,46 @@ export default function CoachProfilePage() {
             error={suburbs.length === 0 ? "Please select at least one service area" : undefined}
           />
         </GlassCard>
-        
+
+        {/* Primary Location for Map Display */}
+        <GlassCard>
+          <h2 className="text-xl font-semibold mb-4">Primary Location</h2>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="primary_suburb">Primary Suburb (shown on map)</Label>
+              <select
+                id="primary_suburb"
+                className="w-full px-3 py-2 border border-border rounded-lg bg-background"
+                {...register("primary_suburb")}
+              >
+                <option value="">Select your primary location...</option>
+                {suburbs.map(suburb => (
+                  <option key={suburb} value={suburb}>{suburb}</option>
+                ))}
+              </select>
+              <p className="text-sm text-muted-foreground">
+                This is where you'll appear on the discovery map for organizations to find you
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="service_radius_km">Service Radius (km)</Label>
+              <Input
+                id="service_radius_km"
+                type="number"
+                placeholder="20"
+                {...register("service_radius_km", {
+                  min: { value: 1, message: "Radius must be at least 1km" },
+                  max: { value: 100, message: "Radius cannot exceed 100km" }
+                })}
+              />
+              <p className="text-sm text-muted-foreground">
+                How far you're willing to travel from your primary location
+              </p>
+            </div>
+          </div>
+        </GlassCard>
+
         {/* Rates & Travel */}
         <GlassCard>
           <h2 className="text-xl font-semibold mb-4">Rates & Travel</h2>

@@ -38,8 +38,8 @@ export function AccountSettings({ user, userData, profile, onChanges }: AccountS
 
   const [formData, setFormData] = useState({
     email: user.email || '',
-    firstName: userData?.first_name || '',
-    lastName: userData?.last_name || '',
+    firstName: profile?.first_name || userData?.first_name || '',
+    lastName: profile?.last_name || userData?.last_name || '',
     phone: profile?.phone_number || '', // Using phone_number from coach_profiles
     location: profile?.suburbs?.[0] || '', // Using first suburb as location
     website: profile?.linkedin_url || '' // Using linkedin_url as website for now
@@ -126,11 +126,13 @@ export function AccountSettings({ user, userData, profile, onChanges }: AccountS
 
       if (userError) throw userError
 
-      // Update coach_profiles table with correct field names
+      // Update coach_profiles table with correct field names including names
       const { error: profileError } = await supabase
         .from('coach_profiles')
         .upsert({
           user_id: user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
           phone_number: formData.phone, // Changed from 'phone' to 'phone_number'
           suburbs: formData.location ? [formData.location] : [], // Convert to array for suburbs field
           linkedin_url: formData.website // Using linkedin_url field

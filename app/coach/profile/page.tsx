@@ -25,12 +25,12 @@ export default async function CoachProfileViewPage() {
     .maybeSingle()
 
 
-  // Combine the data - use auth user data if users table doesn't have a record
+  // Combine the data - prioritize coach_profiles names, then users table, then empty
   const coach = {
     id: user.id,
     email: userData?.email || user.email || '',
-    first_name: userData?.first_name || '',
-    last_name: userData?.last_name || '',
+    first_name: profileData?.first_name || userData?.first_name || '',
+    last_name: profileData?.last_name || userData?.last_name || '',
     coach_profiles: profileData || null
   }
 
