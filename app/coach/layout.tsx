@@ -13,7 +13,8 @@ import {
   Settings,
   LogOut,
   AlertCircle,
-  Briefcase
+  Briefcase,
+  Map
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -34,6 +35,11 @@ const navItems = [
     label: "Find Work",
     href: "/coach/listings",
     icon: Briefcase
+  },
+  {
+    label: "Map View",
+    href: "/coach/maps",
+    icon: Map
   },
   {
     label: "My Applications",

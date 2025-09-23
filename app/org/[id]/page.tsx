@@ -14,7 +14,10 @@ import {
   Trophy,
   Target,
   Calendar,
-  ArrowLeft
+  ArrowLeft,
+  Clock,
+  DollarSign,
+  ChevronRight
 } from "lucide-react"
 
 export default async function PublicOrgProfilePage({
@@ -36,12 +39,16 @@ export default async function PublicOrgProfilePage({
     notFound()
   }
 
-  // Get active listings count
-  const { count: activeListings } = await supabase
+  // Get active listings
+  const { data: listings } = await supabase
     .from('listings')
-    .select('*', { count: 'exact', head: true })
+    .select('*')
     .eq('org_id', id)
     .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(6) // Show max 6 listings on profile
+
+  const activeListings = listings?.length || 0
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -229,14 +236,71 @@ export default async function PublicOrgProfilePage({
         </GlassCard>
       )}
 
-      {/* View Active Listings Button */}
-      {activeListings !== null && activeListings > 0 && (
-        <div className="mt-6">
-          <Button className="w-full" asChild>
-            <Link href={`/coach/listings?org=${id}`}>
-              View All Listings from {org.org_name}
-            </Link>
-          </Button>
+      {/* Active Listings */}
+      {listings && listings.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold mb-6">Current Opportunities</h2>
+          <div className="grid gap-4">
+            {listings.map((listing) => (
+              <Link href={`/coach/listings/${listing.id}`} key={listing.id}>
+                <GlassCard className="hover:border-primary/50 transition-all cursor-pointer">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-lg">{listing.title}</h3>
+                        {listing.urgency === 'urgent' && (
+                          <Badge variant="destructive" className="text-xs">Urgent</Badge>
+                        )}
+                      </div>
+
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        {listing.description}
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          <span>{listing.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="w-4 h-4" />
+                          <span>${listing.pay_min}-${listing.pay_max}/hr</span>
+                        </div>
+                        {listing.dates && listing.dates.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>{listing.dates.length} {listing.dates.length === 1 ? 'date' : 'dates'}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Required Badges */}
+                      {listing.required_badges && listing.required_badges.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {listing.required_badges.map((badge: string) => (
+                            <Badge key={badge} variant="secondary" className="text-xs">
+                              {badge}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <ChevronRight className="w-5 h-5 text-muted-foreground ml-4" />
+                  </div>
+                </GlassCard>
+              </Link>
+            ))}
+          </div>
+
+          {/* View All Button if there are more listings */}
+          <div className="mt-6">
+            <Button className="w-full" variant="outline" asChild>
+              <Link href={`/coach/listings?org=${id}`}>
+                View All Opportunities from {org.org_name}
+              </Link>
+            </Button>
+          </div>
         </div>
       )}
     </div>

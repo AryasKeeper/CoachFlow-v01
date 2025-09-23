@@ -8,7 +8,8 @@ import {
   MessageSquare,
   Settings,
   Building2,
-  Users
+  Users,
+  Map
 } from "lucide-react"
 import { SidebarSignOut } from "@/components/sidebar-signout"
 
@@ -27,6 +28,11 @@ const navItems = [
     label: "My Listings",
     href: "/org/listings",
     icon: ClipboardList
+  },
+  {
+    label: "Find Coaches",
+    href: "/org/maps",
+    icon: Map
   },
   {
     label: "Applications",
