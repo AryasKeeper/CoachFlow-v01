@@ -85,7 +85,9 @@ export function DiscoveryMap({ userRole, locations, onLocationSelect }: Discover
           setMapCenter(pos)
         },
         (error) => {
-          console.error('Error getting location:', error)
+          // Silently handle location errors - it's okay if user denies location
+          // Default to Sydney CBD
+          console.log('Location access not available, using default location')
         }
       )
     }
@@ -104,9 +106,7 @@ export function DiscoveryMap({ userRole, locations, onLocationSelect }: Discover
 
   const handleLocationClick = (location: MapLocation) => {
     setSelectedLocation(location)
-    if (onLocationSelect) {
-      onLocationSelect(location)
-    }
+    onLocationSelect?.(location)
   }
 
   return (

@@ -143,9 +143,6 @@ export default async function CoachMapsPage() {
       <DiscoveryMap
         userRole="coach"
         locations={locations}
-        onLocationSelect={(location) => {
-          console.log('Selected location:', location)
-        }}
       />
 
       {/* Help Text */}

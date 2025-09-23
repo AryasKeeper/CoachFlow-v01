@@ -152,9 +152,6 @@ export default async function OrgMapsPage() {
       <DiscoveryMap
         userRole="org"
         locations={locations}
-        onLocationSelect={(location) => {
-          console.log('Selected coach:', location)
-        }}
       />
 
       {/* Help Text */}
