@@ -1,6 +1,6 @@
 import OpenAI from 'openai'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { 
   withErrorHandling,
   createAuthError,
@@ -184,7 +184,7 @@ async function chatHandler(req: NextRequest) {
       messageCount: messages.length
     })
 
-    return new Response(stream, {
+    return new NextResponse(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
@@ -230,7 +230,7 @@ async function chatHandler(req: NextRequest) {
         }
       })
 
-      return new Response(stream, {
+      return new NextResponse(stream, {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
