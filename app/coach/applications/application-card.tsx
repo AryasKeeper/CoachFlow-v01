@@ -130,7 +130,7 @@ export function ApplicationCard({ application }: { application: Application }) {
                 <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Building2 className="w-4 h-4" />
-                    {listing?.org?.org_profiles?.[0]?.org_name || "Unknown Organization"}
+                    {listing?.org?.org_profiles?.org_name || "Unknown Organization"}
                   </span>
                   {listing?.status !== 'active' && (
                     <Badge variant="outline" className="text-xs">
