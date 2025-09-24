@@ -151,10 +151,9 @@ async function chatHandler(req: NextRequest) {
       temperature: 0.7,
       max_tokens: 2000,
       stream: true,
-      // GPT-5 specific parameters
-      // @ts-ignore - New GPT-5 parameters
-      verbosity: process.env.AI_VERBOSITY || 'medium',
-      reasoning_effort: process.env.AI_REASONING_EFFORT || 'medium'
+      // GPT-5 specific parameters - Chat Completions API format
+      reasoning_effort: (process.env.AI_REASONING_EFFORT as "minimal" | "low" | "medium" | "high") || 'medium',
+      verbosity: (process.env.AI_VERBOSITY as "low" | "medium" | "high") || 'medium'
     })
 
     // Create streaming response
