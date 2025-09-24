@@ -125,7 +125,7 @@ async function dashboardHandler(req: NextRequest) {
       { 
         route: '/api/monitoring/dashboard',
         userId: user.id,
-        timeframe 
+        additionalData: { timeframe }
       },
       'high'
     )
