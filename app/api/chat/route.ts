@@ -264,7 +264,8 @@ type ChatContext = {
   sessionData?: Record<string, unknown>
 }
 
-export async function generateStructuredResponse(query: string, context?: ChatContext) {
+// Helper function for structured responses (not exported)
+async function generateStructuredResponse(query: string, context?: ChatContext) {
   // TODO: Implement structured responses for common queries like:
   // - "How do I create a listing?"
   // - "What documents do I need for verification?"
