@@ -1,18 +1,14 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server"
-import { GlassCard } from "@/components/ui/glass-card"
+import { notFound } from 'next/navigation'
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { GlassCard } from "@/components/ui/glass-card"
 import Link from "next/link"
-import { notFound } from "next/navigation"
 import {
   User,
-  MapPin,
-  Phone,
-  Mail,
-  Award,
   Briefcase,
-  Calendar,
-  DollarSign,
+  MapPin,
+  Mail,
+  Phone,
   ArrowLeft,
   CheckCircle,
   Star,
@@ -20,7 +16,8 @@ import {
   Shield,
   Target,
   Users,
-  Trophy
+  Trophy,
+  DollarSign
 } from "lucide-react"
 
 export default async function PublicCoachProfilePage({
@@ -45,7 +42,7 @@ export default async function PublicCoachProfilePage({
   // Get coach's user info for basic details
   const { data: user } = await supabase
     .from('users')
-    .select('email, name')
+    .select('email, name, phone')
     .eq('id', id)
     .single()
 
@@ -56,17 +53,14 @@ export default async function PublicCoachProfilePage({
     .eq('coach_id', id)
     .eq('status', 'completed')
 
-  // Get applications count to show activity
-  const { count: totalApplications } = await supabase
-    .from('applications')
-    .select('*', { count: 'exact', head: true })
-    .eq('coach_id', id)
+  // Only WWCC is required for verified status - First Aid and Insurance are optional enhancements
+  const isVerified = !!(coach?.wwcc_number)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Back Button */}
+      {/* Back button */}
       <Link
-        href="/org/applications"
+        href="/coach/applications"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
@@ -84,31 +78,26 @@ export default async function PublicCoachProfilePage({
               {user?.name || 'Coach Profile'}
             </h1>
 
-            {/* Experience Level */}
-            {coach.experience_level && (
-              <Badge variant="default" className="mb-3">
-                {coach.experience_level.charAt(0).toUpperCase() + coach.experience_level.slice(1)} Coach
-              </Badge>
-            )}
-
             {/* Quick Stats */}
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-              {coach.years_experience && (
-                <div className="flex items-center gap-1">
-                  <Briefcase className="w-4 h-4" />
-                  <span>{coach.years_experience} years experience</span>
-                </div>
-              )}
               {completedJobs !== null && completedJobs > 0 && (
                 <div className="flex items-center gap-1">
                   <CheckCircle className="w-4 h-4 text-green-500" />
                   <span>{completedJobs} completed sessions</span>
                 </div>
               )}
-              {totalApplications !== null && totalApplications > 0 && (
+              
+              {coach.rating_avg && (
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 text-yellow-500" />
-                  <span>{totalApplications} applications sent</span>
+                  <span>{coach.rating_avg.toFixed(1)} ({coach.rating_count} reviews)</span>
+                </div>
+              )}
+
+              {isVerified && (
+                <div className="flex items-center gap-1">
+                  <Shield className="w-4 h-4 text-green-500" />
+                  <span>Verified Coach</span>
                 </div>
               )}
             </div>
@@ -116,191 +105,125 @@ export default async function PublicCoachProfilePage({
         </div>
       </GlassCard>
 
-      {/* Bio */}
+      {/* Bio Section */}
       {coach.bio && (
         <GlassCard className="mb-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <User className="w-5 h-5 text-primary" />
-            About Me
-          </h2>
+          <h2 className="text-xl font-semibold mb-4">About</h2>
           <p className="text-muted-foreground whitespace-pre-wrap">{coach.bio}</p>
         </GlassCard>
       )}
 
-      {/* Coaching Philosophy */}
-      {coach.coaching_philosophy && (
+      {/* Specialties Section */}
+      {coach.specialties && coach.specialties.length > 0 && (
         <GlassCard className="mb-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <Target className="w-5 h-5 text-primary" />
-            Coaching Philosophy
-          </h2>
-          <p className="text-muted-foreground whitespace-pre-wrap">{coach.coaching_philosophy}</p>
+          <h2 className="text-xl font-semibold mb-4">Specialties</h2>
+          <div className="flex flex-wrap gap-2">
+            {coach.specialties.map((specialty: string, index: number) => (
+              <Badge key={index} variant="secondary">
+                {specialty}
+              </Badge>
+            ))}
+          </div>
         </GlassCard>
       )}
 
-      {/* Certifications & Expertise */}
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
-        {/* Certifications */}
-        {coach.certifications && coach.certifications.length > 0 && (
-          <GlassCard>
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Award className="w-4 h-4 text-primary" />
-              Certifications
-            </h3>
-            <div className="space-y-2">
-              {coach.certifications.map((cert: string, index: number) => (
-                <div key={index} className="flex items-start gap-2">
-                  <Shield className="w-4 h-4 text-green-500 mt-0.5" />
-                  <span className="text-sm">{cert}</span>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
-        )}
-
-        {/* Areas of Expertise */}
-        {coach.specializations && coach.specializations.length > 0 && (
-          <GlassCard>
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-primary" />
-              Areas of Expertise
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {coach.specializations.map((spec: string) => (
-                <Badge key={spec} variant="secondary">
-                  {spec}
-                </Badge>
-              ))}
-            </div>
-          </GlassCard>
-        )}
-      </div>
-
-      {/* Experience Details */}
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
-        {/* Past Experience */}
-        {coach.past_experience && (
-          <GlassCard>
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Briefcase className="w-4 h-4 text-primary" />
-              Past Experience
-            </h3>
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {coach.past_experience}
-            </p>
-          </GlassCard>
-        )}
-
-        {/* Notable Achievements */}
-        {coach.achievements && (
-          <GlassCard>
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Star className="w-4 h-4 text-primary" />
-              Notable Achievements
-            </h3>
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {coach.achievements}
-            </p>
-          </GlassCard>
-        )}
-      </div>
-
-      {/* Availability & Preferences */}
+      {/* Location & Availability */}
       <GlassCard className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Availability & Preferences</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="font-medium mb-3 text-sm text-muted-foreground">Work Preferences</h3>
-            <div className="space-y-2">
-              {coach.preferred_age_groups && coach.preferred_age_groups.length > 0 && (
-                <div className="flex items-start gap-2">
-                  <Users className="w-4 h-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Preferred Age Groups</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {coach.preferred_age_groups.map((age: string) => (
-                        <Badge key={age} variant="outline" className="text-xs">
-                          {age}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {coach.desired_pay_min && coach.desired_pay_max && (
-                <div className="flex items-start gap-2">
-                  <DollarSign className="w-4 h-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Preferred Rate</p>
-                    <p className="text-sm text-muted-foreground">
-                      ${coach.desired_pay_min} - ${coach.desired_pay_max} per hour
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="font-medium mb-3 text-sm text-muted-foreground">Availability</h3>
-            <div className="space-y-2">
-              {coach.availability && coach.availability.length > 0 && (
-                <div className="flex items-start gap-2">
-                  <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Available Days</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {coach.availability.map((day: string) => (
-                        <Badge key={day} variant="outline" className="text-xs">
-                          {day}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {coach.available_from && (
-                <div className="flex items-start gap-2">
-                  <Clock className="w-4 h-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Available From</p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(coach.available_from).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </GlassCard>
-
-      {/* Location */}
-      {(coach.city || coach.state) && (
-        <GlassCard className="mb-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-primary" />
-            Location
-          </h2>
-          <p className="text-muted-foreground">
-            {[coach.city, coach.state].filter(Boolean).join(', ')}
-          </p>
-          {coach.preferred_suburbs && coach.preferred_suburbs.length > 0 && (
-            <div className="mt-3">
-              <p className="text-sm font-medium mb-2">Preferred Areas</p>
+        <h2 className="text-xl font-semibold mb-4">Service Details</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          {/* Service Areas */}
+          {coach.suburbs && coach.suburbs.length > 0 && (
+            <div>
+              <h3 className="font-medium mb-2 flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Service Areas
+              </h3>
               <div className="flex flex-wrap gap-2">
-                {coach.preferred_suburbs.map((suburb: string) => (
-                  <Badge key={suburb} variant="secondary" className="text-xs">
+                {coach.suburbs.map((suburb: string, index: number) => (
+                  <Badge key={index} variant="outline">
                     {suburb}
                   </Badge>
                 ))}
               </div>
             </div>
           )}
-        </GlassCard>
-      )}
+
+          {/* Rates */}
+          <div>
+            <h3 className="font-medium mb-2 flex items-center gap-2">
+              <DollarSign className="w-4 h-4" />
+              Rates
+            </h3>
+            <div className="space-y-1 text-sm text-muted-foreground">
+              {coach.rate_hourly && (
+                <p>Hourly: ${coach.rate_hourly}/hour</p>
+              )}
+              {coach.rate_flat && (
+                <p>Session: ${coach.rate_flat}</p>
+              )}
+              {coach.travel_km && (
+                <p>Will travel up to {coach.travel_km}km</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </GlassCard>
+
+      {/* Verification Status */}
+      <GlassCard className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Verification Status</h2>
+        <div className="space-y-3">
+          
+          {/* Working with Children Check */}
+          <div className="flex items-center justify-between p-3 rounded-lg border">
+            <div className="flex items-center gap-3">
+              <Shield className={`w-5 h-5 ${coach.wwcc_number ? 'text-green-500' : 'text-gray-400'}`} />
+              <div>
+                <p className="font-medium">Working with Children Check</p>
+                <p className="text-sm text-muted-foreground">Required for coaching minors</p>
+              </div>
+            </div>
+            {coach.wwcc_number ? (
+              <Badge variant="default" className="bg-green-500">Verified</Badge>
+            ) : (
+              <Badge variant="secondary">Pending</Badge>
+            )}
+          </div>
+
+          {/* Professional Insurance */}
+          <div className="flex items-center justify-between p-3 rounded-lg border">
+            <div className="flex items-center gap-3">
+              <Shield className={`w-5 h-5 ${coach.insurance_url ? 'text-green-500' : 'text-gray-400'}`} />
+              <div>
+                <p className="font-medium">Professional Insurance</p>
+                <p className="text-sm text-muted-foreground">Optional enhancement</p>
+              </div>
+            </div>
+            {coach.insurance_url ? (
+              <Badge variant="default" className="bg-green-500">Verified</Badge>
+            ) : (
+              <Badge variant="outline">Not provided</Badge>
+            )}
+          </div>
+
+          {/* First Aid & CPR */}
+          <div className="flex items-center justify-between p-3 rounded-lg border">
+            <div className="flex items-center gap-3">
+              <Shield className={`w-5 h-5 ${coach.first_aid_url ? 'text-green-500' : 'text-gray-400'}`} />
+              <div>
+                <p className="font-medium">First Aid & CPR</p>
+                <p className="text-sm text-muted-foreground">Optional enhancement</p>
+              </div>
+            </div>
+            {coach.first_aid_url ? (
+              <Badge variant="default" className="bg-green-500">Verified</Badge>
+            ) : (
+              <Badge variant="outline">Not provided</Badge>
+            )}
+          </div>
+        </div>
+      </GlassCard>
 
       {/* Contact Information - Limited for privacy */}
       <GlassCard>
@@ -308,7 +231,7 @@ export default async function PublicCoachProfilePage({
         <p className="text-muted-foreground mb-4">
           Interested in working with {user?.name || 'this coach'}? Contact them through the application process.
         </p>
-        {coach.phone && (
+        {user?.phone && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <Phone className="w-4 h-4" />
             <span>Phone number available after acceptance</span>
