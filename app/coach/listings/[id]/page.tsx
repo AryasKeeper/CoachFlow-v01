@@ -59,14 +59,14 @@ export default function CoachListingDetailPage({ params }: PageProps) {
         return
       }
       
-      // Check if coach is verified
+      // Check if coach is verified - only WWCC is required
       const { data: profile } = await supabase
         .from('coach_profiles')
         .select('wwcc_number, insurance_url, first_aid_url')
         .eq('user_id', user.id)
         .single()
         
-      setIsVerified(!!(profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url))
+      setIsVerified(!!(profile?.wwcc_number))
       
       // Get listing details with organization profile
       const { data: listingData, error: listingError } = await supabase

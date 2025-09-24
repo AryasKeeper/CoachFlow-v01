@@ -75,7 +75,8 @@ export default async function CoachPublicProfilePage({ params }: PageProps) {
     },
   ] as const
 
-  const isVerified = profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url
+  // Only WWCC is required for verified status - First Aid and Insurance are optional enhancements
+  const isVerified = !!(profile?.wwcc_number)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">

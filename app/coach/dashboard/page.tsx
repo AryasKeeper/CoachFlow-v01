@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { BadgeRow } from "@/components/ui/badge-row"
 import { LazyMiniProgressRing } from "@/components/lazy"
 import Link from "next/link"
+import { Suspense } from "react"
+import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton"
 import { 
   ClipboardList, 
   FileText, 
@@ -25,19 +27,23 @@ export default async function CoachDashboardPage() {
   const user = await requireRole('coach')
   const supabase = await createServerSupabaseClient()
   
-  // Get coach profile
-  const { data: profile } = await supabase
+  // Get coach profile with error handling
+  const { data: profile, error: profileError } = await supabase
     .from('coach_profiles')
     .select('*')
     .eq('user_id', user.id)
     .single()
   
-  // Get stats
+  if (profileError) {
+    console.error('Error fetching coach profile:', profileError)
+  }
+  
+  // Get stats with error handling
   const [
-    { count: applicationsCount },
-    { count: bookingsCount },
-    { count: availableListings }
-  ] = await Promise.all([
+    applicationsResult,
+    bookingsResult,
+    listingsResult
+  ] = await Promise.allSettled([
     supabase
       .from('applications')
       .select('*', { count: 'exact', head: true })
@@ -52,8 +58,12 @@ export default async function CoachDashboardPage() {
       .eq('status', 'active')
   ])
   
-  // Get recent applications
-  const { data: recentApplications } = await supabase
+  const applicationsCount = applicationsResult.status === 'fulfilled' ? applicationsResult.value.count : 0
+  const bookingsCount = bookingsResult.status === 'fulfilled' ? bookingsResult.value.count : 0
+  const availableListings = listingsResult.status === 'fulfilled' ? listingsResult.value.count : 0
+  
+  // Get recent applications with error handling
+  const { data: recentApplications, error: applicationsError } = await supabase
     .from('applications')
     .select(`
       *,
@@ -71,13 +81,18 @@ export default async function CoachDashboardPage() {
     .order('created_at', { ascending: false })
     .limit(3)
   
+  if (applicationsError) {
+    console.error('Error fetching recent applications:', applicationsError)
+  }
+  
   const isProfileComplete = profile &&
     profile.bio &&
     profile.specialties?.length > 0 &&
     profile.suburbs?.length > 0 &&
     (profile.rate_hourly || profile.rate_flat)
 
-  const isVerified = profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url
+  // Only WWCC is required for verified status - First Aid and Insurance are optional enhancements
+  const isVerified = !!(profile?.wwcc_number)
 
   // Calculate profile completion percentage
   const profileCompletion = (() => {
@@ -137,7 +152,8 @@ export default async function CoachDashboardPage() {
   ]
   
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-[calc(100vh-8rem)] bg-background">
+      <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Welcome back, {user.name || 'Coach'}!</h1>
         <p className="text-muted-foreground">
@@ -392,6 +408,7 @@ export default async function CoachDashboardPage() {
           </GlassCard>
         </div>
       </div>
+    </div>
     </div>
   )
 }

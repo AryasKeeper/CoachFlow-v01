@@ -134,27 +134,32 @@ export default function CoachVerifyPage() {
     }
   }
   
-  const isFullyVerified = verificationStatus.wwcc && verificationStatus.insurance && verificationStatus.firstAid
+  // Only WWCC is required for verified status
+  const isVerified = verificationStatus.wwcc
+  const hasOptionalDocs = verificationStatus.insurance || verificationStatus.firstAid
   
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <h1 className="text-3xl font-bold mb-8">Verification Documents</h1>
       
       <div className="mb-8">
-        {isFullyVerified ? (
+        {isVerified ? (
           <div className="p-4 rounded-lg bg-green-500/10 border border-green-200 flex items-center gap-3">
             <CheckCircle className="w-5 h-5 text-green-600" />
             <div>
-              <p className="font-medium text-green-800">Fully Verified</p>
-              <p className="text-sm text-green-700">You can now apply for coaching opportunities</p>
+              <p className="font-medium text-green-800">Verified Coach</p>
+              <p className="text-sm text-green-700">
+                You can now apply for coaching opportunities
+                {!hasOptionalDocs && " • Consider adding First Aid and Insurance to stand out"}
+              </p>
             </div>
           </div>
         ) : (
           <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-200 flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-orange-600" />
             <div>
-              <p className="font-medium text-orange-800">Verification Incomplete</p>
-              <p className="text-sm text-orange-700">Upload all required documents to start applying for jobs</p>
+              <p className="font-medium text-orange-800">Verification Required</p>
+              <p className="text-sm text-orange-700">Upload your Working with Children Check to start applying for jobs</p>
             </div>
           </div>
         )}
@@ -187,7 +192,9 @@ export default function CoachVerifyPage() {
               </div>
               <div>
                 <h2 className="text-lg font-semibold">Working with Children Check</h2>
-                <p className="text-sm text-muted-foreground">Required for all coaches</p>
+                <p className="text-sm text-muted-foreground">
+                  <span className="text-red-500">*</span> Required for verification
+                </p>
               </div>
             </div>
             {verificationStatus.wwcc && (
@@ -266,7 +273,9 @@ export default function CoachVerifyPage() {
               </div>
               <div>
                 <h2 className="text-lg font-semibold">Professional Insurance</h2>
-                <p className="text-sm text-muted-foreground">Public liability insurance certificate</p>
+                <p className="text-sm text-muted-foreground">
+                  Optional • Enhances your profile credibility
+                </p>
               </div>
             </div>
             {verificationStatus.insurance && (
@@ -316,7 +325,9 @@ export default function CoachVerifyPage() {
               </div>
               <div>
                 <h2 className="text-lg font-semibold">First Aid & CPR</h2>
-                <p className="text-sm text-muted-foreground">Current first aid and CPR certificate</p>
+                <p className="text-sm text-muted-foreground">
+                  Optional • Shows you're prepared for emergencies
+                </p>
               </div>
             </div>
             {verificationStatus.firstAid && (
@@ -367,14 +378,24 @@ export default function CoachVerifyPage() {
       </form>
       
       {/* Info Section */}
-      <div className="mt-8 p-4 bg-muted/50 rounded-lg">
-        <h3 className="font-semibold mb-2">Why verification is important</h3>
-        <ul className="space-y-1 text-sm text-muted-foreground">
-          <li>• Organizations trust verified coaches more</li>
-          <li>• You'll appear higher in search results</li>
-          <li>• Access to more coaching opportunities</li>
-          <li>• Build credibility with parents and schools</li>
-        </ul>
+      <div className="mt-8 space-y-4">
+        <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-200">
+          <h3 className="font-semibold mb-2 text-blue-900">Verification Requirements</h3>
+          <div className="text-sm text-blue-800">
+            <p className="mb-2"><span className="font-medium">Required:</span> Working with Children Check (WWCC) - legally required to work with minors in Australia</p>
+            <p><span className="font-medium">Optional Enhancements:</span> First Aid & CPR, Professional Insurance - boost your profile's trust and credibility</p>
+          </div>
+        </div>
+        
+        <div className="p-4 bg-muted/50 rounded-lg">
+          <h3 className="font-semibold mb-2">Benefits of verification</h3>
+          <ul className="space-y-1 text-sm text-muted-foreground">
+            <li>• Organizations trust verified coaches more</li>
+            <li>• You'll appear higher in search results</li>
+            <li>• Access to more coaching opportunities</li>
+            <li>• Build credibility with parents and schools</li>
+          </ul>
+        </div>
       </div>
     </div>
   )

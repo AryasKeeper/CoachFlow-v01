@@ -73,7 +73,8 @@ export default async function CoachLayout({
     .eq('user_id', user.id)
     .single()
   
-  const isVerified = !!(profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url)
+  // Only WWCC is required for verified status - First Aid and Insurance are optional enhancements
+  const isVerified = !!(profile?.wwcc_number)
   
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">

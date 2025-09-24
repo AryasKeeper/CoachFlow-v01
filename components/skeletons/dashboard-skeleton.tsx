@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function DashboardSkeleton() {
   return (
-    <div className="container mx-auto p-6 space-y-6 animate-in fade-in duration-500">
+    <div className="container mx-auto p-6 space-y-6 animate-in fade-in duration-500 min-h-[calc(100vh-12rem)]">
       {/* Header skeleton */}
       <div className="flex items-center justify-between mb-8">
         <div>
