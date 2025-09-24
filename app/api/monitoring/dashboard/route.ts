@@ -178,7 +178,7 @@ async function getErrorAnalytics(timeframe: string) {
       'Security': analytics.errorsByseverity.critical,
       'General': analytics.errorsByseverity.low
     },
-    recentErrors: analytics.topErrors.map(error => ({
+    recentErrors: (analytics.topErrors || []).map((error: any) => ({
       message: error.message || 'Unknown error',
       severity: error.severity || 'medium',
       count: error.count || 1,
