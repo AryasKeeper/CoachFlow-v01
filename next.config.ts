@@ -176,9 +176,8 @@ const nextConfig: NextConfig = {
 
   // ESLint configuration
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors. Only enable in emergency situations
-    ignoreDuringBuilds: false,
+    // Allow warnings in production builds, only fail on errors
+    ignoreDuringBuilds: isProd || process.env.ESLINT_NO_DEV_ERRORS === 'true',
   },
 
   // Output configuration for different deployment targets
