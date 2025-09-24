@@ -45,6 +45,7 @@ interface Application {
     pay_max?: number
     urgency?: string
     gender_preference?: string
+    status?: string
     org?: {
       org_profiles?: {
         org_name: string
