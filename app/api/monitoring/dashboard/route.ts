@@ -285,9 +285,8 @@ function getTimeframeMinutes(timeframe: string): number {
   }
 }
 
-// Export POST and GET handlers
+// Export GET handler only - monitoring dashboard is read-only
 export const GET = withErrorHandling(dashboardHandler)
-export const POST = withErrorHandling(dashboardHandler)
 
 // Force dynamic to ensure fresh data
 export const dynamic = 'force-dynamic'
