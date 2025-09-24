@@ -4,7 +4,7 @@
   "alias": ["coachflow.com", "www.coachflow.com"],
   "regions": ["syd1"],
   "framework": "nextjs",
-  "buildCommand": "npm run build:prod",
+  "buildCommand": "NODE_ENV=production next build",
   "installCommand": "npm ci --legacy-peer-deps",
   "outputDirectory": ".next",
   "functions": {
