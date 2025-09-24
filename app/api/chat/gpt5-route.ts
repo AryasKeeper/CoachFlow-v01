@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import {
   withErrorHandling,
@@ -227,12 +227,10 @@ async function chatHandler(req: NextRequest) {
   if (useStructured && messages.length === 1) {
     const structured = getStructuredResponse(messages[0].content)
     if (structured) {
-      return new Response(JSON.stringify({
+      return NextResponse.json({
         role: 'assistant',
         content: formatStructuredResponse(structured),
         structured: structured
-      }), {
-        headers: { 'Content-Type': 'application/json' }
       })
     }
   }
@@ -289,7 +287,7 @@ async function chatHandler(req: NextRequest) {
       duration
     })
 
-    return new Response(stream, {
+    return new NextResponse(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
@@ -335,7 +333,7 @@ async function chatHandler(req: NextRequest) {
         }
       })
 
-      return new Response(stream, {
+      return new NextResponse(stream, {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
