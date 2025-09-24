@@ -5,7 +5,7 @@
   "regions": ["syd1"],
   "framework": "nextjs",
   "buildCommand": "npm run build:prod",
-  "installCommand": "npm ci",
+  "installCommand": "npm ci --legacy-peer-deps",
   "outputDirectory": ".next",
   "functions": {
     "app/api/**/*.ts": {
