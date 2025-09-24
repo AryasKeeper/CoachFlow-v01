@@ -63,10 +63,16 @@ export default async function AdminDashboardPage() {
     .order('created_at', { ascending: false })
     .limit(5)
   
-  // Calculate conversion funnel
-  const signupToProfileRate = totalCoaches > 0 ? (totalCoaches / totalUsers * 100).toFixed(1) : 0
-  const listingToApplicationRate = activeListings > 0 ? (totalApplications / activeListings * 100).toFixed(1) : 0
-  const applicationToBookingRate = totalApplications > 0 ? (totalBookings / totalApplications * 100).toFixed(1) : 0
+  // Calculate conversion funnel - handle null values from count queries
+  const safeCoaches = totalCoaches || 0
+  const safeUsers = totalUsers || 0
+  const safeActiveListings = activeListings || 0
+  const safeApplications = totalApplications || 0
+  const safeBookings = totalBookings || 0
+  
+  const signupToProfileRate = safeCoaches > 0 ? (safeCoaches / safeUsers * 100).toFixed(1) : 0
+  const listingToApplicationRate = safeActiveListings > 0 ? (safeApplications / safeActiveListings * 100).toFixed(1) : 0
+  const applicationToBookingRate = safeApplications > 0 ? (safeBookings / safeApplications * 100).toFixed(1) : 0
   
   const stats = [
     {
