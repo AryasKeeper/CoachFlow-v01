@@ -33,6 +33,7 @@ interface Application {
   status: string
   applied_at: string
   cover_letter?: string
+  message?: string | null
   withdrawn_at?: string
   created_at: string
   listing?: {
