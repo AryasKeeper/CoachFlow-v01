@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react"
 import L from "leaflet"
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"
-import MarkerClusterGroup from "react-leaflet-cluster"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/date-utils"
@@ -219,72 +218,65 @@ export function MapView({ listings, onListingClick, userLocation }: MapViewProps
           </Marker>
         )}
 
-        {/* Listing markers with clustering */}
-        <MarkerClusterGroup
-          chunkedLoading
-          showCoverageOnHover={false}
-          spiderfyOnMaxZoom={true}
-          maxClusterRadius={50}
-        >
-          {markers.map((listing) => (
-            <Marker
-              key={listing.id}
-              position={listing.coordinates}
-              icon={createCustomIcon(
-                listing.urgency === 'urgent' ? '#ef4444' : '#3b82f6',
-                listing.urgency === 'urgent'
-              )}
-            >
-              <Popup maxWidth={300} className="custom-popup">
-                <div className="p-2">
-                  <h3 className="font-semibold text-sm mb-2">{listing.title}</h3>
+        {/* Listing markers */}
+        {markers.map((listing) => (
+          <Marker
+            key={listing.id}
+            position={listing.coordinates}
+            icon={createCustomIcon(
+              listing.urgency === 'urgent' ? '#ef4444' : '#3b82f6',
+              listing.urgency === 'urgent'
+            )}
+          >
+            <Popup maxWidth={300} className="custom-popup">
+              <div className="p-2">
+                <h3 className="font-semibold text-sm mb-2">{listing.title}</h3>
 
-                  <div className="space-y-1 mb-3">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Building2 className="w-3 h-3" />
-                      <span>{listing.org?.org_profiles?.org_name}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <MapPin className="w-3 h-3" />
-                      <span>{listing.location}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Calendar className="w-3 h-3" />
-                      <span>{formatDate(listing.dates?.[0] || listing.created_at)}</span>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs">
-                      <DollarSign className="w-3 h-3 text-green-600" />
-                      <span className="font-medium text-green-600">{listing.pay_details}</span>
-                    </div>
+                <div className="space-y-1 mb-3">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Building2 className="w-3 h-3" />
+                    <span>{listing.org?.org_profiles?.org_name}</span>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-1">
-                      {listing.urgency === 'urgent' && (
-                        <Badge variant="destructive" className="text-xs">Urgent</Badge>
-                      )}
-                      {listing.type && (
-                        <Badge variant="secondary" className="text-xs">{listing.type}</Badge>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <MapPin className="w-3 h-3" />
+                    <span>{listing.location}</span>
+                  </div>
 
-                    <Button
-                      size="sm"
-                      onClick={() => onListingClick(listing.id)}
-                      className="gap-1"
-                    >
-                      View
-                      <ChevronRight className="w-3 h-3" />
-                    </Button>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="w-3 h-3" />
+                    <span>{formatDate(listing.dates?.[0] || listing.created_at)}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs">
+                    <DollarSign className="w-3 h-3 text-green-600" />
+                    <span className="font-medium text-green-600">{listing.pay_details}</span>
                   </div>
                 </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MarkerClusterGroup>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-1">
+                    {listing.urgency === 'urgent' && (
+                      <Badge variant="destructive" className="text-xs">Urgent</Badge>
+                    )}
+                    {listing.type && (
+                      <Badge variant="secondary" className="text-xs">{listing.type}</Badge>
+                    )}
+                  </div>
+
+                  <Button
+                    size="sm"
+                    onClick={() => onListingClick(listing.id)}
+                    className="gap-1"
+                  >
+                    View
+                    <ChevronRight className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
 
       {/* Legend */}
