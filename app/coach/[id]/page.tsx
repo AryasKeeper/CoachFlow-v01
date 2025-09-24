@@ -45,7 +45,7 @@ export default async function PublicCoachProfilePage({
   // Get coach's user info for basic details
   const { data: user } = await supabase
     .from('users')
-    .select('email')
+    .select('email, name')
     .eq('id', id)
     .single()
 
@@ -76,20 +76,12 @@ export default async function PublicCoachProfilePage({
       {/* Header */}
       <GlassCard className="mb-6">
         <div className="flex items-start gap-4">
-          {coach.profile_picture_url ? (
-            <img
-              src={coach.profile_picture_url}
-              alt={`${coach.first_name} ${coach.last_name}`}
-              className="w-24 h-24 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-              <User className="w-12 h-12 text-primary" />
-            </div>
-          )}
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+            <User className="w-12 h-12 text-primary" />
+          </div>
           <div className="flex-1">
             <h1 className="text-2xl font-bold mb-1">
-              {coach.first_name} {coach.last_name}
+              {user?.name || 'Coach Profile'}
             </h1>
 
             {/* Experience Level */}
@@ -314,7 +306,7 @@ export default async function PublicCoachProfilePage({
       <GlassCard>
         <h2 className="text-xl font-semibold mb-4">Get in Touch</h2>
         <p className="text-muted-foreground mb-4">
-          Interested in working with {coach.first_name}? Contact them through the application process.
+          Interested in working with {user?.name || 'this coach'}? Contact them through the application process.
         </p>
         {coach.phone && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
