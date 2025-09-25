@@ -34,6 +34,7 @@ interface Application {
   applied_at: string
   cover_letter?: string
   message?: string | null
+  proposed_rate?: number | null
   withdrawn_at?: string
   created_at: string
   listing?: {
