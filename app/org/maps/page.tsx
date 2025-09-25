@@ -50,7 +50,7 @@ export default async function OrgMapsPage() {
 
   // Transform coaches into map locations
   const locations = coaches?.map(coach => {
-    const primaryLocation = coach.primary_suburb || coach.city || 'Sydney CBD'
+    const primaryLocation = coach.primary_suburb || 'Sydney CBD'
     const coordinates = coach.primary_suburb_lat && coach.primary_suburb_lng
       ? [coach.primary_suburb_lat, coach.primary_suburb_lng] as [number, number]
       : getCoordinatesForLocation(primaryLocation)
