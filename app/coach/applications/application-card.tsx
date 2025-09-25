@@ -35,6 +35,7 @@ interface Application {
   cover_letter?: string
   message?: string | null
   proposed_rate?: number | null
+  contact_revealed?: boolean
   withdrawn_at?: string
   created_at: string
   listing?: {
@@ -49,8 +50,11 @@ interface Application {
     gender_preference?: string
     status?: string
     org?: {
+      email?: string
       org_profiles?: {
         org_name: string
+        contact_person_name?: string
+        contact_phone?: string
       }
     }
   }
@@ -199,10 +203,10 @@ export function ApplicationCard({ application }: { application: Application }) {
               <div className="mt-4">
                 <ContactDetailsCard
                   contactInfo={{
-                    name: listing?.org?.org_profiles?.[0]?.contact_person_name || listing?.org?.org_profiles?.[0]?.org_name,
+                    name: listing?.org?.org_profiles?.contact_person_name || listing?.org?.org_profiles?.org_name,
                     email: listing?.org?.email,
-                    phone: listing?.org?.org_profiles?.[0]?.contact_phone,
-                    organization: listing?.org?.org_profiles?.[0]?.org_name,
+                    phone: listing?.org?.org_profiles?.contact_phone,
+                    organization: listing?.org?.org_profiles?.org_name,
                     location: listing?.location
                   }}
                   type="org"
