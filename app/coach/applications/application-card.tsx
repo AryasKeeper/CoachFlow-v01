@@ -45,16 +45,16 @@ interface Application {
     time_intervals?: unknown
     pay_min?: number | null
     pay_max?: number | null
-    urgency?: string
-    gender_preference?: string
-    status?: string
+    urgency?: string | null
+    gender_preference?: string | null
+    status?: string | null
     org?: {
       email?: string
       org_profiles?: {
         org_name: string
-        contact_person_name?: string
-        contact_phone?: string
-      }
+        contact_person_name?: string | null
+        contact_phone?: string | null
+      } | null
     }
   }
 }
