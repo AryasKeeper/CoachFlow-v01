@@ -328,17 +328,17 @@ function ApplicationCard({ application, listingId }: { application: any, listing
   const badges = [
     {
       label: "WWCC",
-      status: profile?.wwcc_number ? "verified" : "not-provided"
+      status: profile?.wwcc_number ? "verified" : "not-provided" as "verified" | "not-provided"
     },
     {
       label: "Insurance",
-      status: profile?.insurance_url ? "verified" : "not-provided"
+      status: profile?.insurance_url ? "verified" : "not-provided" as "verified" | "not-provided"
     },
     {
       label: "First Aid",
-      status: profile?.first_aid_url ? "verified" : "not-provided"
+      status: profile?.first_aid_url ? "verified" : "not-provided" as "verified" | "not-provided"
     },
-  ] as const
+  ]
   
   return (
     <GlassCard>
