@@ -41,8 +41,8 @@ interface Application {
     id: string
     title: string
     location: string
-    dates?: string[] | string | null
-    time_intervals?: Array<{ start: string; end: string }> | string | null
+    dates?: unknown
+    time_intervals?: unknown
     pay_min?: number
     pay_max?: number
     urgency?: string
@@ -64,16 +64,22 @@ export function ApplicationCard({ application }: { application: Application }) {
   const [isWithdrawing, setIsWithdrawing] = useState(false)
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false)
   const listing = application.listing
-  const nextDate = (() => {
-    if (!listing?.dates) return null
-    if (Array.isArray(listing.dates) && listing.dates.length > 0) {
-      return new Date(listing.dates.sort()[0])
+  const coerceToDate = (value: unknown): Date | null => {
+    if (!value) return null
+    if (Array.isArray(value)) {
+      const arr = value as Array<string | number>
+      if (arr.length === 0) return null
+      const first = arr.sort()[0]
+      return coerceToDate(first)
     }
-    if (typeof listing.dates === 'string') {
-      return new Date(listing.dates)
+    if (typeof value === 'string' || typeof value === 'number') {
+      const d = new Date(value)
+      return isNaN(d.getTime()) ? null : d
     }
     return null
-  })()
+  }
+
+  const nextDate = coerceToDate(listing?.dates)
 
   const getStatusBadge = () => {
     switch (application.status) {
