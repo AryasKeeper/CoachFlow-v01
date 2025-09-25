@@ -41,8 +41,8 @@ interface Application {
     id: string
     title: string
     location: string
-    dates?: string[]
-    time_intervals?: Array<{ start: string; end: string }>
+    dates?: string[] | null
+    time_intervals?: Array<{ start: string; end: string }> | null
     pay_min?: number
     pay_max?: number
     urgency?: string
