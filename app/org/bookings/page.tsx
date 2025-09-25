@@ -5,12 +5,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { 
+import {
   Calendar,
   Clock,
   MapPin,
   User,
-  MessageSquare,
   CheckCircle,
   XCircle,
   AlertCircle
@@ -244,12 +243,7 @@ function BookingCard({
             <div className="flex gap-2">
               {status !== 'past' && (
                 <>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link href={`/messages/${booking.id}`}>
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Message
-                    </Link>
-                  </Button>
+                  {/* Messaging feature removed - organizations use their own communication channels */}
                   {status === 'upcoming' && (
                     <Button size="sm" variant="ghost" className="text-destructive">
                       Cancel

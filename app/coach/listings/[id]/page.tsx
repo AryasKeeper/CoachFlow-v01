@@ -151,47 +151,9 @@ export default function CoachListingDetailPage({ params }: PageProps) {
         setError(applyError.message)
         return
       }
-      
-      // Create or get message thread for this application
-      if (listing?.org_id && application) {
-        // Get or create thread for this application
-        const { data: threadId, error: threadError } = await supabase
-          .rpc('get_or_create_message_thread', {
-            p_application_id: application.id
-          })
-        
-        if (!threadError && threadId) {
-          // Send the application message as the first message in the thread
-          await supabase
-            .from('messages')
-            .insert({
-              thread_id: threadId,
-              sender_id: user.id,
-              content: `Application for: ${listing.title}\n\n${applicationMessage}${proposedRate ? `\n\nProposed rate: $${proposedRate}/hr` : ''}`,
-              metadata: {
-                type: 'application',
-                application_id: application.id,
-                listing_id: resolvedParams.id
-              }
-            })
-          
-          // Create notification for the organization
-          await supabase
-            .from('message_notifications')
-            .insert({
-              user_id: listing.org_id,
-              thread_id: threadId,
-              message: `New application for ${listing.title}`,
-              type: 'application',
-              metadata: {
-                application_id: application.id,
-                listing_id: resolvedParams.id,
-                coach_id: user.id
-              }
-            })
-        }
-      }
-      
+
+      // Messaging feature removed - organizations use their own communication channels
+
       setSuccess(true)
       setHasApplied(true)
       setTimeout(() => {
