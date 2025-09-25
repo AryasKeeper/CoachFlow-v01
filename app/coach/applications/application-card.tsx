@@ -41,8 +41,8 @@ interface Application {
     id: string
     title: string
     location: string
-    dates?: string[] | null
-    time_intervals?: Array<{ start: string; end: string }> | null
+    dates?: string[] | string | null
+    time_intervals?: Array<{ start: string; end: string }> | string | null
     pay_min?: number
     pay_max?: number
     urgency?: string
@@ -64,9 +64,16 @@ export function ApplicationCard({ application }: { application: Application }) {
   const [isWithdrawing, setIsWithdrawing] = useState(false)
   const [showWithdrawDialog, setShowWithdrawDialog] = useState(false)
   const listing = application.listing
-  const nextDate = listing?.dates && Array.isArray(listing.dates) && listing.dates.length > 0
-    ? new Date(listing.dates.sort()[0])
-    : null
+  const nextDate = (() => {
+    if (!listing?.dates) return null
+    if (Array.isArray(listing.dates) && listing.dates.length > 0) {
+      return new Date(listing.dates.sort()[0])
+    }
+    if (typeof listing.dates === 'string') {
+      return new Date(listing.dates)
+    }
+    return null
+  })()
 
   const getStatusBadge = () => {
     switch (application.status) {
