@@ -56,7 +56,7 @@ export function PreferencesSettings({ user, profile, onChanges }: PreferencesSet
   )
 
   const handleChange = (key: string, value: any) => {
-    setPreferences(prev => ({ ...prev, [key]: value }))
+    setPreferences((prev: any) => ({ ...prev, [key]: value }))
     onChanges(true)
   }
 

@@ -57,7 +57,7 @@ export function NotificationSettings({ user, profile, onChanges }: NotificationS
   )
 
   const handleToggle = (key: string) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
+    setNotifications((prev: any) => ({ ...prev, [key]: !prev[key] }))
     onChanges(true)
   }
 

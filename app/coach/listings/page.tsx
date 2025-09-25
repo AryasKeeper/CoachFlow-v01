@@ -106,7 +106,16 @@ export default function ReactQueryListingsPage() {
     if (dateFilter !== 'all') {
       const now = new Date()
       filtered = filtered.filter(listing => {
-        const listingDate = new Date(listing.dates?.[0] || listing.created_at)
+        // Handle different date formats
+        let dateValue = listing.created_at
+        if (listing.dates) {
+          if (Array.isArray(listing.dates)) {
+            dateValue = listing.dates[0]?.start_date || listing.created_at
+          } else {
+            dateValue = listing.dates.start_date || listing.created_at
+          }
+        }
+        const listingDate = new Date(dateValue)
         switch (dateFilter) {
           case 'week':
             const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)

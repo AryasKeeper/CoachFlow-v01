@@ -1,14 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { createClient } from "@/lib/supabase/client"
 
+type ListingDate = {
+  start_date: string
+  end_date?: string
+}
+
+type TimeInterval = {
+  id: string
+  startTime: string
+  endTime: string
+}
+
 export interface Listing {
   id: string
   title: string
   description: string | null
   location: string
   suburbs: string[]
-  dates: Record<string, unknown>
-  time_intervals: Array<{ start: string; end: string }>
+  dates: ListingDate | ListingDate[] | null
+  time_intervals: TimeInterval[] | null
   pay_min: number | null
   pay_max: number | null
   pay_details?: string

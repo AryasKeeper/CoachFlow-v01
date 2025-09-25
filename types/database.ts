@@ -17,6 +17,8 @@ export type Database = {
           name: string | null
           phone: string | null
           created_at: string
+          first_name: string | null
+          last_name: string | null
         }
         Insert: {
           id: string
@@ -25,6 +27,8 @@ export type Database = {
           name?: string | null
           phone?: string | null
           created_at?: string
+          first_name?: string | null
+          last_name?: string | null
         }
         Update: {
           id?: string
@@ -33,6 +37,8 @@ export type Database = {
           name?: string | null
           phone?: string | null
           created_at?: string
+          first_name?: string | null
+          last_name?: string | null
         }
         Relationships: []
       }
@@ -55,6 +61,19 @@ export type Database = {
           rating_count: number
           availability: Json | null
           created_at: string
+          // Additional fields from migrations
+          first_name: string | null
+          last_name: string | null
+          phone_number: string | null
+          preferred_contact_method: string | null
+          contact_availability: string | null
+          linkedin_url: string | null
+          years_experience: number | null
+          coaching_philosophy: string | null
+          achievements: string | null
+          avatar_url: string | null
+          primary_suburb: string | null
+          service_radius_km: number | null
         }
         Insert: {
           user_id: string
@@ -74,6 +93,19 @@ export type Database = {
           rating_count?: number
           availability?: Json | null
           created_at?: string
+          // Additional fields from migrations
+          first_name?: string | null
+          last_name?: string | null
+          phone_number?: string | null
+          preferred_contact_method?: string | null
+          contact_availability?: string | null
+          linkedin_url?: string | null
+          years_experience?: number | null
+          coaching_philosophy?: string | null
+          achievements?: string | null
+          avatar_url?: string | null
+          primary_suburb?: string | null
+          service_radius_km?: number | null
         }
         Update: {
           user_id?: string
@@ -93,6 +125,19 @@ export type Database = {
           rating_count?: number
           availability?: Json | null
           created_at?: string
+          // Additional fields from migrations
+          first_name?: string | null
+          last_name?: string | null
+          phone_number?: string | null
+          preferred_contact_method?: string | null
+          contact_availability?: string | null
+          linkedin_url?: string | null
+          years_experience?: number | null
+          coaching_philosophy?: string | null
+          achievements?: string | null
+          avatar_url?: string | null
+          primary_suburb?: string | null
+          service_radius_km?: number | null
         }
         Relationships: [
           {

@@ -49,7 +49,7 @@ export function PrivacySettings({ user, profile, onChanges }: PrivacySettingsPro
   )
 
   const handleChange = (key: string, value: any) => {
-    setPrivacy(prev => ({ ...prev, [key]: value }))
+    setPrivacy((prev: any) => ({ ...prev, [key]: value }))
     onChanges(true)
   }
 

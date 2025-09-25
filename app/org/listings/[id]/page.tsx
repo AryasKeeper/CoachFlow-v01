@@ -178,9 +178,9 @@ export default async function ListingDetailPage({ params }: PageProps) {
                   <div>
                     <p className="font-medium mb-1">Dates</p>
                     <div className="space-y-1">
-                      {listing.dates.map((date: string, index: number) => (
+                      {listing.dates.map((date: any, index: number) => (
                         <div key={index} className="text-sm text-muted-foreground">
-                          {new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                          {new Date(typeof date === 'string' ? date : date.start_date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
                         </div>
                       ))}
                     </div>
@@ -188,13 +188,13 @@ export default async function ListingDetailPage({ params }: PageProps) {
                 </div>
               )}
               
-              {listing.timeslots && Array.isArray(listing.timeslots) && (
+              {listing.time_intervals && Array.isArray(listing.time_intervals) && (
                 <div className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-muted-foreground mt-0.5" />
                   <div>
                     <p className="font-medium mb-1">Time Slots</p>
                     <div className="flex flex-wrap gap-2">
-                      {listing.timeslots.map((slot: string, index: number) => (
+                      {listing.time_intervals.map((slot: any, index: number) => (
                         <Badge key={index} variant="secondary">
                           {slot}
                         </Badge>

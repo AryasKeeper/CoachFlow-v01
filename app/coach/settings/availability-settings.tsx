@@ -70,21 +70,21 @@ export function AvailabilitySettings({ user, profile, onChanges }: AvailabilityS
 
   const toggleDay = (day: string) => {
     const days = availability.availableDays.includes(day)
-      ? availability.availableDays.filter(d => d !== day)
+      ? availability.availableDays.filter((d: string) => d !== day)
       : [...availability.availableDays, day]
     handleChange('availableDays', days)
   }
 
   const toggleSlot = (slot: string) => {
     const slots = availability.availableSlots.includes(slot)
-      ? availability.availableSlots.filter(s => s !== slot)
+      ? availability.availableSlots.filter((s: string) => s !== slot)
       : [...availability.availableSlots, slot]
     handleChange('availableSlots', slots)
   }
 
   const toggleLocation = (location: string) => {
     const locations = availability.preferredLocations.includes(location)
-      ? availability.preferredLocations.filter(l => l !== location)
+      ? availability.preferredLocations.filter((l: string) => l !== location)
       : [...availability.preferredLocations, location]
     handleChange('preferredLocations', locations)
   }

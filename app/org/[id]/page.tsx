@@ -266,7 +266,7 @@ export default async function PublicOrgProfilePage({
                           <DollarSign className="w-4 h-4" />
                           <span>${listing.pay_min}-${listing.pay_max}/hr</span>
                         </div>
-                        {listing.dates && listing.dates.length > 0 && (
+                        {listing.dates && Array.isArray(listing.dates) && listing.dates.length > 0 && (
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
                             <span>{listing.dates.length} {listing.dates.length === 1 ? 'date' : 'dates'}</span>

@@ -63,17 +63,17 @@ export default async function CoachPublicProfilePage({ params }: PageProps) {
   const verificationBadges = [
     {
       label: "WWCC",
-      status: profile?.wwcc_number ? "verified" : "not-provided"
+      status: profile?.wwcc_number ? "verified" as const : "not-provided" as const
     },
     {
       label: "Insurance",
-      status: profile?.insurance_url ? "verified" : "not-provided"
+      status: profile?.insurance_url ? "verified" as const : "not-provided" as const
     },
     {
       label: "First Aid",
-      status: profile?.first_aid_url ? "verified" : "not-provided"
+      status: profile?.first_aid_url ? "verified" as const : "not-provided" as const
     },
-  ] as const
+  ]
 
   // Only WWCC is required for verified status - First Aid and Insurance are optional enhancements
   const isVerified = !!(profile?.wwcc_number)
@@ -98,7 +98,7 @@ export default async function CoachPublicProfilePage({ params }: PageProps) {
                     Verified Coach
                   </Badge>
                 )}
-                {profile?.years_experience > 0 && (
+                {profile?.years_experience && profile.years_experience > 0 && (
                   <Badge variant="secondary">
                     {profile.years_experience} years experience
                   </Badge>

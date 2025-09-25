@@ -5,37 +5,10 @@ import { cn } from "@/lib/utils"
 import { GlassCard } from "./glass-card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Clock, DollarSign, ChevronRight } from "lucide-react"
-
-type ListingDate = {
-  start_date: string
-  end_date?: string
-}
-
-type TimeInterval = {
-  id: string
-  startTime: string
-  endTime: string
-}
+import { Listing } from "@/lib/react-query/hooks/use-listings"
 
 interface AnimatedListingCardProps {
-  listing: {
-    id: string
-    title: string
-    description: string | null
-    location: string
-    suburbs: string[]
-    dates: ListingDate | ListingDate[] | null
-    time_intervals: TimeInterval[] | null
-    pay_min: number | null
-    pay_max: number | null
-    urgency: string | null
-    gender_preference: string | null
-    status: string
-    created_at: string
-    org?: any
-    org_id?: string
-    pay_details?: string
-  }
+  listing: Listing & { org?: any }
   onClick?: () => void
   className?: string
   index?: number
@@ -120,11 +93,11 @@ export function AnimatedListingCard({ listing, onClick, className, index = 0 }: 
       transition={{
         delay: Math.min(index * 0.02, 0.1), // Max 100ms delay
         duration: 0.3, // Faster animation
-        ease: [0.16, 1, 0.3, 1] // Apple's easing curve
+        ease: [0.16, 1, 0.3, 1] as const // Apple's easing curve
       }}
       whileHover={{
         scale: 1.02,
-        transition: { duration: 0.15, ease: "easeOut" }
+        transition: { duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] as const }
       }}
       whileTap={{ scale: 0.98 }}
     >
