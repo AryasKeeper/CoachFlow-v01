@@ -72,8 +72,15 @@ export default async function OrgListingsPage() {
     error
   })
   
-  const activeListings = validListings?.filter(l => l.status === 'active') || []
-  const inactiveListings = validListings?.filter(l => l.status !== 'active') || []
+  // Transform listings to match component expectations
+  const transformedListings = validListings?.map(listing => ({
+    ...listing,
+    dates: listing.dates as any, // Database returns Json which needs to be cast
+    time_intervals: listing.time_intervals as any, // Database returns Json which needs to be cast
+  })) || []
+
+  const activeListings = transformedListings.filter(l => l.status === 'active')
+  const inactiveListings = transformedListings.filter(l => l.status !== 'active')
   
   return (
     <div className="container mx-auto px-4 py-8">
