@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "coachflow",
   "alias": ["coachflow.com", "www.coachflow.com"],
   "regions": ["syd1"],
   "framework": "nextjs",

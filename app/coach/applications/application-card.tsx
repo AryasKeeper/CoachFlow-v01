@@ -43,8 +43,8 @@ interface Application {
     location: string
     dates?: unknown
     time_intervals?: unknown
-    pay_min?: number
-    pay_max?: number
+    pay_min?: number | null
+    pay_max?: number | null
     urgency?: string
     gender_preference?: string
     status?: string
