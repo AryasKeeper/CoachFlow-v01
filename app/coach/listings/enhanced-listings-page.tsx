@@ -51,7 +51,7 @@ const viewTransition = {
   initial: { opacity: 0, scale: 0.95 },
   animate: { opacity: 1, scale: 1 },
   exit: { opacity: 0, scale: 0.95 },
-  transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
+  transition: { duration: 0.3, ease: "easeOut" }
 }
 
 export default function EnhancedCoachListingsPage() {
@@ -204,7 +204,7 @@ export default function EnhancedCoachListingsPage() {
       className="inline-flex items-center bg-muted/50 rounded-lg p-1"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
     >
       {(['card', 'list', 'map'] as ViewMode[]).map((mode) => (
         <motion.div key={mode} whileTap={{ scale: 0.95 }}>
@@ -334,7 +334,7 @@ export default function EnhancedCoachListingsPage() {
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
       >
         <div>
           <h1 className="text-3xl font-bold mb-2">Find Coaching Opportunities</h1>
@@ -349,7 +349,7 @@ export default function EnhancedCoachListingsPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
       >
         <GlassCard className="mb-8">
           <div className="grid md:grid-cols-4 gap-4">
@@ -400,7 +400,7 @@ export default function EnhancedCoachListingsPage() {
           className="grid md:grid-cols-4 gap-4 mb-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
         >
           {[
             { label: "Total Jobs", value: filteredListings.length, icon: ClipboardList, color: "text-muted-foreground" },
