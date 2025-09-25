@@ -267,10 +267,10 @@ function ApplicationCard({ application }: { application: any }) {
         <ContactDetailsCard
           contactInfo={{
             name: `${coach?.first_name} ${coach?.last_name}`,
-            email: coach?.email,
-            phone: profile?.phone_number,
-            preferredContact: profile?.preferred_contact_method,
-            linkedin: profile?.linkedin_url
+            email: coach?.email || undefined,
+            phone: profile?.phone_number || undefined,
+            preferredContact: profile?.preferred_contact_method || undefined,
+            linkedin: profile?.linkedin_url || undefined
           }}
           type="coach"
           isRevealed={application.contact_revealed || false}

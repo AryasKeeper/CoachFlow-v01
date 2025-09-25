@@ -216,10 +216,10 @@ export function ApplicationCard({ application }: { application: Application }) {
                 <ContactDetailsCard
                   contactInfo={{
                     name: listing?.org?.org_profiles?.contact_person_name || listing?.org?.org_profiles?.org_name,
-                    email: listing?.org?.email,
-                    phone: listing?.org?.org_profiles?.contact_phone,
-                    organization: listing?.org?.org_profiles?.org_name,
-                    location: listing?.location
+                    email: listing?.org?.email || undefined,
+                    phone: listing?.org?.org_profiles?.contact_phone || undefined,
+                    organization: listing?.org?.org_profiles?.org_name || undefined,
+                    location: listing?.location || undefined
                   }}
                   type="org"
                   isRevealed={application.contact_revealed || false}

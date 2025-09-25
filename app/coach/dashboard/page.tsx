@@ -115,17 +115,17 @@ export default async function CoachDashboardPage() {
   const verificationBadges = [
     {
       label: "WWCC",
-      status: profile?.wwcc_number ? "verified" : "not-provided"
+      status: profile?.wwcc_number ? "verified" as const : "not-provided" as const
     },
     {
       label: "Insurance",
-      status: profile?.insurance_url ? "verified" : "not-provided"
+      status: profile?.insurance_url ? "verified" as const : "not-provided" as const
     },
     {
       label: "First Aid",
-      status: profile?.first_aid_url ? "verified" : "not-provided"
+      status: profile?.first_aid_url ? "verified" as const : "not-provided" as const
     },
-  ] as const
+  ]
   
   const stats = [
     {

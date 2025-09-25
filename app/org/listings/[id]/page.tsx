@@ -398,12 +398,12 @@ function ApplicationCard({ application, listingId }: { application: any, listing
             <div className="mt-4">
               <ContactDetailsCard
                 contactInfo={{
-                  name: coach?.name,
-                  email: coach?.email,
-                  phone: profile?.phone_number,
-                  preferredContact: profile?.preferred_contact_method,
-                  linkedin: profile?.linkedin_url,
-                  location: profile?.suburbs?.join(", ")
+                  name: coach?.name || undefined,
+                  email: coach?.email || undefined,
+                  phone: profile?.phone_number || undefined,
+                  preferredContact: profile?.preferred_contact_method || undefined,
+                  linkedin: profile?.linkedin_url || undefined,
+                  location: profile?.suburbs?.join(", ") || undefined
                 }}
                 type="coach"
                 isRevealed={application.contact_revealed || false}

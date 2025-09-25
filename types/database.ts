@@ -111,6 +111,21 @@ export type Database = {
           org_type: string | null
           suburbs: string[]
           created_at: string
+          logo_url: string | null
+          about_organization: string | null
+          address: string | null
+          facility_features: string[]
+          website_url: string | null
+          contact_phone: string | null
+          team_culture: string | null
+          program_details: string | null
+          coaching_staff_size: number
+          city: string | null
+          state: string | null
+          zip_code: string | null
+          contact_person_name: string | null
+          contact_person_title: string | null
+          contact_email: string | null
         }
         Insert: {
           user_id: string
@@ -118,6 +133,21 @@ export type Database = {
           org_type?: string | null
           suburbs?: string[]
           created_at?: string
+          logo_url?: string | null
+          about_organization?: string | null
+          address?: string | null
+          facility_features?: string[]
+          website_url?: string | null
+          contact_phone?: string | null
+          team_culture?: string | null
+          program_details?: string | null
+          coaching_staff_size?: number
+          city?: string | null
+          state?: string | null
+          zip_code?: string | null
+          contact_person_name?: string | null
+          contact_person_title?: string | null
+          contact_email?: string | null
         }
         Update: {
           user_id?: string
@@ -125,6 +155,21 @@ export type Database = {
           org_type?: string | null
           suburbs?: string[]
           created_at?: string
+          logo_url?: string | null
+          about_organization?: string | null
+          address?: string | null
+          facility_features?: string[]
+          website_url?: string | null
+          contact_phone?: string | null
+          team_culture?: string | null
+          program_details?: string | null
+          coaching_staff_size?: number
+          city?: string | null
+          state?: string | null
+          zip_code?: string | null
+          contact_person_name?: string | null
+          contact_person_title?: string | null
+          contact_email?: string | null
         }
         Relationships: [
           {
@@ -207,6 +252,8 @@ export type Database = {
           proposed_rate: number | null
           status: string
           created_at: string
+          contact_revealed: boolean
+          contact_revealed_at: string | null
         }
         Insert: {
           id?: string
@@ -216,6 +263,8 @@ export type Database = {
           proposed_rate?: number | null
           status?: string
           created_at?: string
+          contact_revealed?: boolean
+          contact_revealed_at?: string | null
         }
         Update: {
           id?: string
@@ -225,6 +274,8 @@ export type Database = {
           proposed_rate?: number | null
           status?: string
           created_at?: string
+          contact_revealed?: boolean
+          contact_revealed_at?: string | null
         }
         Relationships: [
           {

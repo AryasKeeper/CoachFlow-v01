@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { Json } from "@/types/database"
 import { GlassCard } from "@/components/ui/glass-card"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -82,7 +83,7 @@ export default function CoachAvailabilityPage() {
       .single()
       
     if (profile?.availability) {
-      setAvailability(profile.availability as Availability)
+      setAvailability(profile.availability as unknown as Availability)
     }
   }
   
@@ -180,7 +181,7 @@ export default function CoachAvailabilityPage() {
         // Update existing profile
         const { error: updateError } = await supabase
           .from('coach_profiles')
-          .update({ availability })
+          .update({ availability: availability as unknown as Json })
           .eq('user_id', user.id)
           
         if (updateError) {
@@ -193,7 +194,7 @@ export default function CoachAvailabilityPage() {
           .from('coach_profiles')
           .insert({
             user_id: user.id,
-            availability
+            availability: availability as unknown as Json
           })
           
         if (insertError) {
