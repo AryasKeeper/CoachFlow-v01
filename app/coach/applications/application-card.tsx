@@ -31,13 +31,12 @@ interface Application {
   coach_id: string
   listing_id: string
   status: string
-  applied_at: string
+  created_at: string
   cover_letter?: string
   message?: string | null
   proposed_rate?: number | null
   contact_revealed?: boolean
   withdrawn_at?: string
-  created_at: string
   listing?: {
     id: string
     title: string

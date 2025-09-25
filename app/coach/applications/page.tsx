@@ -26,11 +26,14 @@ export default async function CoachApplicationsPage() {
         title,
         location,
         dates,
-        timeslots,
+        time_intervals,
         status,
         pay_min,
         pay_max,
+        urgency,
+        gender_preference,
         org:users!listings_org_id_fkey(
+          email,
           org_profiles!inner(
             org_name
           )
