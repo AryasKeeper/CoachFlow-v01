@@ -117,8 +117,8 @@ export default function PostListingPage() {
           description: data.description,
           location: suburbs.join(", "), // Keep for backwards compatibility
           suburbs: suburbs,
-          dates,
-          time_intervals: timeIntervals,
+          dates: dates as any,
+          time_intervals: timeIntervals as any,
           pay_min: data.pay_min,
           pay_max: data.pay_max,
           required_badges: requiredBadges,
