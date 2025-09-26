@@ -205,7 +205,7 @@ function arePropsEqual(prevProps: ListingCardProps, nextProps: ListingCardProps)
     // For dates, check if they're both arrays with same length
     (Array.isArray(prevProps.listing.dates) === Array.isArray(nextProps.listing.dates)) &&
     (Array.isArray(prevProps.listing.dates)
-      ? prevProps.listing.dates?.length === nextProps.listing.dates?.length
+      ? (prevProps.listing.dates as ListingDate[])?.length === (nextProps.listing.dates as ListingDate[])?.length
       : prevProps.listing.dates === nextProps.listing.dates)
   )
 }
