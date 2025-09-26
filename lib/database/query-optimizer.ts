@@ -138,16 +138,21 @@ export class QueryOptimizer {
           query = query.order('created_at', { ascending: false })
           
           const result = await query
-          
+
           // Handle case where there are no listings (normal for new platforms)
           if (result.error && result.error.message?.includes('no rows')) {
-            return { data: [], error: null }
+            return { data: [], error: null, count: 0 }
           }
-          
-          return result
+
+          // Ensure the return type matches what executeQuery expects
+          return {
+            data: result.data,
+            error: result.error,
+            count: result.count !== null ? result.count : undefined
+          }
         } catch (error) {
           // Return empty array instead of error for new platforms with no listings
-          return { data: [], error: null }
+          return { data: [], error: null, count: 0 }
         }
       },
       filters
