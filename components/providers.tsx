@@ -3,7 +3,6 @@
 import { AiHelpDrawer } from "@/components/ai-help-drawer"
 import { ReactQueryProvider } from "@/lib/react-query"
 import { ThemeProvider } from "@/lib/theme/theme-context"
-import { NotificationProvider } from "@/components/notifications/notification-provider"
 import { NavigationLoadingProvider } from "@/components/navigation-loading-provider"
 import { AuthProvider, useAuth } from "@/contexts/auth-context"
 import { usePathname } from "next/navigation"
@@ -31,10 +30,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         <ReactQueryProvider>
           <NavigationLoadingProvider>
-            <NotificationProvider>
-              {children}
-              <AiHelpWrapper />
-            </NotificationProvider>
+            {children}
+            <AiHelpWrapper />
           </NavigationLoadingProvider>
         </ReactQueryProvider>
       </AuthProvider>
