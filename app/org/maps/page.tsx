@@ -60,15 +60,7 @@ export default async function OrgMapsPage() {
       position: coordinates,
       details: {
         ...coach,
-        experience_level: coach.experience_level,
-        years_experience: coach.years_experience,
-        specializations: coach.specializations,
-        certifications: coach.certifications,
-        primary_suburb: coach.primary_suburb,
-        service_radius_km: coach.service_radius_km || 20,
-        availability: coach.availability,
-        desired_pay_min: coach.desired_pay_min,
-        desired_pay_max: coach.desired_pay_max
+        service_radius_km: coach.service_radius_km || 20
       }
     }
   }) || []
