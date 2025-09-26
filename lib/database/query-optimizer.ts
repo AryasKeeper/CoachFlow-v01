@@ -174,17 +174,54 @@ export class QueryOptimizer {
     return this.executeQuery(
       'search_coaches',
       async () => {
-        // Use the optimized database function
-        const { data, error } = await supabase.rpc('search_coaches', {
-          search_suburbs: filters.suburbs || null,
-          search_specialties: filters.specialties || null,
-          min_rating: filters.minRating || null,
-          max_hourly_rate: filters.maxHourlyRate || null,
-          limit_count: filters.limit || 20,
-          offset_count: filters.offset || 0
-        })
-        
-        return { data, error }
+        try {
+          // Build query for coach profiles
+          let query = supabase
+            .from('coach_profiles')
+            .select('*')
+
+          // Apply filters
+          if (filters.suburbs && filters.suburbs.length > 0) {
+            // Filter by suburbs - check if any of the coach's suburbs match
+            query = query.overlaps('suburbs', filters.suburbs)
+          }
+
+          if (filters.specialties && filters.specialties.length > 0) {
+            query = query.overlaps('specialties', filters.specialties)
+          }
+
+          if (filters.minRating) {
+            query = query.gte('rating_avg', filters.minRating)
+          }
+
+          if (filters.maxHourlyRate) {
+            query = query.lte('rate_hourly', filters.maxHourlyRate)
+          }
+
+          // Order by rating and recency
+          query = query.order('rating_avg', { ascending: false, nullsFirst: false })
+          query = query.order('created_at', { ascending: false })
+
+          // Apply pagination
+          if (filters.limit) {
+            query = query.limit(filters.limit)
+          }
+
+          if (filters.offset) {
+            query = query.range(filters.offset, (filters.offset + (filters.limit || 20)) - 1)
+          }
+
+          const result = await query
+
+          // Ensure the return type matches what executeQuery expects
+          return {
+            data: result.data,
+            error: result.error,
+            count: result.count !== null ? result.count : undefined
+          }
+        } catch (error) {
+          return { data: [], error: null, count: 0 }
+        }
       },
       filters
     )
