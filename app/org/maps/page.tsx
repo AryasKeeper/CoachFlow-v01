@@ -66,13 +66,9 @@ export default async function OrgMapsPage() {
   }) || []
 
   // Calculate stats
-  const experienceLevels = coaches?.reduce((acc, coach) => {
-    const level = coach.experience_level || 'unknown'
-    acc[level] = (acc[level] || 0) + 1
-    return acc
-  }, {} as Record<string, number>) || {}
-
-  const certifiedCoaches = coaches?.filter(c => c.certifications && c.certifications.length > 0).length || 0
+  const totalCoaches = coaches?.length || 0
+  const verifiedCoaches = coaches?.filter(c => c.wwcc_number).length || 0
+  const insuredCoaches = coaches?.filter(c => c.insurance_url).length || 0
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -103,8 +99,8 @@ export default async function OrgMapsPage() {
               <Award className="w-5 h-5 text-green-500" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{certifiedCoaches}</p>
-              <p className="text-sm text-muted-foreground">Certified Coaches</p>
+              <p className="text-2xl font-bold">{verifiedCoaches}</p>
+              <p className="text-sm text-muted-foreground">Verified Coaches</p>
             </div>
           </div>
         </GlassCard>
@@ -116,9 +112,9 @@ export default async function OrgMapsPage() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {experienceLevels['expert'] || 0}
+                {insuredCoaches}
               </p>
-              <p className="text-sm text-muted-foreground">Expert Coaches</p>
+              <p className="text-sm text-muted-foreground">Insured Coaches</p>
             </div>
           </div>
         </GlassCard>
