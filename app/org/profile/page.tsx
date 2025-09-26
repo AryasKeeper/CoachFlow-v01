@@ -246,7 +246,7 @@ export default async function OrgProfileViewPage() {
             {org?.city ? '✓' : '○'} Location Details
           </div>
           <div className="flex items-center gap-2">
-            {org?.facility_features?.length > 0 ? '✓' : '○'} Facility Features
+            {org?.facility_features && org.facility_features.length > 0 ? '✓' : '○'} Facility Features
           </div>
         </div>
         {!hasCompleteProfile && (
