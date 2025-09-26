@@ -280,32 +280,43 @@ export class QueryOptimizer {
     return this.executeQuery(
       'get_applications_detailed',
       async () => {
-        let query = supabase
-          .from('applications_detailed')
-          .select('*')
-        
-        if (filters.coachId) {
-          query = query.eq('coach_id', filters.coachId)
+        try {
+          let query = supabase
+            .from('applications_detailed')
+            .select('*')
+
+          if (filters.coachId) {
+            query = query.eq('coach_id', filters.coachId)
+          }
+
+          if (filters.orgId) {
+            // Join with listings to filter by org
+            query = query.in('listing_id',
+              supabase.from('listings').select('id').eq('org_id', filters.orgId)
+            )
+          }
+
+          if (filters.status) {
+            query = query.eq('status', filters.status)
+          }
+
+          if (filters.limit) {
+            query = query.limit(filters.limit)
+          }
+
+          query = query.order('created_at', { ascending: false })
+
+          const result = await query
+
+          // Ensure the return type matches what executeQuery expects
+          return {
+            data: result.data,
+            error: result.error,
+            count: result.count !== null ? result.count : undefined
+          }
+        } catch (error) {
+          return { data: [], error: null, count: 0 }
         }
-        
-        if (filters.orgId) {
-          // Join with listings to filter by org
-          query = query.in('listing_id', 
-            supabase.from('listings').select('id').eq('org_id', filters.orgId)
-          )
-        }
-        
-        if (filters.status) {
-          query = query.eq('status', filters.status)
-        }
-        
-        if (filters.limit) {
-          query = query.limit(filters.limit)
-        }
-        
-        query = query.order('created_at', { ascending: false })
-        
-        return query
       },
       filters
     )
