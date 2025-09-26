@@ -8,10 +8,10 @@ import {
   Activity, 
   AlertTriangle, 
   CheckCircle, 
-  Clock, 
-  Database, 
+  Clock,
+  Database,
   Gauge,
-  Memory,
+  HardDrive,
   RefreshCw,
   TrendingUp,
   Zap
@@ -217,7 +217,7 @@ export function DevDashboard() {
               </div>
               {performance.memoryUsage && (
                 <div className="flex items-center gap-1">
-                  <Memory className="w-3 h-3 text-purple-400" />
+                  <HardDrive className="w-3 h-3 text-purple-400" />
                   <span>Mem: {performance.memoryUsage}MB</span>
                 </div>
               )}
