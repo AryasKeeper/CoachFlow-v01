@@ -25,7 +25,7 @@ export function NavigationLoadingProvider({ children }: { children: React.ReactN
   const [isNavigating, setIsNavigating] = useState(false)
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const navigationTimeoutRef = useRef<NodeJS.Timeout>()
+  const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const loadingStartTimeRef = useRef<number>(0)
 
   // Clear loading state when pathname actually changes (navigation complete)
