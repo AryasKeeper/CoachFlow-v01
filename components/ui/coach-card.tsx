@@ -29,17 +29,17 @@ export function CoachCard({ coach, onClick, className }: CoachCardProps) {
   const badges = [
     {
       label: "WWCC",
-      status: coach.wwcc_number ? "verified" : "not-provided"
+      status: coach.wwcc_number ? "verified" as "verified" | "not-provided" : "not-provided" as "verified" | "not-provided"
     },
     {
       label: "Insurance",
-      status: coach.insurance_url ? "verified" : "not-provided"
+      status: coach.insurance_url ? "verified" as "verified" | "not-provided" : "not-provided" as "verified" | "not-provided"
     },
     {
       label: "First Aid",
-      status: coach.first_aid_url ? "verified" : "not-provided"
+      status: coach.first_aid_url ? "verified" as "verified" | "not-provided" : "not-provided" as "verified" | "not-provided"
     },
-  ] as const
+  ]
   
   const formatRate = () => {
     if (coach.rate_hourly && coach.rate_flat) {
