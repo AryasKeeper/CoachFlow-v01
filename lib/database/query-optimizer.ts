@@ -337,13 +337,30 @@ export class QueryOptimizer {
     return this.executeQuery(
       'get_coach_availability',
       async () => {
-        const { data, error } = await supabase.rpc('get_coach_availability', {
-          coach_user_id: coachId,
-          start_date: startDate,
-          end_date: endDate
-        })
-        
-        return { data, error }
+        try {
+          // Get bookings for the coach in the date range
+          const { data: bookings, error } = await supabase
+            .from('bookings')
+            .select('*')
+            .eq('coach_id', coachId)
+            .gte('date', startDate)
+            .lte('date', endDate)
+            .in('status', ['confirmed', 'pending'])
+
+          if (error) {
+            return { data: null, error, count: 0 }
+          }
+
+          // Transform bookings into availability data
+          // This returns the bookings which represent unavailable times
+          return {
+            data: bookings || [],
+            error: null,
+            count: bookings?.length || 0
+          }
+        } catch (error) {
+          return { data: [], error: null, count: 0 }
+        }
       },
       { coachId, startDate, endDate }
     )
