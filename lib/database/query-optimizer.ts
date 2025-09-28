@@ -367,37 +367,40 @@ export class QueryOptimizer {
   }
 
   // Database maintenance functions
-  async analyzeTablePerformance() {
-    const supabase = await createServerSupabaseClient()
-    
-    return this.executeQuery(
-      'analyze_table_performance',
-      async () => {
-        const { data, error } = await supabase
-          .from('table_performance_stats')
-          .select('*')
-          .order('tablename')
-        
-        return { data, error }
-      }
-    )
-  }
+  // Note: These functions require system views that may not be available in Supabase
+  // Commenting out for now as they're not critical for app functionality
 
-  async getSlowQueries() {
-    const supabase = await createServerSupabaseClient()
-    
-    return this.executeQuery(
-      'get_slow_queries',
-      async () => {
-        const { data, error } = await supabase
-          .from('slow_queries')
-          .select('*')
-          .limit(10)
-        
-        return { data, error }
-      }
-    )
-  }
+  // async analyzeTablePerformance() {
+  //   const supabase = await createServerSupabaseClient()
+  //
+  //   return this.executeQuery(
+  //     'analyze_table_performance',
+  //     async () => {
+  //       const { data, error } = await supabase
+  //         .from('table_performance_stats')
+  //         .select('*')
+  //         .order('tablename')
+  //
+  //       return { data, error }
+  //     }
+  //   )
+  // }
+
+  // async getSlowQueries() {
+  //   const supabase = await createServerSupabaseClient()
+  //
+  //   return this.executeQuery(
+  //     'get_slow_queries',
+  //     async () => {
+  //       const { data, error } = await supabase
+  //         .from('slow_queries')
+  //         .select('*')
+  //         .limit(10)
+  //
+  //       return { data, error }
+  //     }
+  //   )
+  // }
 
   // Query optimization helpers
   private recordQueryMetrics(metrics: QueryMetrics) {
