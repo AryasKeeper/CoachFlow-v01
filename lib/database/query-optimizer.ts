@@ -282,7 +282,7 @@ export class QueryOptimizer {
       async () => {
         try {
           let query = supabase
-            .from('applications_detailed')
+            .from('applications')
             .select('*')
 
           if (filters.coachId) {
