@@ -10,15 +10,16 @@ async function dbStatsHandler(req: NextRequest) {
   const stats = queryOptimizer.getQueryStats(30) // Last 30 minutes
   
   // Get additional database performance data
-  const [tableStats, slowQueries] = await Promise.all([
-    queryOptimizer.analyzeTablePerformance().catch(() => ({ data: [], error: 'Permission denied' })),
-    queryOptimizer.getSlowQueries().catch(() => ({ data: [], error: 'Permission denied' }))
-  ])
-  
+  // Note: These functions are not available in Supabase, returning empty arrays
+  // const [tableStats, slowQueries] = await Promise.all([
+  //   queryOptimizer.analyzeTablePerformance().catch(() => ({ data: [], error: 'Permission denied' })),
+  //   queryOptimizer.getSlowQueries().catch(() => ({ data: [], error: 'Permission denied' }))
+  // ])
+
   return NextResponse.json({
     queryStats: stats,
-    tablePerformance: tableStats.data || [],
-    slowQueries: slowQueries.data || [],
+    tablePerformance: [], // tableStats.data || [],
+    slowQueries: [], // slowQueries.data || [],
     timestamp: new Date().toISOString()
   })
 }
