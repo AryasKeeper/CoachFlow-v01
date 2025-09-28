@@ -290,10 +290,19 @@ export class QueryOptimizer {
           }
 
           if (filters.orgId) {
-            // Join with listings to filter by org
-            query = query.in('listing_id',
-              supabase.from('listings').select('id').eq('org_id', filters.orgId)
-            )
+            // First get listing IDs for this org
+            const { data: listings } = await supabase
+              .from('listings')
+              .select('id')
+              .eq('org_id', filters.orgId)
+
+            if (listings && listings.length > 0) {
+              const listingIds = listings.map(l => l.id)
+              query = query.in('listing_id', listingIds)
+            } else {
+              // No listings found for this org, return empty result
+              return { data: [], error: null, count: 0 }
+            }
           }
 
           if (filters.status) {
