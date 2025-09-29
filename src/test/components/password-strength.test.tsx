@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import { screen } from '@testing-library/dom'
 import { PasswordStrength } from '@/components/ui/password-strength'
 import { describe, it, expect } from 'vitest'
 

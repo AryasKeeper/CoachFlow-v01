@@ -129,17 +129,12 @@ export function parseMarkdown(text: string): React.ReactNode {
       // Unordered list item
       if (listType !== 'ul') {
         // Flush current list if type changes
-        if (currentList.length > 0) {
+        if (currentList.length > 0 && listType !== null) {
+          // At this point, listType can only be 'ol' since we checked !== 'ul' and !== null
           elements.push(
-            listType === 'ol' ? (
-              <ol key={`list-${elements.length}`} className="list-decimal list-inside space-y-1 my-2">
-                {currentList}
-              </ol>
-            ) : (
-              <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1 my-2">
-                {currentList}
-              </ul>
-            )
+            <ol key={`list-${elements.length}`} className="list-decimal list-inside space-y-1 my-2">
+              {currentList}
+            </ol>
           )
           currentList = []
         }
@@ -154,17 +149,12 @@ export function parseMarkdown(text: string): React.ReactNode {
       // Ordered list item
       if (listType !== 'ol') {
         // Flush current list if type changes
-        if (currentList.length > 0) {
+        if (currentList.length > 0 && listType !== null) {
+          // At this point, listType can only be 'ul' since we checked !== 'ol' and !== null
           elements.push(
-            listType === 'ol' ? (
-              <ol key={`list-${elements.length}`} className="list-decimal list-inside space-y-1 my-2">
-                {currentList}
-              </ol>
-            ) : (
-              <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1 my-2">
-                {currentList}
-              </ul>
-            )
+            <ul key={`list-${elements.length}`} className="list-disc list-inside space-y-1 my-2">
+              {currentList}
+            </ul>
           )
           currentList = []
         }

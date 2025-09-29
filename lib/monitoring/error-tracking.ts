@@ -55,10 +55,11 @@ class ErrorTracker {
         dsn: process.env.SENTRY_DSN,
         environment: process.env.NODE_ENV,
         tracesSampleRate: 0.1,
-        beforeSend: (event) => this.enrichErrorEvent(event),
+        beforeSend: (event, hint) => this.enrichErrorEvent(event as Sentry.ErrorEvent) as Sentry.ErrorEvent | null,
         beforeSendTransaction: (transaction) => {
           // Filter out health check transactions to reduce noise
-          if (transaction.name?.includes('/api/health')) {
+          const transactionName = (transaction as any).transaction || (transaction as any).name
+          if (transactionName?.includes('/api/health')) {
             return null
           }
           return transaction
@@ -85,8 +86,11 @@ class ErrorTracker {
     const enhancedContext: ErrorContext = {
       ...context,
       timestamp: new Date(),
-      severity: detectedSeverity,
-      route: context.route || (typeof window !== 'undefined' ? window.location.pathname : undefined)
+      route: context.route || (typeof window !== 'undefined' ? window.location.pathname : undefined),
+      additionalData: {
+        ...context.additionalData,
+        severity: detectedSeverity
+      }
     }
 
     // Track in Sentry (production)
@@ -94,7 +98,7 @@ class ErrorTracker {
       Sentry.withScope(scope => {
         scope.setLevel(this.mapSeverityToSentryLevel(detectedSeverity))
         scope.setTag('severity', detectedSeverity)
-        scope.setContext('error_context', enhancedContext)
+        scope.setContext('error_context', enhancedContext as Record<string, any>)
         
         if (context.userId) {
           scope.setUser({ id: context.userId, role: context.userRole })
@@ -134,7 +138,7 @@ class ErrorTracker {
     if (duration > 5000) { // 5 second threshold
       this.trackError(
         `Performance issue: ${operation} took ${duration}ms`,
-        { ...context, performanceData: { operation, duration } },
+        { ...context, additionalData: { ...context.additionalData, performanceData: { operation, duration } } },
         'medium'
       )
     }
@@ -160,7 +164,7 @@ class ErrorTracker {
   ) {
     this.trackError(
       `Business logic violation: ${operation}`,
-      { ...context, businessLogicData: details },
+      { ...context, additionalData: { ...context.additionalData, businessLogicData: details } },
       'high'
     )
   }
@@ -175,7 +179,7 @@ class ErrorTracker {
   ) {
     this.trackError(
       `Security event: ${eventType}`,
-      { ...context, securityData: details },
+      { ...context, additionalData: { ...context.additionalData, securityData: details } },
       'critical'
     )
 
@@ -214,7 +218,7 @@ class ErrorTracker {
   ) {
     this.trackError(
       error,
-      { ...context, databaseQuery: query },
+      { ...context, additionalData: { ...context.additionalData, databaseQuery: query } },
       'high'
     )
   }
@@ -445,7 +449,9 @@ export function withErrorTracking<T>(
         error as Error,
         { 
           route: req.url,
-          method: req.method,
+          additionalData: {
+            method: req.method
+          },
           userAgent: req.headers.get('user-agent') || undefined
         },
         'high'

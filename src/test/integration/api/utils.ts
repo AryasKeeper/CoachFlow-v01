@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import { expect } from 'vitest'
 
 /**
  * Utility functions for API integration testing
@@ -27,7 +28,11 @@ export const createMockRequest = (
     requestInit.body = typeof body === 'string' ? body : JSON.stringify(body)
   }
 
-  const request = new NextRequest(url, requestInit)
+  // Ensure signal is not null for NextRequest compatibility
+  if (requestInit.signal === null) {
+    delete requestInit.signal
+  }
+  const request = new NextRequest(url, requestInit as any)
   
   // Add user context to request if provided
   if (userId) {

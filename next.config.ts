@@ -94,6 +94,7 @@ const nextConfig: NextConfig = {
         has: [
           {
             type: 'host',
+            key: 'host',
             value: 'www.coachflow.com',
           },
         ],
@@ -278,7 +279,7 @@ export default withSentryConfig(nextConfig, {
   tunnelRoute: "/monitoring",
 
   // Hides source maps from generated client bundles
-  hideSourceMaps: true,
+  // hideSourceMaps: true, // Deprecated - use sourcemaps config instead
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,

@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom'
 import { expect, afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
+import * as domTestingLibrary from '@testing-library/dom'
+
+// Re-export screen for backwards compatibility
+export const screen = domTestingLibrary.screen
 
 // Cleanup after each test case (e.g. clearing jsdom)
 afterEach(() => {

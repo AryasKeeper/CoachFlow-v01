@@ -16,7 +16,8 @@
       "Bash(curl:*)",
       "Bash(npx supabase db reset:*)",
       "Bash(git commit:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Read(//c/Users/jonah/Desktop/Coach Flow/**)"
     ],
     "deny": [],
     "ask": []

@@ -30,30 +30,30 @@ export async function fetchDashboardData(
   role: 'coach' | 'org'
 ) {
   if (role === 'coach') {
-    // Run all queries in parallel
+    // Run all queries in parallel - wrap in Promise.resolve() to ensure they're proper Promises
     const results = await parallelQueries({
-      profile: supabase
+      profile: Promise.resolve(supabase
         .from('coach_profiles')
         .select('*')
         .eq('user_id', userId)
-        .single(),
+        .single()),
 
-      applicationsCount: supabase
+      applicationsCount: Promise.resolve(supabase
         .from('applications')
         .select('*', { count: 'exact', head: true })
-        .eq('coach_id', userId),
+        .eq('coach_id', userId)),
 
-      bookingsCount: supabase
+      bookingsCount: Promise.resolve(supabase
         .from('bookings')
         .select('*', { count: 'exact', head: true })
-        .eq('coach_id', userId),
+        .eq('coach_id', userId)),
 
-      availableListings: supabase
+      availableListings: Promise.resolve(supabase
         .from('listings')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'active'),
+        .eq('status', 'active')),
 
-      recentApplications: supabase
+      recentApplications: Promise.resolve(supabase
         .from('applications')
         .select(`
           *,
@@ -69,9 +69,9 @@ export async function fetchDashboardData(
         `)
         .eq('coach_id', userId)
         .order('created_at', { ascending: false })
-        .limit(3),
+        .limit(3)),
 
-      upcomingBookings: supabase
+      upcomingBookings: Promise.resolve(supabase
         .from('bookings')
         .select(`
           *,
@@ -88,7 +88,7 @@ export async function fetchDashboardData(
         .eq('coach_id', userId)
         .gte('date', new Date().toISOString())
         .order('date', { ascending: true })
-        .limit(5)
+        .limit(5))
     })
 
     return {
@@ -105,19 +105,19 @@ export async function fetchDashboardData(
 
   // Organization dashboard data
   const results = await parallelQueries({
-    profile: supabase
+    profile: Promise.resolve(supabase
       .from('org_profiles')
       .select('*')
       .eq('user_id', userId)
-      .single(),
+      .single()),
 
-    activeListings: supabase
+    activeListings: Promise.resolve(supabase
       .from('listings')
       .select('*', { count: 'exact', head: true })
       .eq('org_id', userId)
-      .eq('status', 'active'),
+      .eq('status', 'active')),
 
-    totalApplications: supabase
+    totalApplications: Promise.resolve(supabase
       .from('applications')
       .select('id', { count: 'exact', head: true })
       .in('listing_id',
@@ -126,14 +126,14 @@ export async function fetchDashboardData(
           .from('listings')
           .select('id')
           .eq('org_id', userId)).data?.map(l => l.id) || []
-      ),
+      )),
 
-    recentListings: supabase
+    recentListings: Promise.resolve(supabase
       .from('listings')
       .select('*')
       .eq('org_id', userId)
       .order('created_at', { ascending: false })
-      .limit(5)
+      .limit(5))
   })
 
   return {

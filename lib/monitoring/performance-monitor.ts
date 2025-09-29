@@ -2,7 +2,7 @@
  * Performance monitoring and metrics collection for development and production
  */
 
-interface PerformanceMetric {
+export interface PerformanceMetric {
   name: string
   value: number
   unit: 'ms' | 'mb' | 'count' | 'percent'
@@ -11,7 +11,7 @@ interface PerformanceMetric {
   tags?: Record<string, string>
 }
 
-interface ApiPerformanceData {
+export interface ApiPerformanceData {
   route: string
   method: string
   duration: number

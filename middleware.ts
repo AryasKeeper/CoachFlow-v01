@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // PERFORMANCE OPTIMIZATION: Skip heavy middleware in development
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV !== 'production') {
     // Apply minimal security headers to the auth result
     authResult.headers.set('X-Content-Type-Options', 'nosniff')
     authResult.headers.set('X-Frame-Options', 'DENY')
@@ -69,7 +69,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // 2. Apply security headers to the auth result (less strict in development)
-    const config = process.env.NODE_ENV === 'development'
+    const config = process.env.NODE_ENV !== 'production'
       ? { ...productionSecurityConfig, csp: { enabled: false } }
       : productionSecurityConfig
 
