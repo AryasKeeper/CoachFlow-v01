@@ -1,0 +1,47 @@
+{
+  "typescript": {
+    "components/navigation.test.tsx": [
+      {
+        "line": 11,
+        "column": 18,
+        "rule": "TS2339",
+        "message": "Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'."
+      },
+      {
+        "line": 20,
+        "column": 28,
+        "rule": "TS2339",
+        "message": "Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'."
+      },
+      {
+        "line": 21,
+        "column": 25,
+        "rule": "TS2339",
+        "message": "Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'."
+      },
+      {
+        "line": 30,
+        "column": 26,
+        "rule": "TS2339",
+        "message": "Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'."
+      },
+      {
+        "line": 31,
+        "column": 30,
+        "rule": "TS2339",
+        "message": "Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'."
+      }
+    ]
+  },
+  "eslint": {
+    "_note": "ESLint check completed with deprecation warning but no errors found"
+  },
+  "summary": {
+    "typescript_errors": 5,
+    "eslint_errors": 0,
+    "total_files_with_errors": 1,
+    "error_codes": {
+      "TS2339": 5
+    }
+  }
+}

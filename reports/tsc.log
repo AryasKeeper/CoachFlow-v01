@@ -1,0 +1,5 @@
+components/navigation.test.tsx(11,18): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+components/navigation.test.tsx(20,28): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+components/navigation.test.tsx(21,25): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+components/navigation.test.tsx(30,26): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+components/navigation.test.tsx(31,30): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
