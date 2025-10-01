@@ -75,14 +75,15 @@ function ListingCardComponent({ listing, onClick, className }: ListingCardProps)
   }
 
   const formatTimeIntervals = () => {
-    if (!listing.time_intervals || listing.time_intervals.length === 0) return "Times TBD"
+    const intervals = listing.time_intervals || []
+    if (!Array.isArray(intervals) || intervals.length === 0) return "Times TBD"
     
-    if (listing.time_intervals.length === 1) {
-      const interval = listing.time_intervals[0]
+    if (intervals.length === 1) {
+      const interval = intervals[0]
       return `${formatTimeDisplay(interval.startTime)} - ${formatTimeDisplay(interval.endTime)}`
     }
     
-    return `${listing.time_intervals.length} time slots`
+    return `${intervals.length} time slots`
   }
 
   const formatSuburbs = () => {
@@ -139,24 +140,27 @@ function ListingCardComponent({ listing, onClick, className }: ListingCardProps)
             <span>{formatPayRange()}</span>
           </div>
           
-          {listing.dates && Array.isArray(listing.dates) && listing.dates.length > 0 && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="w-4 h-4" />
-              <span>
-                {listing.dates.length === 1 
-                  ? (() => {
-                      try {
-                        const date = new Date(listing.dates[0].start_date)
-                        return !isNaN(date.getTime()) ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "Date TBD"
-                      } catch {
-                        return "Date TBD"
-                      }
-                    })()
-                  : `${listing.dates.length} dates`
-                }
-              </span>
-            </div>
-          )}
+          {(() => {
+            const dates = Array.isArray(listing.dates) ? listing.dates : []
+            return dates.length > 0 && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Calendar className="w-4 h-4" />
+                <span>
+                  {dates.length === 1 
+                    ? (() => {
+                        try {
+                          const date = new Date(dates[0].start_date)
+                          return !isNaN(date.getTime()) ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "Date TBD"
+                        } catch {
+                          return "Date TBD"
+                        }
+                      })()
+                    : `${dates.length} dates`
+                  }
+                </span>
+              </div>
+            )
+          })()}
           
           <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="w-4 h-4" />

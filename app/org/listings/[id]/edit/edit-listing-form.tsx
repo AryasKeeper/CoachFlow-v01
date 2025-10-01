@@ -52,12 +52,12 @@ export function EditListingForm({ listing }: EditListingFormProps) {
   })
   
   // Parse existing data
-  const [dates, setDates] = useState<string[]>(listing.dates || [])
+  const [dates, setDates] = useState<string[]>(Array.isArray(listing.dates) ? listing.dates : [])
   const [currentDate, setCurrentDate] = useState("")
   const [timeIntervals, setTimeIntervals] = useState<TimeInterval[]>(
-    listing.time_intervals || []
+    Array.isArray(listing.time_intervals) ? listing.time_intervals : []
   )
-  const [suburbs, setSuburbs] = useState<string[]>(listing.suburbs || [])
+  const [suburbs, setSuburbs] = useState<string[]>(Array.isArray(listing.suburbs) ? listing.suburbs : [])
   const [requiredBadges, setRequiredBadges] = useState<string[]>(
     listing.required_badges || []
   )

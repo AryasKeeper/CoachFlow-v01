@@ -64,7 +64,7 @@ export function OrgProfileForm({ userId, userEmail, initialData }: OrgProfileFor
   })
 
   const [facilityFeatures, setFacilityFeatures] = useState<string[]>(
-    initialData?.facility_features || []
+    Array.isArray(initialData?.facility_features) ? initialData.facility_features : []
   )
 
   const FACILITY_OPTIONS = [

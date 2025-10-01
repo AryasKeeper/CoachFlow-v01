@@ -51,14 +51,15 @@ export function AvailabilitySettings({ user, profile, onChanges }: AvailabilityS
   const [loading, setLoading] = useState(false)
 
   // Initialize from profile or defaults
+  const profileAvailability = profile?.availability as any || {}
   const defaultAvailability = {
     isAvailable: true,
     immediateAvailability: false,
     maxDistance: '25km',
     preferredLocations: profile?.suburbs || ['Sydney CBD', 'North Sydney'],
-    availableDays: profile?.availability?.days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    availableSlots: profile?.availability?.slots || ['Morning (9am-12pm)', 'Afternoon (12pm-3pm)'],
-    minimumNotice: profile?.availability?.minimum_notice || '24 hours'
+    availableDays: profileAvailability?.days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    availableSlots: profileAvailability?.slots || ['Morning (9am-12pm)', 'Afternoon (12pm-3pm)'],
+    minimumNotice: profileAvailability?.minimum_notice || '24 hours'
   }
 
   const [availability, setAvailability] = useState(defaultAvailability)
