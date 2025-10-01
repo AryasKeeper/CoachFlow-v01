@@ -23,10 +23,15 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
 const RATE_LIMIT = 10 // requests per hour
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour in milliseconds
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+// Lazily initialize OpenAI client during request handling to avoid build-time failures
+function createOpenAIClient(): OpenAI {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    // Do not fail at module load; surface a handled error at request time
+    throw createInternalError('AI service not configured', new Error('Missing OPENAI_API_KEY'))
+  }
+  return new OpenAI({ apiKey })
+}
 
 // CoachFlow-specific system prompt
 const getSystemPrompt = (userRole: 'coach' | 'org' | 'admin' = 'coach') => {
@@ -142,6 +147,7 @@ async function chatHandler(req: NextRequest) {
 
   // 5. Generate AI response with GPT-5
   try {
+    const openai = createOpenAIClient()
     const response = await openai.chat.completions.create({
       model: process.env.AI_MODEL || 'gpt-5',
       messages: [
@@ -201,6 +207,7 @@ async function chatHandler(req: NextRequest) {
 
     // Fallback to GPT-4 if GPT-5 fails
     try {
+      const openai = createOpenAIClient()
       const fallbackResponse = await openai.chat.completions.create({
         model: process.env.AI_MODEL_FALLBACK || 'gpt-4o',
         messages: [
