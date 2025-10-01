@@ -15,7 +15,6 @@ import {
   AlertCircle
 } from "lucide-react"
 import { formatDate, formatTime } from "@/lib/date-utils"
-import Link from "next/link"
 
 export default async function OrgBookingsPage() {
   const user = await requireRole('org')
