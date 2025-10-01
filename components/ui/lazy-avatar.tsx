@@ -22,6 +22,9 @@ export function LazyAvatar({
   const [imageLoaded, setImageLoaded] = useState(false)
   const [shouldLoad, setShouldLoad] = useState(priority)
 
+  // Generate unique ID for this avatar instance
+  const avatarId = React.useId()
+
   useEffect(() => {
     if (!priority && !shouldLoad) {
       // Use Intersection Observer for lazy loading
@@ -46,10 +49,7 @@ export function LazyAvatar({
 
       return () => observer.disconnect()
     }
-  }, [priority, shouldLoad])
-
-  // Generate unique ID for this avatar instance
-  const avatarId = React.useId()
+  }, [priority, shouldLoad, avatarId])
 
   return (
     <Avatar 

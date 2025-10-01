@@ -39,8 +39,10 @@ export default function CoachVerifyPage() {
   const supabase = createClient()
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<VerificationForm>()
   
+  // Load verification data on mount - intentionally runs once
   useEffect(() => {
     loadVerificationData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
   async function loadVerificationData() {

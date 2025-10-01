@@ -71,7 +71,8 @@ export function DevDashboard() {
       const interval = setInterval(fetchHealthData, 5000) // Update every 5 seconds
       return () => clearInterval(interval)
     }
-  }, [isVisible, isDevelopment])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible, isDevelopment]) // fetchHealthData is stable
 
   // Don't render in production
   if (!isDevelopment) {

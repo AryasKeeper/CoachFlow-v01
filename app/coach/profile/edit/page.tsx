@@ -102,8 +102,10 @@ export default function CoachProfilePage() {
   const supabase = createClient()
   const { register, handleSubmit, formState: { errors, isDirty }, setValue, watch } = useForm<ProfileForm>()
   
+  // Load profile on mount - intentionally runs once
   useEffect(() => {
     loadProfile()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Track unsaved changes

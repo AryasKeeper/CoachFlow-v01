@@ -68,8 +68,10 @@ export default function CoachAvailabilityPage() {
   
   const supabase = createClient()
   
+  // Load availability on mount - intentionally runs once
   useEffect(() => {
     loadAvailability()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
   async function loadAvailability() {

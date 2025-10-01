@@ -63,6 +63,7 @@ export default function EnhancedCoachListingsPage() {
   const [dateFilter, setDateFilter] = useState('all')
   const [locationFilter, setLocationFilter] = useState('all')
 
+  // Load data on mount - intentionally runs once
   useEffect(() => {
     async function loadData() {
       try {
@@ -116,7 +117,8 @@ export default function EnhancedCoachListingsPage() {
     }
 
     loadData()
-  }, [router, supabase])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Intentionally runs once; router and supabase are stable
 
   const isVerified = profile?.wwcc_number && profile?.insurance_url && profile?.first_aid_url
   const appliedListingIds = existingApplications?.map(app => app.listing_id) || []

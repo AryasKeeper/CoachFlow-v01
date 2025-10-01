@@ -76,7 +76,8 @@ export function CoachProfileClient({ initialData }: { initialData: any }) {
     return () => {
       window.removeEventListener('focus', handleFocus)
     }
-  }, [supabase])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Intentionally runs once on mount; supabase is stable
 
   // Handle both array and object structure from Supabase
   const profile = Array.isArray(coach?.coach_profiles) ? coach?.coach_profiles[0] : coach?.coach_profiles

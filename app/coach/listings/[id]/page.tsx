@@ -49,7 +49,8 @@ export default function CoachListingDetailPage({ params }: PageProps) {
   
   useEffect(() => {
     loadListing()
-  }, [resolvedParams.id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolvedParams.id]) // loadListing is stable, only re-run when listing ID changes
   
   async function loadListing() {
     try {

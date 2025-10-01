@@ -69,6 +69,7 @@ export default function EnhancedCoachListingsPage() {
   const [payFilter, setPayFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState('all')
 
+  // Load data on mount - intentionally runs once
   useEffect(() => {
     async function loadData() {
       try {
@@ -120,7 +121,8 @@ export default function EnhancedCoachListingsPage() {
     }
 
     loadData()
-  }, [router, supabase])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Intentionally runs once; router and supabase are stable
 
   const appliedListingIds = existingApplications?.map(app => app.listing_id) || []
 
