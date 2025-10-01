@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { AiHelpDrawer } from "@/components/ai-help-drawer"
 import { ReactQueryProvider } from "@/lib/react-query"
 import { ThemeProvider } from "@/lib/theme/theme-context"
@@ -29,10 +30,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider>
       <AuthProvider>
         <ReactQueryProvider>
-          <NavigationLoadingProvider>
-            {children}
-            <AiHelpWrapper />
-          </NavigationLoadingProvider>
+          <Suspense fallback={null}>
+            <NavigationLoadingProvider>
+              {children}
+              <AiHelpWrapper />
+            </NavigationLoadingProvider>
+          </Suspense>
         </ReactQueryProvider>
       </AuthProvider>
     </ThemeProvider>
