@@ -42,6 +42,45 @@ git commit -m "Prepare for Vercel deployment"
 git push origin main
 ```
 
+## CI/CD Integration
+
+### GitHub Actions CI Gatekeeper
+The project includes a CI validation workflow that runs on all PRs:
+- ✅ TypeScript type checking
+- ✅ ESLint validation
+- ✅ Build verification
+
+This ensures code quality before merging and deployment.
+
+### Vercel Integration with GitHub CI
+**Important**: Configure Vercel to only deploy when CI passes:
+
+1. **In Vercel Dashboard**:
+   - Go to Project Settings > Git
+   - Enable "Require GitHub Actions to pass before deployment"
+   - Or use Vercel's built-in Checks API integration
+
+2. **Alternative Method** (if option not available):
+   - Vercel will automatically respect GitHub's branch protection rules
+   - Configure branch protection in GitHub:
+     - Go to GitHub repo Settings > Branches
+     - Add branch protection rule for `main`
+     - Enable "Require status checks to pass before merging"
+     - Select "Validate PR" check
+     - Enable "Require branches to be up to date before merging"
+   
+3. **Vercel Deploy Hooks** (for advanced control):
+   ```yaml
+   # Already configured in .github/workflows/validate.yml
+   # Vercel will wait for all GitHub checks to pass
+   ```
+
+### How It Works
+1. Developer creates PR → GitHub Actions runs validation
+2. If validation fails → Vercel deployment is blocked
+3. If validation passes → Vercel can deploy preview
+4. Merge to main → Vercel deploys to production (only if CI passed)
+
 ## Deployment Steps
 
 ### 1. Import to Vercel
@@ -49,7 +88,8 @@ git push origin main
 2. Import your GitHub repository
 3. Select "Next.js" as framework preset
 4. Add environment variables
-5. Deploy!
+5. **Enable GitHub integration for CI checks**
+6. Deploy!
 
 ### 2. Configure Domain (Optional)
 1. Go to Settings > Domains
