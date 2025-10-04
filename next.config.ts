@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { withSentryConfig } from "@sentry/nextjs";
+// import { withSentryConfig } from "@sentry/nextjs"; // Disabled for clean deployment
 
 const isDev = process.env.NODE_ENV === 'development';
 const isProd = process.env.NODE_ENV === 'production';
@@ -234,44 +234,19 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Make sure adding Sentry options is the last code to run before exporting
-export default withSentryConfig(nextConfig, {
-  // For all available options, see:
-  // https://github.com/getsentry/sentry-webpack-plugin#options
+// Sentry disabled for clean deployment - can be re-enabled later
+export default nextConfig;
 
-  org: "origvmi-2c",
-  project: "javascript-nextjs",
-
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
-
-  // For all available options, see:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-  // Sourcemaps configuration - disable in development to avoid file conflicts with Turbopack
-  sourcemaps: {
-    disable: isDev, // Disable sourcemaps in development to prevent ENOENT errors
-    deleteSourcemapsAfterUpload: isProd, // Only delete after upload in production
-  },
-
-  // Upload a larger set of source maps for prettier stack traces (only in production)
-  widenClientFileUpload: isProd,
-
-  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // This can increase your server load as well as your hosting bill.
-  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-  // side errors will fail.
-  tunnelRoute: "/monitoring",
-
-  // Hides source maps from generated client bundles
-  // hideSourceMaps: true, // Deprecated - use sourcemaps config instead
-
-  // Automatically tree-shake Sentry logger statements to reduce bundle size
-  disableLogger: true,
-
-  // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-  // See the following for more information:
-  // https://docs.sentry.io/product/crons/
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-  automaticVercelMonitors: isProd, // Only enable in production
-});
+// export default withSentryConfig(nextConfig, {
+//   org: "origvmi-2c",
+//   project: "javascript-nextjs",
+//   silent: !process.env.CI,
+//   sourcemaps: {
+//     disable: isDev,
+//     deleteSourcemapsAfterUpload: isProd,
+//   },
+//   widenClientFileUpload: isProd,
+//   tunnelRoute: "/monitoring",
+//   disableLogger: true,
+//   automaticVercelMonitors: isProd,
+// });
