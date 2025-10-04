@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
@@ -21,7 +21,7 @@ export function useNavigationLoading() {
   return useContext(NavigationLoadingContext)
 }
 
-export function NavigationLoadingProvider({ children }: { children: React.ReactNode }) {
+function NavigationLoadingLogic({ children }: { children: React.ReactNode }) {
   const [isNavigating, setIsNavigating] = useState(false)
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -98,5 +98,13 @@ export function NavigationLoadingProvider({ children }: { children: React.ReactN
         )}
       </AnimatePresence>
     </NavigationLoadingContext.Provider>
+  )
+}
+
+export function NavigationLoadingProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={null}>
+      <NavigationLoadingLogic>{children}</NavigationLoadingLogic>
+    </Suspense>
   )
 }
