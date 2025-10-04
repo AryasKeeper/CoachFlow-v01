@@ -94,7 +94,6 @@ const nextConfig: NextConfig = {
         has: [
           {
             type: 'host',
-            key: 'host',
             value: 'www.coachflow.com',
           },
         ],
