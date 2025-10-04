@@ -31,23 +31,24 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()'
           },
-          // Content Security Policy - Strict but allows necessary resources
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vercel-insights.com https://va.vercel-scripts.com https://js.stripe.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://js.sentry-cdn.com https://browser.sentry-cdn.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com https://r2cdn.perplexity.ai data:",
-              "img-src 'self' data: https: blob:",
-              "connect-src 'self' https://*.supabase.co https://api.openai.com wss://*.supabase.co https://www.google-analytics.com https://api.mixpanel.com https://o4510000649994240.ingest.us.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com",
-              "frame-src 'none'",
-              "object-src 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-              ...(isProd ? ["upgrade-insecure-requests"] : [])
-            ].join('; ')
-          }
+          // Content Security Policy - Temporarily disabled for deployment
+          // TODO: Re-enable with proper nonce-based CSP for Next.js compatibility
+          // {
+          //   key: 'Content-Security-Policy',
+          //   value: [
+          //     "default-src 'self'",
+          //     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vercel-insights.com https://va.vercel-scripts.com https://js.stripe.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://js.sentry-cdn.com https://browser.sentry-cdn.com",
+          //     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          //     "font-src 'self' https://fonts.gstatic.com https://r2cdn.perplexity.ai data:",
+          //     "img-src 'self' data: https: blob:",
+          //     "connect-src 'self' https://*.supabase.co https://api.openai.com wss://*.supabase.co https://www.google-analytics.com https://api.mixpanel.com https://o4510000649994240.ingest.us.sentry.io https://*.ingest.sentry.io https://vitals.vercel-insights.com",
+          //     "frame-src 'none'",
+          //     "object-src 'none'",
+          //     "base-uri 'self'",
+          //     "form-action 'self'",
+          //     ...(isProd ? ["upgrade-insecure-requests"] : [])
+          //   ].join('; ')
+          // }
         ]
       },
       // Static assets caching
