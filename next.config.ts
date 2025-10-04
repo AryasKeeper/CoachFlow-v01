@@ -93,7 +93,8 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         has: [
           {
-            type: 'host',
+            type: 'host' as const,
+            key: 'host',
             value: 'www.coachflow.com',
           },
         ],
