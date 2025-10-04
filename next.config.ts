@@ -85,25 +85,9 @@ const nextConfig: NextConfig = {
 
   // Redirects for production
   async redirects() {
-    const redirects = [];
-
-    // Redirect www to non-www in production
-    if (isProd) {
-      redirects.push({
-        source: '/:path*',
-        has: [
-          {
-            type: 'host' as const,
-            key: 'host',
-            value: 'www.coachflow.com',
-          },
-        ],
-        destination: 'https://coachflow.com/:path*',
-        permanent: true,
-      });
-    }
-
-    return redirects;
+    // Note: www to non-www redirect removed due to Vercel deployment issues
+    // Can be handled via Vercel dashboard settings instead
+    return [];
   },
 
   // Rewrites for API versioning
