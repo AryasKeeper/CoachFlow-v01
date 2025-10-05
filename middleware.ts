@@ -238,14 +238,20 @@ function handleAdminRoute(
 }
 
 // Configure which paths the middleware should run on
-// SIMPLIFIED: Removed 'missing' clause that caused issues on Vercel Edge Runtime
+// ULTRA SIMPLIFIED: Allowlist approach instead of blocklist to avoid Vercel Edge Runtime issues
 export const config = {
   matcher: [
     /*
-     * Match all paths except Next.js internals and static files
-     * Simplified pattern without header conditions to fix Vercel Edge Runtime issues
+     * Only run on specific paths - explicit allowlist
+     * This avoids any issues with negative lookahead patterns on Vercel Edge
      */
-    '/((?!_next|favicon.ico|sitemap.xml|robots.txt).*)',
-    '/api/:path*'  // Explicitly include API routes
+    '/',
+    '/auth/:path*',
+    '/coach/:path*',
+    '/org/:path*',
+    '/admin/:path*',
+    '/how-it-works',
+    '/pricing',
+    '/api/:path*'
   ]
 }
