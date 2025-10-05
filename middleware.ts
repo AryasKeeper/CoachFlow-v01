@@ -13,11 +13,12 @@ export async function middleware(request: NextRequest) {
 
   // Skip middleware for static files and internal Next.js routes
   if (
-    pathname.startsWith('/_next/static/') ||
-    pathname.startsWith('/_next/image') ||
+    pathname.startsWith('/_next/') ||  // Skip ALL Next.js internal routes
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/sitemap.xml') ||
-    pathname.startsWith('/robots.txt')
+    pathname.startsWith('/robots.txt') ||
+    pathname.includes('/_next/static/') ||  // Ensure all static files are skipped
+    pathname.includes('/_next/data/')  // Skip Next.js data fetching
   ) {
     return NextResponse.next()
   }
