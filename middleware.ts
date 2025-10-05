@@ -11,19 +11,18 @@ import { authProtectionMiddleware } from './lib/middleware/auth-protection'
 export async function middleware(request: NextRequest) {
   const { pathname } = new URL(request.url)
 
-  // Skip middleware for static files and internal Next.js routes
+  // CRITICAL: Skip middleware for Next.js internal routes BEFORE any auth checks
+  // This must run FIRST to prevent 401 errors on chunk files
   if (
-    pathname.startsWith('/_next/') ||  // Skip ALL Next.js internal routes
+    pathname.startsWith('/_next/') ||  // Skip ALL Next.js internal routes (chunks, static, data)
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/sitemap.xml') ||
-    pathname.startsWith('/robots.txt') ||
-    pathname.includes('/_next/static/') ||  // Ensure all static files are skipped
-    pathname.includes('/_next/data/')  // Skip Next.js data fetching
+    pathname.startsWith('/robots.txt')
   ) {
     return NextResponse.next()
   }
 
-  // Check authentication for protected routes FIRST (both dev and prod)
+  // Check authentication for protected routes (after skip checks)
   const authResult = await authProtectionMiddleware(request)
 
   // If auth middleware returned a redirect, use it immediately
@@ -239,26 +238,14 @@ function handleAdminRoute(
 }
 
 // Configure which paths the middleware should run on
+// SIMPLIFIED: Removed 'missing' clause that caused issues on Vercel Edge Runtime
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * Match all paths except Next.js internals and static files
+     * Simplified pattern without header conditions to fix Vercel Edge Runtime issues
      */
-    {
-      source: '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
-      missing: [
-        { type: 'header', key: 'next-router-prefetch' },
-        { type: 'header', key: 'purpose', value: 'prefetch' }
-      ]
-    },
-    
-    // Include API routes for rate limiting and security
-    {
-      source: '/api/:path*'
-    }
+    '/((?!_next|favicon.ico|sitemap.xml|robots.txt).*)',
+    '/api/:path*'  // Explicitly include API routes
   ]
 }
