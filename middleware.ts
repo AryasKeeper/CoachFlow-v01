@@ -68,10 +68,11 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // 2. Apply security headers to the auth result (less strict in development)
-    const config = process.env.NODE_ENV !== 'production'
-      ? { ...productionSecurityConfig, csp: { enabled: false } }
-      : productionSecurityConfig
+    // 2. Apply security headers to the auth result (CSP disabled for deployment)
+    const config = {
+      ...productionSecurityConfig,
+      csp: { enabled: false }  // Disabled to allow Next.js inline scripts
+    }
 
     // Apply security headers to the auth result response
     let response = authResult
@@ -179,16 +180,17 @@ function handleAuthRoute(
   response: NextResponse, 
   pathname: string
 ): NextResponse {
-  // Strict CSP for auth pages
-  response.headers.set('Content-Security-Policy', 
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' https://cdn.vercel-insights.com; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "img-src 'self' data:; " +
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co; " +
-    "form-action 'self'"
-  )
+  // CSP disabled for auth pages to allow Next.js inline scripts
+  // TODO: Re-enable with nonce-based CSP for better security
+  // response.headers.set('Content-Security-Policy',
+  //   "default-src 'self'; " +
+  //   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.vercel-insights.com https://va.vercel-scripts.com; " +
+  //   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+  //   "font-src 'self' https://fonts.gstatic.com; " +
+  //   "img-src 'self' data:; " +
+  //   "connect-src 'self' https://*.supabase.co wss://*.supabase.co; " +
+  //   "form-action 'self'"
+  // )
   
   // Prevent caching of auth pages and API responses
   response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
