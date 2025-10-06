@@ -14,13 +14,18 @@ export async function middleware(request: NextRequest) {
   // CRITICAL: Skip middleware for Next.js internal routes BEFORE any auth checks
   // This must run FIRST to prevent 401 errors on chunk files
   if (
-    pathname.startsWith('/_next/') ||  // Skip ALL Next.js internal routes (chunks, static, data)
+    pathname.startsWith('/_next/') ||     // Skip ALL Next.js internal routes
+    pathname.includes('/_next/') ||       // Also check if _next appears anywhere in path
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/sitemap.xml') ||
-    pathname.startsWith('/robots.txt')
+    pathname.startsWith('/robots.txt') ||
+    pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/) // Skip all static assets
   ) {
+    console.log(`[MIDDLEWARE] Skipping static asset: ${pathname}`)
     return NextResponse.next()
   }
+
+  console.log(`[MIDDLEWARE] Processing request: ${pathname}`)
 
   // Check authentication for protected routes (after skip checks)
   const authResult = await authProtectionMiddleware(request)
