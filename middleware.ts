@@ -201,11 +201,15 @@ function handleAuthRoute(
   response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
   response.headers.set('Pragma', 'no-cache')
   response.headers.set('Expires', '0')
-  
+
   // Additional auth security headers
   response.headers.set('X-Permitted-Cross-Domain-Policies', 'none')
-  response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"')
-  
+
+  // CRITICAL FIX: Clear-Site-Data header removed - it was clearing browser cache/cookies/storage
+  // which prevented Next.js from loading JavaScript chunks, causing ChunkLoadError
+  // This header should only be used on logout, not on every auth page visit
+  // response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"')
+
   return response
 }
 
